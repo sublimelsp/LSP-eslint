@@ -26,6 +26,8 @@ class LspVuePlugin(LanguageHandler):
     @property
     def config(self) -> ClientConfig:
         settings = sublime.load_settings("LSP-eslint.sublime-settings")
+        scopes = settings.get('scopes', [])
+        syntaxes = settings.get('syntaxes', [])
         return ClientConfig(
             name='lsp-eslint',
             binary_args=[
@@ -41,14 +43,8 @@ class LspVuePlugin(LanguageHandler):
             languages=[
                 LanguageConfig(
                     'eslint',
-                    [
-                        'source.js',
-                        'text.html.vue',
-                    ],
-                    [
-                        'Packages/JavaScript/JavaScript.sublime-syntax',
-                        "Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
-                    ]
+                    scopes,
+                    syntaxes,
                 )
             ]
         )

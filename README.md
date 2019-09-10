@@ -13,5 +13,13 @@ The default configuration is this:
 
 ```json
 {
+    "scopes": [
+        "source.js",
+        "text.html.vue",
+    ],
+    "syntaxes": [
+        "Packages/JavaScript/JavaScript.sublime-syntax",
+        "Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
+    ],
 }
 ```
