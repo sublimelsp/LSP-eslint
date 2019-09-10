@@ -1,0 +1,15 @@
+{
+  "name": "lsp-eslint",
+  "version": "1.0.0",
+  "description": "Eslint support for Sublime LSP",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sublimelsp/LSP-eslint.git"
+  },
+  "author": "Rafal Chlodnicki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sublimelsp/LSP-eslint/issues"
+  },
+  "homepage": "https://github.com/sublimelsp/LSP-eslint#readme"
+}
