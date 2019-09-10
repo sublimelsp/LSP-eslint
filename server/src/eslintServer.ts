@@ -422,13 +422,36 @@ function globalPathGet(packageManager: PackageManagers): string {
 let path2Library: Map<string, ESLintModule> = new Map<string, ESLintModule>();
 let document2Settings: Map<string, Thenable<TextDocumentSettings>> = new Map<string, Thenable<TextDocumentSettings>>();
 
+function getConfiguration(): Thenable<any> {
+	return Promise.resolve({
+		validate: true,
+		packageManager: 'npm',
+		autoFix: true,
+		autoFixOnSave: true,
+		options: {},
+		run: 'onType',
+		nodePath: null,
+		quiet: false,
+		workspaceFolder: undefined,
+		codeAction: {
+			disableRuleComment: {
+				enable: true,
+				location: 'separateLine'
+			},
+			showDocumentation: {
+				enable: true
+			}
+		}
+	});
+}
+
 function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings> {
 	let uri = document.uri;
 	let resultPromise = document2Settings.get(uri);
 	if (resultPromise) {
 		return resultPromise;
 	}
-	resultPromise = connection.workspace.getConfiguration({ scopeUri: uri, section: '' }).then((settings: TextDocumentSettings) => {
+	resultPromise = /*connection.workspace.*/getConfiguration(/*{ scopeUri: uri, section: '' }*/).then((settings: TextDocumentSettings) => {
 		settings.resolvedGlobalPackageManagerPath = globalPathGet(settings.packageManager);
 		let uri = URI.parse(document.uri);
 		let promise: Thenable<string>;
