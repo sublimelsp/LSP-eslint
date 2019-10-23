@@ -1,4 +1,4 @@
-# LSP-vue
+# LSP-eslint
 
 Eslint support for Sublime's LSP plugin.
 
