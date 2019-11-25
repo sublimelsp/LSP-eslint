@@ -16,7 +16,7 @@ node_modules_path = os.path.join(vscode_eslint_path, 'node_modules')
 
 def plugin_loaded():
     dependencies_insalled = os.path.isdir(node_modules_path)
-    print('LSP-eslint: Server {} installed.'.format('is' if dependencies_insalled else 'is not' ))
+    print('LSP-eslint: Server {} installed.'.format('is' if dependencies_insalled else 'is not'))
 
     if not dependencies_insalled:
         # this will be called only when the plugin gets:
@@ -59,6 +59,17 @@ def runCommand(onExit, popenArgs):
 
 def is_node_installed():
     return shutil.which('node') is not None
+
+
+def format_state(state: int) -> str:
+    if state == 1:
+        return 'OK'
+    elif state == 2:
+        return 'WARNING'
+    elif state == 3:
+        return 'ERROR'
+    else:
+        return '???'
 
 
 def logAndShowMessage(msg, additional_logs=None):
@@ -121,10 +132,14 @@ class LspEslintPlugin(LanguageHandler):
         return read_client_config('lsp-eslint', default_configuration)
 
     def on_start(self, window) -> bool:
+        self.window = window
         if not is_node_installed():
             sublime.status_message('Please install Node.js for the ESLint Language Server to work.')
             return False
         return True
 
     def on_initialized(self, client) -> None:
-        pass   # extra initialization here.
+        client.on_notification('eslint/status', self.handle_status)
+
+    def handle_status(self, params) -> None:
+        self.window.status_message(format_state(params['state']))
