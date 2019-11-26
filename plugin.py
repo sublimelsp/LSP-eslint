@@ -61,17 +61,6 @@ def is_node_installed():
     return shutil.which('node') is not None
 
 
-def format_state(state: int) -> str:
-    if state == 1:
-        return 'OK'
-    elif state == 2:
-        return 'WARNING'
-    elif state == 3:
-        return 'ERROR'
-    else:
-        return '???'
-
-
 def logAndShowMessage(msg, additional_logs=None):
     print(msg, '\n', additional_logs) if additional_logs else print(msg)
     sublime.active_window().status_message(msg)
@@ -132,7 +121,6 @@ class LspEslintPlugin(LanguageHandler):
         return read_client_config('lsp-eslint', default_configuration)
 
     def on_start(self, window) -> bool:
-        self.window = window
         if not is_node_installed():
             sublime.status_message('Please install Node.js for the ESLint Language Server to work.')
             return False
@@ -142,4 +130,4 @@ class LspEslintPlugin(LanguageHandler):
         client.on_notification('eslint/status', self.handle_status)
 
     def handle_status(self, params) -> None:
-        self.window.status_message(format_state(params['state']))
+        pass
