@@ -16,7 +16,7 @@ node_modules_path = os.path.join(vscode_eslint_path, 'node_modules')
 
 def plugin_loaded():
     dependencies_insalled = os.path.isdir(node_modules_path)
-    print('LSP-eslint: Server {} installed.'.format('is' if dependencies_insalled else 'is not' ))
+    print('LSP-eslint: Server {} installed.'.format('is' if dependencies_insalled else 'is not'))
 
     if not dependencies_insalled:
         # this will be called only when the plugin gets:
@@ -127,4 +127,7 @@ class LspEslintPlugin(LanguageHandler):
         return True
 
     def on_initialized(self, client) -> None:
-        pass   # extra initialization here.
+        client.on_notification('eslint/status', self.handle_status)
+
+    def handle_status(self, params) -> None:
+        pass
