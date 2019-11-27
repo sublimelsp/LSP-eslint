@@ -1,11 +1,14 @@
-import shutil
 import os
+import shutil
 import sublime
-import threading
 import subprocess
+import threading
+import webbrowser
 
 from LSP.plugin.core.handlers import LanguageHandler
-from LSP.plugin.core.settings import ClientConfig, LanguageConfig, read_client_config
+from LSP.plugin.core.protocol import Response
+from LSP.plugin.core.settings import ClientConfig
+from LSP.plugin.core.settings import read_client_config
 
 
 package_path = os.path.dirname(__file__)
@@ -75,6 +78,8 @@ class LspEslintPlugin(LanguageHandler):
     def config(self) -> ClientConfig:
         settings = sublime.load_settings("LSP-eslint.sublime-settings")
         client_configuration = settings.get('client')
+        if client_configuration is None:
+            client_configuration = {}
 
         default_configuration = {
             "command": [
@@ -128,6 +133,13 @@ class LspEslintPlugin(LanguageHandler):
 
     def on_initialized(self, client) -> None:
         client.on_notification('eslint/status', self.handle_status)
+        client.on_request(
+            'eslint/openDoc',
+            lambda params, request_id: self.handle_open_doc(client, params, request_id))
 
     def handle_status(self, params) -> None:
         pass
+
+    def handle_open_doc(self, client, params, request_id) -> None:
+        webbrowser.open(params['url'])
+        client.send_response(Response(request_id, {}))
