@@ -1,6 +1,8 @@
 import os
 import shutil
 import sublime
+import subprocess
+import threading
 import webbrowser
 
 from LSP.plugin.core.handlers import LanguageHandler
@@ -11,14 +13,60 @@ from LSP.plugin.core.settings import read_client_config
 
 package_path = os.path.dirname(__file__)
 server_path = os.path.join(package_path, 'vscode-eslint', 'out', 'eslintServer.js')
+vscode_eslint_path = os.path.join(package_path, 'vscode-eslint')
+node_modules_path = os.path.join(vscode_eslint_path, 'node_modules')
 
 
 def plugin_loaded():
-    print('LSP-eslint: Server is installed.')
+    dependencies_insalled = os.path.isdir(node_modules_path)
+    print('LSP-eslint: Server {} installed.'.format('is' if dependencies_insalled else 'is not'))
+
+    if not dependencies_insalled:
+        # this will be called only when the plugin gets:
+        # - installed for the first time,
+        # - or when updated on package control
+        logAndShowMessage('LSP-eslint: Installing server.')
+
+        runCommand(
+            onCommandDone,
+            ["npm", "install", "--verbose", "--prefix", vscode_eslint_path, vscode_eslint_path]
+        )
+
+
+def onCommandDone():
+    logAndShowMessage('LSP-eslint: Server installed.')
+
+
+def runCommand(onExit, popenArgs):
+    """
+    Runs the given args in a subprocess.Popen, and then calls the function
+    onExit when the subprocess completes.
+    onExit is a callable object, and popenArgs is a list/tuple of args that
+    would give to subprocess.Popen.
+    """
+    def runInThread(onExit, popenArgs):
+        try:
+            if sublime.platform() == 'windows':
+                subprocess.check_call(popenArgs, shell=True)
+            else:
+                subprocess.check_call(popenArgs)
+            onExit()
+        except subprocess.CalledProcessError as error:
+            logAndShowMessage('LSP-eslint: Error while installing the server.', error)
+        return
+    thread = threading.Thread(target=runInThread, args=(onExit, popenArgs))
+    thread.start()
+    # returns immediately after the thread starts
+    return thread
 
 
 def is_node_installed():
     return shutil.which('node') is not None
+
+
+def logAndShowMessage(msg, additional_logs=None):
+    print(msg, '\n', additional_logs) if additional_logs else print(msg)
+    sublime.active_window().status_message(msg)
 
 
 class LspEslintPlugin(LanguageHandler):
