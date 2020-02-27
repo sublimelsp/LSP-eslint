@@ -101,15 +101,14 @@ class LspEslintPlugin(LanguageHandler):
                 }
             ],
             settings: {
-                "validate": True,
+                "validate": "on",
                 "packageManager": "npm",
-                "autoFix": True,
-                "autoFixOnSave": True,
                 "options": {},
                 "run": "onType",
                 "nodePath": None,
+                "format": False,
                 "quiet": False,
-                "workspaceFolder": None,
+                "onIgnoredFiles": "off",
                 "codeAction": {
                     "disableRuleComment": {
                         "enable": True,
@@ -118,6 +117,10 @@ class LspEslintPlugin(LanguageHandler):
                     "showDocumentation": {
                         "enable": True
                     }
+                },
+                "codeActionOnSave": {
+                    "enable": True,
+                    "mode": "all"
                 }
             }
         }

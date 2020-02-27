@@ -1,6 +1,7 @@
 {
-	"extends": "../.eslintrc.base.json",
-	"rules": {
-		"no-console": "error"
-	}
+    "root": true,
+    "extends": "../.eslintrc.base.json",
+    "rules": {
+        "no-console": "error"
+    }
 }

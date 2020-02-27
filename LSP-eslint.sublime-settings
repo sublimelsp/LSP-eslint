@@ -16,15 +16,14 @@
 		],
 		"initializationOptions": {},
 		"settings": {
-			"validate": true,
+			"validate": "on",
 			"packageManager": "npm",
-			"autoFix": true,
-			"autoFixOnSave": true,
 			"options": {},
 			"run": "onType",
 			"nodePath": null,
+			"format": false,
 			"quiet": false,
-			"workspaceFolder": null,
+			"onIgnoredFiles": "off",
 			"codeAction": {
 				"disableRuleComment": {
 					"enable": true,
@@ -33,7 +32,11 @@
 				"showDocumentation": {
 					"enable": true
 				}
-			}
+			},
+			"codeActionOnSave": {
+				"enable": true,
+				"mode": "all"
+			},
 		}
 	}
 }
