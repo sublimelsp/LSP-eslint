@@ -5,11 +5,13 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 const vscode_languageserver_1 = require("vscode-languageserver");
+const vscode_languageserver_textdocument_1 = require("vscode-languageserver-textdocument");
 const vscode_uri_1 = require("vscode-uri");
 const path = require("path");
+const fs = require("fs");
 const child_process_1 = require("child_process");
 const os_1 = require("os");
-const util_1 = require("util");
+const diff_1 = require("./diff");
 var Is;
 (function (Is) {
     const toString = Object.prototype.toString;
@@ -29,9 +31,9 @@ var Is;
 var CommandIds;
 (function (CommandIds) {
     CommandIds.applySingleFix = 'eslint.applySingleFix';
+    CommandIds.applySuggestion = 'eslint.applySuggestion';
     CommandIds.applySameFixes = 'eslint.applySameFixes';
     CommandIds.applyAllFixes = 'eslint.applyAllFixes';
-    CommandIds.applyAutoFix = 'eslint.applyAutoFix';
     CommandIds.applyDisableLine = 'eslint.applyDisableLine';
     CommandIds.applyDisableFile = 'eslint.applyDisableFile';
     CommandIds.openRuleDoc = 'eslint.openRuleDoc';
@@ -58,14 +60,75 @@ var OpenESLintDocRequest;
 (function (OpenESLintDocRequest) {
     OpenESLintDocRequest.type = new vscode_languageserver_1.RequestType('eslint/openDoc');
 })(OpenESLintDocRequest || (OpenESLintDocRequest = {}));
+var ProbleFailedRequest;
+(function (ProbleFailedRequest) {
+    ProbleFailedRequest.type = new vscode_languageserver_1.RequestType('eslint/probleFailed');
+})(ProbleFailedRequest || (ProbleFailedRequest = {}));
+var ModeEnum;
+(function (ModeEnum) {
+    ModeEnum["auto"] = "auto";
+    ModeEnum["location"] = "location";
+})(ModeEnum || (ModeEnum = {}));
+(function (ModeEnum) {
+    function is(value) {
+        return value === ModeEnum.auto || value === ModeEnum.location;
+    }
+    ModeEnum.is = is;
+})(ModeEnum || (ModeEnum = {}));
+var ModeItem;
+(function (ModeItem) {
+    function is(item) {
+        const candidate = item;
+        return candidate && ModeEnum.is(candidate.mode);
+    }
+    ModeItem.is = is;
+})(ModeItem || (ModeItem = {}));
 var DirectoryItem;
 (function (DirectoryItem) {
     function is(item) {
-        let candidate = item;
-        return candidate && Is.string(candidate.directory) && (Is.boolean(candidate.changeProcessCWD) || candidate.changeProcessCWD === undefined);
+        const candidate = item;
+        return candidate && Is.string(candidate.directory) && (Is.boolean(candidate['!cwd']) || candidate['!cwd'] === undefined);
     }
     DirectoryItem.is = is;
 })(DirectoryItem || (DirectoryItem = {}));
+var Validate;
+(function (Validate) {
+    Validate["on"] = "on";
+    Validate["off"] = "off";
+    Validate["probe"] = "probe";
+})(Validate || (Validate = {}));
+var ESLintSeverity;
+(function (ESLintSeverity) {
+    ESLintSeverity["off"] = "off";
+    ESLintSeverity["warn"] = "warn";
+    ESLintSeverity["error"] = "error";
+})(ESLintSeverity || (ESLintSeverity = {}));
+var CodeActionsOnSaveMode;
+(function (CodeActionsOnSaveMode) {
+    CodeActionsOnSaveMode["all"] = "all";
+    CodeActionsOnSaveMode["problems"] = "problems";
+})(CodeActionsOnSaveMode || (CodeActionsOnSaveMode = {}));
+var TextDocumentSettings;
+(function (TextDocumentSettings) {
+    function hasLibrary(settings) {
+        return settings.library !== undefined;
+    }
+    TextDocumentSettings.hasLibrary = hasLibrary;
+})(TextDocumentSettings || (TextDocumentSettings = {}));
+var RuleData;
+(function (RuleData) {
+    function hasMetaType(value) {
+        return value !== undefined && value.meta !== undefined && value.meta.type !== undefined;
+    }
+    RuleData.hasMetaType = hasMetaType;
+})(RuleData || (RuleData = {}));
+var CLIEngine;
+(function (CLIEngine) {
+    function hasRule(value) {
+        return value.getRules !== undefined;
+    }
+    CLIEngine.hasRule = hasRule;
+})(CLIEngine || (CLIEngine = {}));
 function loadNodeModule(moduleName) {
     const r = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
     try {
@@ -77,11 +140,11 @@ function loadNodeModule(moduleName) {
     return undefined;
 }
 function makeDiagnostic(problem) {
-    let message = problem.message;
-    let startLine = Math.max(0, problem.line - 1);
-    let startChar = Math.max(0, problem.column - 1);
-    let endLine = Is.nullOrUndefined(problem.endLine) ? startLine : Math.max(0, problem.endLine - 1);
-    let endChar = Is.nullOrUndefined(problem.endColumn) ? startChar : Math.max(0, problem.endColumn - 1);
+    const message = problem.message;
+    const startLine = Math.max(0, problem.line - 1);
+    const startChar = Math.max(0, problem.column - 1);
+    const endLine = Is.nullOrUndefined(problem.endLine) ? startLine : Math.max(0, problem.endLine - 1);
+    const endChar = Is.nullOrUndefined(problem.endColumn) ? startChar : Math.max(0, problem.endColumn - 1);
     return {
         message: message,
         severity: convertSeverity(problem.severity),
@@ -93,22 +156,47 @@ function makeDiagnostic(problem) {
         code: problem.ruleId
     };
 }
+var Problem;
+(function (Problem) {
+    function isFixable(problem) {
+        return problem.edit !== undefined;
+    }
+    Problem.isFixable = isFixable;
+    function hasSuggestions(problem) {
+        return problem.suggestions !== undefined;
+    }
+    Problem.hasSuggestions = hasSuggestions;
+})(Problem || (Problem = {}));
+var FixableProblem;
+(function (FixableProblem) {
+    function createTextEdit(document, editInfo) {
+        return vscode_languageserver_1.TextEdit.replace(vscode_languageserver_1.Range.create(document.positionAt(editInfo.edit.range[0]), document.positionAt(editInfo.edit.range[1])), editInfo.edit.text || '');
+    }
+    FixableProblem.createTextEdit = createTextEdit;
+})(FixableProblem || (FixableProblem = {}));
+var SuggestionsProblem;
+(function (SuggestionsProblem) {
+    function createTextEdit(document, suggestion) {
+        return vscode_languageserver_1.TextEdit.replace(vscode_languageserver_1.Range.create(document.positionAt(suggestion.fix.range[0]), document.positionAt(suggestion.fix.range[1])), suggestion.fix.text || '');
+    }
+    SuggestionsProblem.createTextEdit = createTextEdit;
+})(SuggestionsProblem || (SuggestionsProblem = {}));
 function computeKey(diagnostic) {
-    let range = diagnostic.range;
+    const range = diagnostic.range;
     return `[${range.start.line},${range.start.character},${range.end.line},${range.end.character}]-${diagnostic.code}`;
 }
-let codeActions = new Map();
+const codeActions = new Map();
 function recordCodeAction(document, diagnostic, problem) {
     if (!problem.ruleId) {
         return;
     }
-    let uri = document.uri;
+    const uri = document.uri;
     let edits = codeActions.get(uri);
-    if (!edits) {
+    if (edits === undefined) {
         edits = new Map();
         codeActions.set(uri, edits);
     }
-    edits.set(computeKey(diagnostic), { label: `Fix this ${problem.ruleId} problem`, documentVersion: document.version, ruleId: problem.ruleId, edit: problem.fix, line: problem.line });
+    edits.set(computeKey(diagnostic), { label: `Fix this ${problem.ruleId} problem`, documentVersion: document.version, ruleId: problem.ruleId, edit: problem.fix, suggestions: problem.suggestions, line: problem.line });
 }
 function convertSeverity(severity) {
     switch (severity) {
@@ -146,7 +234,7 @@ function isUNC(path) {
         return false;
     }
     let pos = 2;
-    let start = pos;
+    const start = pos;
     for (; pos < path.length; pos++) {
         code = path.charCodeAt(pos);
         if (code === 92 /* Backslash */) {
@@ -163,7 +251,7 @@ function isUNC(path) {
     return true;
 }
 function getFileSystemPath(uri) {
-    let result = uri.fsPath;
+    const result = uri.fsPath;
     if (process.platform === 'win32' && result.length >= 2 && result[1] === ':') {
         // Node by default uses an upper case drive letter and ESLint uses
         // === to compare paths which results in the equal check failing
@@ -178,7 +266,11 @@ function getFilePath(documentOrUri) {
     if (!documentOrUri) {
         return undefined;
     }
-    let uri = Is.string(documentOrUri) ? vscode_uri_1.URI.parse(documentOrUri) : vscode_uri_1.URI.parse(documentOrUri.uri);
+    const uri = Is.string(documentOrUri)
+        ? vscode_uri_1.URI.parse(documentOrUri)
+        : documentOrUri instanceof vscode_uri_1.URI
+            ? documentOrUri
+            : vscode_uri_1.URI.parse(documentOrUri.uri);
     if (uri.scheme !== 'file') {
         return undefined;
     }
@@ -187,7 +279,7 @@ function getFilePath(documentOrUri) {
 const exitCalled = new vscode_languageserver_1.NotificationType('eslint/exitCalled');
 const nodeExit = process.exit;
 process.exit = ((code) => {
-    let stack = new Error('stack');
+    const stack = new Error('stack');
     connection.sendNotification(exitCalled, [code ? code : 0, stack.stack]);
     setTimeout(() => {
         nodeExit(code);
@@ -205,7 +297,7 @@ process.on('uncaughtException', (error) => {
         else if (typeof error === 'string') {
             message = error;
         }
-        if (!message) {
+        if (message === undefined || message.length === 0) {
             try {
                 message = JSON.stringify(error, undefined, 4);
             }
@@ -221,7 +313,7 @@ process.on('uncaughtException', (error) => {
         console.error(message);
     }
 });
-let connection = vscode_languageserver_1.createConnection();
+const connection = vscode_languageserver_1.createConnection();
 connection.console.info(`ESLint server running in node ${process.version}`);
 // Is instantiated in the initalize handle;
 let documents;
@@ -256,65 +348,236 @@ function globalPathGet(packageManager) {
     }
     return undefined;
 }
-let path2Library = new Map();
-let document2Settings = new Map();
+const languageId2DefaultExt = new Map([
+    ['javascript', 'js'],
+    ['javascriptreact', 'jsx'],
+    ['typescript', 'ts'],
+    ['typescriptreact', 'tsx'],
+    ['html', 'html'],
+    ['vue', 'vue']
+]);
+const languageId2ParserRegExp = function createLanguageId2ParserRegExp() {
+    const result = new Map();
+    const typescript = /\/@typescript-eslint\/parser\//;
+    result.set('typescript', [typescript]);
+    result.set('typescriptreact', [typescript]);
+    return result;
+}();
+const languageId2ParserOptions = function createLanguageId2ParserOptionsRegExp() {
+    const result = new Map();
+    const vue = /vue-eslint-parser\/.*\.js$/;
+    result.set('typescript', { regExps: [vue], parsers: new Set(['@typescript-eslint/parser']) });
+    return result;
+}();
+const languageId2PluginName = new Map([
+    ['html', 'html'],
+    ['vue', 'vue']
+]);
+const defaultLanguageIds = new Set([
+    'javascript', 'javascriptreact'
+]);
+const path2Library = new Map();
+const document2Settings = new Map();
+const projectFolderIndicators = [
+    ['package.json', true],
+    ['.eslintignore', true],
+    ['.eslintrc', false],
+    ['.eslintrc.json', false],
+    ['.eslintrc.js', false],
+    ['.eslintrc.yaml', false],
+    ['.eslintrc.yml', false]
+];
+function findWorkingDirectory(workspaceFolder, file) {
+    if (file === undefined || isUNC(file)) {
+        return workspaceFolder;
+    }
+    // Don't probe for something in node modules folder.
+    if (file.indexOf(`${path.sep}node_modules${path.sep}`) !== -1) {
+        return workspaceFolder;
+    }
+    let result = workspaceFolder;
+    let directory = path.dirname(file);
+    outer: while (directory !== undefined && directory.startsWith(workspaceFolder)) {
+        for (const item of projectFolderIndicators) {
+            if (fs.existsSync(path.join(directory, item[0]))) {
+                result = directory;
+                if (item[1]) {
+                    break outer;
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        const parent = path.dirname(directory);
+        directory = parent !== directory ? parent : undefined;
+    }
+    return result;
+}
 function resolveSettings(document) {
-    let uri = document.uri;
+    const uri = document.uri;
     let resultPromise = document2Settings.get(uri);
     if (resultPromise) {
         return resultPromise;
     }
-    resultPromise = connection.workspace.getConfiguration({ scopeUri: uri, section: '' }).then((settings) => {
+    resultPromise = connection.workspace.getConfiguration({ scopeUri: uri, section: '' }).then((configuration) => {
+        var _a;
+        const settings = Object.assign({}, configuration, { silent: false, library: undefined, resolvedGlobalPackageManagerPath: undefined }, { workingDirectory: undefined });
+        if (settings.validate === Validate.off) {
+            return settings;
+        }
         settings.resolvedGlobalPackageManagerPath = globalPathGet(settings.packageManager);
-        let uri = vscode_uri_1.URI.parse(document.uri);
-        let promise;
-        if (uri.scheme === 'file') {
-            let file = uri.fsPath;
-            let directory = path.dirname(file);
-            if (settings.nodePath) {
-                let nodePath = settings.nodePath;
-                if (!path.isAbsolute(nodePath) && settings.workspaceFolder !== undefined) {
-                    let uri = vscode_uri_1.URI.parse(settings.workspaceFolder.uri);
-                    if (uri.scheme === 'file') {
-                        nodePath = path.join(uri.fsPath, nodePath);
-                    }
+        const filePath = getFilePath(document);
+        const workspaceFolderPath = settings.workspaceFolder !== undefined ? getFilePath(settings.workspaceFolder.uri) : undefined;
+        const hasUserDefinedWorkingDirectories = configuration.workingDirectory !== undefined;
+        const workingDirectoryConfig = (_a = configuration.workingDirectory, (_a !== null && _a !== void 0 ? _a : { mode: ModeEnum.location }));
+        if (ModeItem.is(workingDirectoryConfig)) {
+            let candidate;
+            if (workingDirectoryConfig.mode === ModeEnum.location) {
+                if (workspaceFolderPath !== undefined) {
+                    candidate = workspaceFolderPath;
                 }
-                promise = vscode_languageserver_1.Files.resolve('eslint', nodePath, nodePath, trace).then(undefined, () => {
-                    return vscode_languageserver_1.Files.resolve('eslint', settings.resolvedGlobalPackageManagerPath, directory, trace);
-                });
+                else if (filePath !== undefined && !isUNC(filePath)) {
+                    candidate = path.dirname(filePath);
+                }
             }
-            else {
-                promise = vscode_languageserver_1.Files.resolve('eslint', settings.resolvedGlobalPackageManagerPath, directory, trace);
+            else if (workingDirectoryConfig.mode === ModeEnum.auto) {
+                if (workspaceFolderPath !== undefined) {
+                    candidate = findWorkingDirectory(workspaceFolderPath, filePath);
+                }
+                else if (filePath !== undefined && !isUNC(filePath)) {
+                    candidate = path.dirname(filePath);
+                }
+            }
+            if (candidate !== undefined && fs.existsSync(candidate)) {
+                settings.workingDirectory = { directory: candidate };
             }
         }
         else {
-            promise = vscode_languageserver_1.Files.resolve('eslint', settings.resolvedGlobalPackageManagerPath, settings.workspaceFolder ? settings.workspaceFolder.uri : undefined, trace);
+            settings.workingDirectory = workingDirectoryConfig;
         }
-        return promise.then((path) => {
-            let library = path2Library.get(path);
-            if (!library) {
-                library = loadNodeModule(path);
-                if (!library) {
-                    settings.validate = false;
-                    connection.console.error(`Failed to load eslint library from ${path}. See output panel for more information.`);
+        let promise;
+        let nodePath;
+        if (settings.nodePath !== null) {
+            nodePath = settings.nodePath;
+            if (!path.isAbsolute(nodePath) && settings.workspaceFolder !== undefined) {
+                const workspaceFolderPath = getFilePath(settings.workspaceFolder.uri);
+                if (workspaceFolderPath !== undefined) {
+                    nodePath = path.join(workspaceFolderPath, nodePath);
                 }
-                else if (!library.CLIEngine) {
-                    settings.validate = false;
-                    connection.console.error(`The eslint library loaded from ${path} doesn\'t export a CLIEngine. You need at least eslint@1.0.0`);
+            }
+        }
+        let moduleResolveWorkingDirectory;
+        if (!hasUserDefinedWorkingDirectories && filePath !== undefined) {
+            moduleResolveWorkingDirectory = path.dirname(filePath);
+        }
+        if (moduleResolveWorkingDirectory === undefined && settings.workingDirectory !== undefined && !settings.workingDirectory['!cwd']) {
+            moduleResolveWorkingDirectory = settings.workingDirectory.directory;
+        }
+        if (nodePath !== undefined) {
+            promise = vscode_languageserver_1.Files.resolve('eslint', nodePath, nodePath, trace).then(undefined, () => {
+                return vscode_languageserver_1.Files.resolve('eslint', settings.resolvedGlobalPackageManagerPath, moduleResolveWorkingDirectory, trace);
+            });
+        }
+        else {
+            promise = vscode_languageserver_1.Files.resolve('eslint', settings.resolvedGlobalPackageManagerPath, moduleResolveWorkingDirectory, trace);
+        }
+        settings.silent = settings.validate === Validate.probe;
+        return promise.then((libraryPath) => {
+            var _a;
+            let library = path2Library.get(libraryPath);
+            if (library === undefined) {
+                library = loadNodeModule(libraryPath);
+                if (library === undefined) {
+                    settings.validate = Validate.off;
+                    if (!settings.silent) {
+                        connection.console.error(`Failed to load eslint library from ${libraryPath}. See output panel for more information.`);
+                    }
+                }
+                else if (library.CLIEngine === undefined) {
+                    settings.validate = Validate.off;
+                    connection.console.error(`The eslint library loaded from ${libraryPath} doesn\'t export a CLIEngine. You need at least eslint@1.0.0`);
                 }
                 else {
-                    connection.console.info(`ESLint library loaded from: ${path}`);
+                    connection.console.info(`ESLint library loaded from: ${libraryPath}`);
                     settings.library = library;
+                    path2Library.set(libraryPath, library);
                 }
-                path2Library.set(path, library);
             }
             else {
                 settings.library = library;
             }
+            if (settings.validate === Validate.probe && TextDocumentSettings.hasLibrary(settings)) {
+                settings.validate = Validate.off;
+                const uri = vscode_uri_1.URI.parse(document.uri);
+                let filePath = getFilePath(document);
+                if (filePath === undefined && uri.scheme === 'untitled' && settings.workspaceFolder !== undefined) {
+                    const ext = languageId2DefaultExt.get(document.languageId);
+                    const workspacePath = getFilePath(settings.workspaceFolder.uri);
+                    if (workspacePath !== undefined && ext !== undefined) {
+                        filePath = path.join(workspacePath, `test${ext}`);
+                    }
+                }
+                if (filePath !== undefined) {
+                    const parserRegExps = languageId2ParserRegExp.get(document.languageId);
+                    const pluginName = languageId2PluginName.get(document.languageId);
+                    const parserOptions = languageId2ParserOptions.get(document.languageId);
+                    if (defaultLanguageIds.has(document.languageId)) {
+                        settings.validate = Validate.on;
+                    }
+                    else if (parserRegExps !== undefined || pluginName !== undefined || parserOptions !== undefined) {
+                        const eslintConfig = withCLIEngine((cli) => {
+                            if (typeof cli.getConfigForFile === 'function') {
+                                return cli.getConfigForFile(filePath);
+                            }
+                            else {
+                                return undefined;
+                            }
+                        }, settings);
+                        if (eslintConfig !== undefined) {
+                            const parser = eslintConfig.parser !== null
+                                ? (process.platform === 'win32' ? eslintConfig.parser.replace(/\\/g, '/') : eslintConfig.parser)
+                                : undefined;
+                            if (parser !== undefined) {
+                                if (parserRegExps !== undefined) {
+                                    for (const regExp of parserRegExps) {
+                                        if (regExp.test(parser)) {
+                                            settings.validate = Validate.on;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (settings.validate !== Validate.on && parserOptions !== undefined && typeof ((_a = eslintConfig.parserOptions) === null || _a === void 0 ? void 0 : _a.parser) === 'string') {
+                                    for (const regExp of parserOptions.regExps) {
+                                        if (regExp.test(parser) && parserOptions.parsers.has(eslintConfig.parserOptions.parser)) {
+                                            settings.validate = Validate.on;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            if (settings.validate !== Validate.on && Array.isArray(eslintConfig.plugins) && eslintConfig.plugins.length > 0 && pluginName !== undefined) {
+                                for (const name of eslintConfig.plugins) {
+                                    if (name === pluginName) {
+                                        settings.validate = Validate.on;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (settings.validate === Validate.off) {
+                    const params = { textDocument: { uri: document.uri } };
+                    connection.sendRequest(ProbleFailedRequest.type, params);
+                }
+            }
             return settings;
         }, () => {
-            settings.validate = false;
-            connection.sendRequest(NoESLintLibraryRequest.type, { source: { uri: document.uri } });
+            settings.validate = Validate.off;
+            if (!settings.silent) {
+                connection.sendRequest(NoESLintLibraryRequest.type, { source: { uri: document.uri } });
+            }
             return settings;
         });
     });
@@ -324,15 +587,15 @@ function resolveSettings(document) {
 var Request;
 (function (Request) {
     function is(value) {
-        let candidate = value;
-        return candidate && !!candidate.token && !!candidate.resolve && !!candidate.reject;
+        const candidate = value;
+        return candidate && candidate.token !== undefined && candidate.resolve !== undefined && candidate.reject !== undefined;
     }
     Request.is = is;
 })(Request || (Request = {}));
 var Thenable;
 (function (Thenable) {
     function is(value) {
-        let candidate = value;
+        const candidate = value;
         return candidate && typeof candidate.then === 'function';
     }
     Thenable.is = is;
@@ -393,22 +656,25 @@ class BufferedMessageQueue {
         });
     }
     processQueue() {
-        let message = this.queue.shift();
+        const message = this.queue.shift();
         if (!message) {
             return;
         }
         if (Request.is(message)) {
-            let requestMessage = message;
+            const requestMessage = message;
             if (requestMessage.token.isCancellationRequested) {
                 requestMessage.reject(new vscode_languageserver_1.ResponseError(vscode_languageserver_1.ErrorCodes.RequestCancelled, 'Request got cancelled'));
                 return;
             }
-            let elem = this.requestHandlers.get(requestMessage.method);
+            const elem = this.requestHandlers.get(requestMessage.method);
+            if (elem === undefined) {
+                throw new Error(`No handler registered`);
+            }
             if (elem.versionProvider && requestMessage.documentVersion !== undefined && requestMessage.documentVersion !== elem.versionProvider(requestMessage.params)) {
                 requestMessage.reject(new vscode_languageserver_1.ResponseError(vscode_languageserver_1.ErrorCodes.RequestCancelled, 'Request got cancelled'));
                 return;
             }
-            let result = elem.handler(requestMessage.params, requestMessage.token);
+            const result = elem.handler(requestMessage.params, requestMessage.token);
             if (Thenable.is(result)) {
                 result.then((value) => {
                     requestMessage.resolve(value);
@@ -421,8 +687,11 @@ class BufferedMessageQueue {
             }
         }
         else {
-            let notificationMessage = message;
-            let elem = this.notificationHandlers.get(notificationMessage.method);
+            const notificationMessage = message;
+            const elem = this.notificationHandlers.get(notificationMessage.method);
+            if (elem === undefined) {
+                throw new Error(`No handler registered`);
+            }
             if (elem.versionProvider && notificationMessage.documentVersion !== undefined && notificationMessage.documentVersion !== elem.versionProvider(notificationMessage.params)) {
                 return;
             }
@@ -430,7 +699,8 @@ class BufferedMessageQueue {
         }
     }
 }
-let messageQueue = new BufferedMessageQueue(connection);
+const messageQueue = new BufferedMessageQueue(connection);
+const formatterRegistrations = new Map();
 var ValidateNotification;
 (function (ValidateNotification) {
     ValidateNotification.type = new vscode_languageserver_1.NotificationType('eslint/validate');
@@ -440,29 +710,33 @@ messageQueue.onNotification(ValidateNotification.type, (document) => {
 }, (document) => {
     return document.version;
 });
-function getFixes(textDocument) {
-    let uri = textDocument.uri;
-    let edits = codeActions.get(uri);
-    function createTextEdit(editInfo) {
-        return vscode_languageserver_1.TextEdit.replace(vscode_languageserver_1.Range.create(textDocument.positionAt(editInfo.edit.range[0]), textDocument.positionAt(editInfo.edit.range[1])), editInfo.edit.text || '');
-    }
-    if (edits) {
-        let fixes = new Fixes(edits);
-        if (fixes.isEmpty() || textDocument.version !== fixes.getDocumentVersion()) {
-            return [];
-        }
-        return fixes.getOverlapFree().filter(fix => !!fix.edit).map(createTextEdit);
-    }
-    return [];
-}
 function setupDocumentsListeners() {
     // The documents manager listen for text document create, change
     // and close on the connection
     documents.listen(connection);
     documents.onDidOpen((event) => {
         resolveSettings(event.document).then((settings) => {
-            if (!settings.validate) {
+            if (settings.validate !== Validate.on || !TextDocumentSettings.hasLibrary(settings)) {
                 return;
+            }
+            if (settings.format) {
+                const uri = vscode_uri_1.URI.parse(event.document.uri);
+                const isFile = uri.scheme === 'file';
+                const filter = isFile
+                    ? { scheme: uri.scheme, pattern: uri.fsPath.replace(/\\/g, '/') }
+                    : { scheme: uri.scheme, pattern: uri.path };
+                const options = { documentSelector: [filter] };
+                if (!isFile) {
+                    formatterRegistrations.set(event.document.uri, connection.client.register(vscode_languageserver_1.DocumentFormattingRequest.type, options));
+                }
+                else {
+                    const filePath = getFilePath(uri);
+                    withCLIEngine((cli) => {
+                        if (!cli.isPathIgnored(filePath)) {
+                            formatterRegistrations.set(event.document.uri, connection.client.register(vscode_languageserver_1.DocumentFormattingRequest.type, options));
+                        }
+                    }, settings);
+                }
             }
             if (settings.run === 'onSave') {
                 messageQueue.addNotificationMessage(ValidateNotification.type, event.document, event.document.version);
@@ -472,36 +746,16 @@ function setupDocumentsListeners() {
     // A text document has changed. Validate the document according the run setting.
     documents.onDidChangeContent((event) => {
         resolveSettings(event.document).then((settings) => {
-            if (!settings.validate || settings.run !== 'onType') {
+            if (settings.validate !== Validate.on || settings.run !== 'onType') {
                 return;
             }
             messageQueue.addNotificationMessage(ValidateNotification.type, event.document, event.document.version);
         });
     });
-    documents.onWillSaveWaitUntil((event) => {
-        if (event.reason === vscode_languageserver_1.TextDocumentSaveReason.AfterDelay) {
-            return [];
-        }
-        let document = event.document;
-        return resolveSettings(document).then((settings) => {
-            if (!settings.autoFixOnSave) {
-                return [];
-            }
-            // If we validate on save and want to apply fixes on will save
-            // we need to validate the file.
-            if (settings.run === 'onSave') {
-                // Do not queue this since we want to get the fixes as fast as possible.
-                return validateSingle(document, false).then(() => getFixes(document));
-            }
-            else {
-                return getFixes(document);
-            }
-        });
-    });
     // A text document has been saved. Validate the document according the run setting.
     documents.onDidSave((event) => {
         resolveSettings(event.document).then((settings) => {
-            if (!settings.validate || settings.run !== 'onSave') {
+            if (settings.validate !== Validate.on || settings.run !== 'onSave') {
                 return;
             }
             messageQueue.addNotificationMessage(ValidateNotification.type, event.document, event.document.version);
@@ -509,10 +763,15 @@ function setupDocumentsListeners() {
     });
     documents.onDidClose((event) => {
         resolveSettings(event.document).then((settings) => {
-            let uri = event.document.uri;
+            const uri = event.document.uri;
             document2Settings.delete(uri);
             codeActions.delete(uri);
-            if (settings.validate) {
+            const unregister = formatterRegistrations.get(event.document.uri);
+            if (unregister !== undefined) {
+                unregister.then(disposable => disposable.dispose());
+                formatterRegistrations.delete(event.document.uri);
+            }
+            if (settings.validate === Validate.on) {
                 connection.sendDiagnostics({ uri: uri, diagnostics: [] });
             }
         });
@@ -527,10 +786,10 @@ function environmentChanged() {
 function trace(message, verbose) {
     connection.tracer.log(message, verbose);
 }
-connection.onInitialize((params, _cancel, progress) => {
+connection.onInitialize((_params, _cancel, progress) => {
     progress.begin('Initializing ESLint Server');
-    let syncKind = (params.initializationOptions && !!params.initializationOptions.incrementalSync) ? vscode_languageserver_1.TextDocumentSyncKind.Incremental : vscode_languageserver_1.TextDocumentSyncKind.Full;
-    documents = new vscode_languageserver_1.TextDocuments(syncKind);
+    const syncKind = vscode_languageserver_1.TextDocumentSyncKind.Incremental;
+    documents = new vscode_languageserver_1.TextDocuments(vscode_languageserver_textdocument_1.TextDocument);
     setupDocumentsListeners();
     progress.done();
     return {
@@ -538,18 +797,18 @@ connection.onInitialize((params, _cancel, progress) => {
             textDocumentSync: {
                 openClose: true,
                 change: syncKind,
-                willSaveWaitUntil: true,
+                willSaveWaitUntil: false,
                 save: {
                     includeText: false
                 }
             },
-            codeActionProvider: true,
+            codeActionProvider: { codeActionKinds: [vscode_languageserver_1.CodeActionKind.QuickFix, `${vscode_languageserver_1.CodeActionKind.SourceFixAll}.eslint`] },
             executeCommandProvider: {
                 commands: [
                     CommandIds.applySingleFix,
+                    CommandIds.applySuggestion,
                     CommandIds.applySameFixes,
                     CommandIds.applyAllFixes,
-                    CommandIds.applyAutoFix,
                     CommandIds.applyDisableLine,
                     CommandIds.applyDisableFile,
                     CommandIds.openRuleDoc,
@@ -581,7 +840,7 @@ function validateSingle(document, publishDiagnostics = true) {
         return Promise.resolve(undefined);
     }
     return resolveSettings(document).then((settings) => {
-        if (!settings.validate) {
+        if (settings.validate !== Validate.on || !TextDocumentSettings.hasLibrary(settings)) {
             return;
         }
         try {
@@ -589,15 +848,21 @@ function validateSingle(document, publishDiagnostics = true) {
             connection.sendNotification(StatusNotification.type, { state: Status.ok });
         }
         catch (err) {
-            let status = undefined;
-            for (let handler of singleErrorHandlers) {
-                status = handler(err, document, settings.library);
-                if (status) {
-                    break;
+            if (!settings.silent) {
+                let status = undefined;
+                for (let handler of singleErrorHandlers) {
+                    status = handler(err, document, settings.library);
+                    if (status) {
+                        break;
+                    }
                 }
+                status = status || Status.error;
+                connection.sendNotification(StatusNotification.type, { state: status });
             }
-            status = status || Status.error;
-            connection.sendNotification(StatusNotification.type, { state: status });
+            else {
+                connection.console.info(getMessage(err, document));
+                connection.sendNotification(StatusNotification.type, { state: Status.ok });
+            }
         }
     });
 }
@@ -607,7 +872,7 @@ function validateMany(documents) {
     });
 }
 function getMessage(err, document) {
-    let result = null;
+    let result = undefined;
     if (typeof err.message === 'string' || err.message instanceof String) {
         result = err.message;
         result = result.replace(/\r?\n/g, ' ');
@@ -620,13 +885,13 @@ function getMessage(err, document) {
     }
     return result;
 }
-let ruleDocData = {
+const ruleDocData = {
     handled: new Set(),
     urls: new Map()
 };
 const validFixTypes = new Set(['problem', 'suggestion', 'layout']);
 function validate(document, settings, publishDiagnostics = true) {
-    let newOptions = Object.assign(Object.create(null), settings.options);
+    const newOptions = Object.assign(Object.create(null), settings.options);
     let fixTypes = undefined;
     if (Array.isArray(newOptions.fixTypes) && newOptions.fixTypes.length > 0) {
         fixTypes = new Set();
@@ -639,42 +904,15 @@ function validate(document, settings, publishDiagnostics = true) {
             fixTypes = undefined;
         }
     }
-    let content = document.getText();
-    let uri = document.uri;
-    let file = getFilePath(document);
-    let cwd = process.cwd();
-    try {
-        if (file) {
-            if (settings.workingDirectory) {
-                newOptions.cwd = settings.workingDirectory.directory;
-                if (settings.workingDirectory.changeProcessCWD) {
-                    process.chdir(settings.workingDirectory.directory);
-                }
-            }
-            else if (settings.workspaceFolder) {
-                let workspaceFolderUri = vscode_uri_1.URI.parse(settings.workspaceFolder.uri);
-                if (workspaceFolderUri.scheme === 'file') {
-                    const fsPath = getFileSystemPath(workspaceFolderUri);
-                    newOptions.cwd = fsPath;
-                    process.chdir(fsPath);
-                }
-            }
-            else if (!settings.workspaceFolder && !isUNC(file)) {
-                let directory = path.dirname(file);
-                if (directory) {
-                    if (path.isAbsolute(directory)) {
-                        newOptions.cwd = directory;
-                    }
-                }
-            }
-        }
-        let cli = new settings.library.CLIEngine(newOptions);
-        // Clean previously computed code actions.
+    const content = document.getText();
+    const uri = document.uri;
+    const file = getFilePath(document);
+    withCLIEngine((cli) => {
         codeActions.delete(uri);
-        let report = cli.executeOnText(content, file);
-        let diagnostics = [];
+        const report = cli.executeOnText(content, file, settings.onIgnoredFiles !== ESLintSeverity.off);
+        const diagnostics = [];
         if (report && report.results && Array.isArray(report.results) && report.results.length > 0) {
-            let docReport = report.results[0];
+            const docReport = report.results[0];
             if (docReport.messages && Array.isArray(docReport.messages)) {
                 docReport.messages.forEach((problem) => {
                     if (problem) {
@@ -683,18 +921,16 @@ function validate(document, settings, publishDiagnostics = true) {
                             // Filter out warnings when quiet mode is enabled
                             return;
                         }
-                        let diagnostic = makeDiagnostic(problem);
+                        const diagnostic = makeDiagnostic(problem);
                         diagnostics.push(diagnostic);
-                        if (settings.autoFix) {
-                            if (fixTypes !== undefined && util_1.isFunction(cli.getRules) && problem.ruleId !== undefined && problem.fix !== undefined) {
-                                let rule = cli.getRules().get(problem.ruleId);
-                                if (rule !== undefined && fixTypes.has(rule.meta.type)) {
-                                    recordCodeAction(document, diagnostic, problem);
-                                }
-                            }
-                            else {
+                        if (fixTypes !== undefined && CLIEngine.hasRule(cli) && problem.ruleId !== undefined && problem.fix !== undefined) {
+                            const rule = cli.getRules().get(problem.ruleId);
+                            if (RuleData.hasMetaType(rule) && fixTypes.has(rule.meta.type)) {
                                 recordCodeAction(document, diagnostic, problem);
                             }
+                        }
+                        else {
+                            recordCodeAction(document, diagnostic, problem);
                         }
                     }
                 });
@@ -704,7 +940,7 @@ function validate(document, settings, publishDiagnostics = true) {
             connection.sendDiagnostics({ uri, diagnostics });
         }
         // cache documentation urls for all rules
-        if (util_1.isFunction(cli.getRules) && !ruleDocData.handled.has(uri)) {
+        if (CLIEngine.hasRule(cli) && !ruleDocData.handled.has(uri)) {
             ruleDocData.handled.add(uri);
             cli.getRules().forEach((rule, key) => {
                 if (rule.meta && rule.meta.docs && Is.string(rule.meta.docs.url)) {
@@ -712,6 +948,22 @@ function validate(document, settings, publishDiagnostics = true) {
                 }
             });
         }
+    }, settings);
+}
+function withCLIEngine(func, settings, options) {
+    const newOptions = options === undefined
+        ? Object.assign(Object.create(null), settings.options)
+        : Object.assign(Object.create(null), settings.options, options);
+    const cwd = process.cwd();
+    try {
+        if (settings.workingDirectory) {
+            newOptions.cwd = settings.workingDirectory.directory;
+            if (settings.workingDirectory['!cwd'] !== true && fs.existsSync(settings.workingDirectory.directory)) {
+                process.chdir(settings.workingDirectory.directory);
+            }
+        }
+        const cli = new settings.library.CLIEngine(newOptions);
+        return func(cli);
     }
     finally {
         if (cwd !== process.cwd()) {
@@ -719,9 +971,9 @@ function validate(document, settings, publishDiagnostics = true) {
         }
     }
 }
-let noConfigReported = new Map();
+const noConfigReported = new Map();
 function isNoConfigFoundError(error) {
-    let candidate = error;
+    const candidate = error;
     return candidate.messageTemplate === 'no-config-found' || candidate.message === 'No ESLint configuration found.';
 }
 function tryHandleNoConfig(error, document, library) {
@@ -739,7 +991,7 @@ function tryHandleNoConfig(error, document, library) {
     }
     return Status.warn;
 }
-let configErrorReported = new Map();
+const configErrorReported = new Map();
 function tryHandleConfigError(error, document, library) {
     if (!error.message) {
         return undefined;
@@ -768,14 +1020,14 @@ function tryHandleConfigError(error, document, library) {
     }
     return undefined;
 }
-let missingModuleReported = new Map();
+const missingModuleReported = new Map();
 function tryHandleMissingModule(error, document, library) {
     if (!error.message) {
         return undefined;
     }
     function handleMissingModule(plugin, module, error) {
         if (!missingModuleReported.has(plugin)) {
-            let fsPath = getFilePath(document);
+            const fsPath = getFilePath(document);
             missingModuleReported.set(plugin, library);
             if (error.messageTemplate === 'plugin-missing') {
                 connection.console.error([
@@ -799,7 +1051,7 @@ function tryHandleMissingModule(error, document, library) {
         }
         return Status.warn;
     }
-    let matches = /Failed to load plugin (.*): Cannot find module (.*)/.exec(error.message);
+    const matches = /Failed to load plugin (.*): Cannot find module (.*)/.exec(error.message);
     if (matches && matches.length === 3) {
         return handleMissingModule(matches[1], matches[2], error);
     }
@@ -818,18 +1070,19 @@ messageQueue.registerNotification(vscode_languageserver_1.DidChangeWatchedFilesN
     // Simply revalidate all file.
     ruleDocData.handled.clear();
     ruleDocData.urls.clear();
-    noConfigReported = new Map();
-    missingModuleReported = new Map();
+    noConfigReported.clear();
+    missingModuleReported.clear();
+    document2Settings.clear(); // config files can change plugins and parser.
     params.changes.forEach((change) => {
-        let fsPath = getFilePath(change.uri);
-        if (!fsPath || isUNC(fsPath)) {
+        const fsPath = getFilePath(change.uri);
+        if (fsPath === undefined || fsPath.length === 0 || isUNC(fsPath)) {
             return;
         }
-        let dirname = path.dirname(fsPath);
+        const dirname = path.dirname(fsPath);
         if (dirname) {
-            let library = configErrorReported.get(fsPath);
-            if (library) {
-                let cli = new library.CLIEngine({});
+            const library = configErrorReported.get(fsPath);
+            if (library !== undefined) {
+                const cli = new library.CLIEngine({});
                 try {
                     cli.executeOnText('', path.join(dirname, '___test___.js'));
                     configErrorReported.delete(fsPath);
@@ -845,8 +1098,11 @@ class Fixes {
     constructor(edits) {
         this.edits = edits;
     }
-    static overlaps(lastEdit, newEdit) {
-        return !!lastEdit && !!lastEdit.edit && lastEdit.edit.range[1] > newEdit.edit.range[0];
+    static overlaps(a, b) {
+        return a !== undefined && a.edit.range[1] > b.edit.range[0];
+    }
+    static isSame(a, b) {
+        return a.edit.range[0] === b.edit.range[0] && a.edit.range[1] === b.edit.range[1] && a.edit.text === b.edit.text;
     }
     isEmpty() {
         return this.edits.size === 0;
@@ -858,10 +1114,10 @@ class Fixes {
         return this.edits.values().next().value.documentVersion;
     }
     getScoped(diagnostics) {
-        let result = [];
+        const result = [];
         for (let diagnostic of diagnostics) {
-            let key = computeKey(diagnostic);
-            let editInfo = this.edits.get(key);
+            const key = computeKey(diagnostic);
+            const editInfo = this.edits.get(key);
             if (editInfo) {
                 result.push(editInfo);
             }
@@ -869,14 +1125,14 @@ class Fixes {
         return result;
     }
     getAllSorted() {
-        let result = [];
+        const result = [];
         this.edits.forEach((value) => {
-            if (!!value.edit) {
+            if (Problem.isFixable(value)) {
                 result.push(value);
             }
         });
         return result.sort((a, b) => {
-            let d = a.edit.range[0] - b.edit.range[0];
+            const d = a.edit.range[0] - b.edit.range[0];
             if (d !== 0) {
                 return d;
             }
@@ -889,17 +1145,17 @@ class Fixes {
             return a.edit.range[1] - b.edit.range[1];
         });
     }
-    getOverlapFree() {
-        let sorted = this.getAllSorted();
+    getApplicable() {
+        const sorted = this.getAllSorted();
         if (sorted.length <= 1) {
             return sorted;
         }
-        let result = [];
+        const result = [];
         let last = sorted[0];
         result.push(last);
         for (let i = 1; i < sorted.length; i++) {
             let current = sorted[i];
-            if (!Fixes.overlaps(last, current)) {
+            if (!Fixes.overlaps(last, current) && !Fixes.isSame(last, current)) {
                 result.push(current);
                 last = current;
             }
@@ -914,18 +1170,22 @@ class CodeActionResult {
     get(ruleId) {
         let result = this._actions.get(ruleId);
         if (result === undefined) {
-            result = { fixes: [] };
+            result = { fixes: [], suggestions: [] };
             this._actions.set(ruleId, result);
         }
         return result;
     }
-    set fixAll(action) {
-        this._fixAll = action;
+    get fixAll() {
+        if (this._fixAll === undefined) {
+            this._fixAll = [];
+        }
+        return this._fixAll;
     }
     all() {
-        let result = [];
+        const result = [];
         for (let actions of this._actions.values()) {
             result.push(...actions.fixes);
+            result.push(...actions.suggestions);
             if (actions.disable) {
                 result.push(actions.disable);
             }
@@ -940,7 +1200,7 @@ class CodeActionResult {
             }
         }
         if (this._fixAll !== undefined) {
-            result.push(this._fixAll);
+            result.push(...this._fixAll);
         }
         return result;
     }
@@ -952,24 +1212,58 @@ class CodeActionResult {
         return result;
     }
 }
-let commands;
+class Changes {
+    constructor() {
+        this.values = new Map();
+        this.uri = undefined;
+        this.version = undefined;
+    }
+    clear(textDocument) {
+        if (textDocument === undefined) {
+            this.uri = undefined;
+            this.version = undefined;
+        }
+        else {
+            this.uri = textDocument.uri;
+            this.version = textDocument.version;
+        }
+        this.values.clear();
+    }
+    isUsable(uri, version) {
+        return this.uri === uri && this.version === version;
+    }
+    set(key, change) {
+        this.values.set(key, change);
+    }
+    get(key) {
+        return this.values.get(key);
+    }
+}
+var CommandParams;
+(function (CommandParams) {
+    function create(textDocument, ruleId, sequence) {
+        return { uri: textDocument.uri, version: textDocument.version, ruleId, sequence };
+    }
+    CommandParams.create = create;
+    function hasRuleId(value) {
+        return value.ruleId !== undefined;
+    }
+    CommandParams.hasRuleId = hasRuleId;
+})(CommandParams || (CommandParams = {}));
+const changes = new Changes();
+const ESLintSourceFixAll = `${vscode_languageserver_1.CodeActionKind.SourceFixAll}.eslint`;
 messageQueue.registerRequest(vscode_languageserver_1.CodeActionRequest.type, (params) => {
-    commands = new Map();
-    let result = new CodeActionResult();
-    let uri = params.textDocument.uri;
-    let edits = codeActions.get(uri);
-    if (!edits) {
+    const result = new CodeActionResult();
+    const uri = params.textDocument.uri;
+    const textDocument = documents.get(uri);
+    if (textDocument === undefined) {
+        changes.clear(textDocument);
         return result.all();
     }
-    let fixes = new Fixes(edits);
-    if (fixes.isEmpty()) {
-        return result.all();
-    }
-    let textDocument = documents.get(uri);
-    let documentVersion = -1;
-    let allFixableRuleIds = [];
-    function createTextEdit(editInfo) {
-        return vscode_languageserver_1.TextEdit.replace(vscode_languageserver_1.Range.create(textDocument.positionAt(editInfo.edit.range[0]), textDocument.positionAt(editInfo.edit.range[1])), editInfo.edit.text || '');
+    function createCodeAction(title, kind, commandId, arg) {
+        const command = vscode_languageserver_1.Command.create(title, commandId, arg);
+        const action = vscode_languageserver_1.CodeAction.create(title, command, kind);
+        return action;
     }
     function createDisableLineTextEdit(editInfo, indentationText) {
         return vscode_languageserver_1.TextEdit.insert(vscode_languageserver_1.Position.create(editInfo.line - 1, 0), `${indentationText}// eslint-disable-next-line ${editInfo.ruleId}${os_1.EOL}`);
@@ -981,22 +1275,64 @@ messageQueue.registerRequest(vscode_languageserver_1.CodeActionRequest.type, (pa
         return vscode_languageserver_1.TextEdit.insert(vscode_languageserver_1.Position.create(0, 0), `/* eslint-disable ${editInfo.ruleId} */${os_1.EOL}`);
     }
     function getLastEdit(array) {
-        let length = array.length;
+        const length = array.length;
         if (length === 0) {
             return undefined;
         }
         return array[length - 1];
     }
-    return resolveSettings(textDocument).then((settings) => {
+    return resolveSettings(textDocument).then(async (settings) => {
+        const problems = codeActions.get(uri);
+        // We validate on type and have no problems ==> nothing to fix.
+        if (problems === undefined && settings.run === 'onType') {
+            return result.all();
+        }
+        const only = params.context.only !== undefined && params.context.only.length > 0 ? params.context.only[0] : undefined;
+        const isSource = only === vscode_languageserver_1.CodeActionKind.Source;
+        const isSourceFixAll = (only === ESLintSourceFixAll || only === vscode_languageserver_1.CodeActionKind.SourceFixAll) && settings.codeActionOnSave.enable;
+        if (isSourceFixAll || isSource) {
+            if (isSourceFixAll) {
+                const textDocumentIdentifer = { uri: textDocument.uri, version: textDocument.version };
+                const edits = await computeAllFixes(textDocumentIdentifer, AllFixesMode.onSave);
+                if (edits !== undefined) {
+                    result.fixAll.push(vscode_languageserver_1.CodeAction.create(`Fix all ESLint auto-fixable problems`, { documentChanges: [vscode_languageserver_1.TextDocumentEdit.create(textDocumentIdentifer, edits)] }, ESLintSourceFixAll));
+                }
+            }
+            else if (isSource) {
+                result.fixAll.push(createCodeAction(`Fix all ESLint auto-fixable problems`, vscode_languageserver_1.CodeActionKind.Source, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
+            }
+            return result.all();
+        }
+        if (problems === undefined) {
+            return result.all();
+        }
+        const fixes = new Fixes(problems);
+        if (fixes.isEmpty()) {
+            return result.all();
+        }
+        let documentVersion = -1;
+        const allFixableRuleIds = [];
+        const kind = (only !== null && only !== void 0 ? only : vscode_languageserver_1.CodeActionKind.QuickFix);
         for (let editInfo of fixes.getScoped(params.context.diagnostics)) {
             documentVersion = editInfo.documentVersion;
-            let ruleId = editInfo.ruleId;
+            const ruleId = editInfo.ruleId;
             allFixableRuleIds.push(ruleId);
-            if (!!editInfo.edit) {
-                let workspaceChange = new vscode_languageserver_1.WorkspaceChange();
-                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createTextEdit(editInfo));
-                commands.set(`${CommandIds.applySingleFix}:${ruleId}`, workspaceChange);
-                result.get(ruleId).fixes.push(vscode_languageserver_1.CodeAction.create(editInfo.label, vscode_languageserver_1.Command.create(editInfo.label, CommandIds.applySingleFix, ruleId), vscode_languageserver_1.CodeActionKind.QuickFix));
+            if (Problem.isFixable(editInfo)) {
+                const workspaceChange = new vscode_languageserver_1.WorkspaceChange();
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(FixableProblem.createTextEdit(textDocument, editInfo));
+                changes.set(`${CommandIds.applySingleFix}:${ruleId}`, workspaceChange);
+                const action = createCodeAction(editInfo.label, kind, CommandIds.applySingleFix, CommandParams.create(textDocument, ruleId));
+                action.isPreferred = true;
+                result.get(ruleId).fixes.push(action);
+            }
+            if (Problem.hasSuggestions(editInfo)) {
+                editInfo.suggestions.forEach((suggestion, suggestionSequence) => {
+                    const workspaceChange = new vscode_languageserver_1.WorkspaceChange();
+                    workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(SuggestionsProblem.createTextEdit(textDocument, suggestion));
+                    changes.set(`${CommandIds.applySuggestion}:${ruleId}:${suggestionSequence}`, workspaceChange);
+                    const action = createCodeAction(`${suggestion.desc} (${editInfo.ruleId})`, vscode_languageserver_1.CodeActionKind.QuickFix, CommandIds.applySuggestion, CommandParams.create(textDocument, ruleId, suggestionSequence));
+                    result.get(ruleId).suggestions.push(action);
+                });
             }
             if (settings.codeAction.disableRuleComment.enable) {
                 let workspaceChange = new vscode_languageserver_1.WorkspaceChange();
@@ -1004,118 +1340,155 @@ messageQueue.registerRequest(vscode_languageserver_1.CodeActionRequest.type, (pa
                     workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableSameLineTextEdit(editInfo));
                 }
                 else {
-                    let lineText = textDocument.getText(vscode_languageserver_1.Range.create(vscode_languageserver_1.Position.create(editInfo.line - 1, 0), vscode_languageserver_1.Position.create(editInfo.line - 1, Number.MAX_VALUE)));
-                    let indentationText = /^([ \t]*)/.exec(lineText)[1];
+                    const lineText = textDocument.getText(vscode_languageserver_1.Range.create(vscode_languageserver_1.Position.create(editInfo.line - 1, 0), vscode_languageserver_1.Position.create(editInfo.line - 1, Number.MAX_VALUE)));
+                    const matches = /^([ \t]*)/.exec(lineText);
+                    const indentationText = matches !== null && matches.length > 0 ? matches[1] : '';
                     workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableLineTextEdit(editInfo, indentationText));
                 }
-                commands.set(`${CommandIds.applyDisableLine}:${ruleId}`, workspaceChange);
-                let title = `Disable ${ruleId} for this line`;
-                result.get(ruleId).disable = vscode_languageserver_1.CodeAction.create(title, vscode_languageserver_1.Command.create(title, CommandIds.applyDisableLine, ruleId), vscode_languageserver_1.CodeActionKind.QuickFix);
+                changes.set(`${CommandIds.applyDisableLine}:${ruleId}`, workspaceChange);
+                result.get(ruleId).disable = createCodeAction(`Disable ${ruleId} for this line`, kind, CommandIds.applyDisableLine, CommandParams.create(textDocument, ruleId));
                 if (result.get(ruleId).disableFile === undefined) {
                     workspaceChange = new vscode_languageserver_1.WorkspaceChange();
                     workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableFileTextEdit(editInfo));
-                    commands.set(`${CommandIds.applyDisableFile}:${ruleId}`, workspaceChange);
-                    title = `Disable ${ruleId} for the entire file`;
-                    result.get(ruleId).disableFile = vscode_languageserver_1.CodeAction.create(title, vscode_languageserver_1.Command.create(title, CommandIds.applyDisableFile, ruleId), vscode_languageserver_1.CodeActionKind.QuickFix);
+                    changes.set(`${CommandIds.applyDisableFile}:${ruleId}`, workspaceChange);
+                    result.get(ruleId).disableFile = createCodeAction(`Disable ${ruleId} for the entire file`, kind, CommandIds.applyDisableFile, CommandParams.create(textDocument, ruleId));
                 }
             }
             if (settings.codeAction.showDocumentation.enable && result.get(ruleId).showDocumentation === undefined) {
                 if (ruleDocData.urls.has(ruleId)) {
-                    let title = `Show documentation for ${ruleId}`;
-                    result.get(ruleId).showDocumentation = vscode_languageserver_1.CodeAction.create(title, vscode_languageserver_1.Command.create(title, CommandIds.openRuleDoc, ruleId), vscode_languageserver_1.CodeActionKind.QuickFix);
+                    result.get(ruleId).showDocumentation = createCodeAction(`Show documentation for ${ruleId}`, kind, CommandIds.openRuleDoc, CommandParams.create(textDocument, ruleId));
                 }
             }
         }
         if (result.length > 0) {
-            let sameProblems = new Map(allFixableRuleIds.map(s => [s, []]));
-            let all = [];
+            const sameProblems = new Map(allFixableRuleIds.map(s => [s, []]));
             for (let editInfo of fixes.getAllSorted()) {
                 if (documentVersion === -1) {
                     documentVersion = editInfo.documentVersion;
                 }
                 if (sameProblems.has(editInfo.ruleId)) {
-                    let same = sameProblems.get(editInfo.ruleId);
+                    const same = sameProblems.get(editInfo.ruleId);
                     if (!Fixes.overlaps(getLastEdit(same), editInfo)) {
                         same.push(editInfo);
                     }
                 }
-                if (!Fixes.overlaps(getLastEdit(all), editInfo)) {
-                    all.push(editInfo);
-                }
             }
             sameProblems.forEach((same, ruleId) => {
                 if (same.length > 1) {
-                    let sameFixes = new vscode_languageserver_1.WorkspaceChange();
-                    let sameTextChange = sameFixes.getTextEditChange({ uri, version: documentVersion });
-                    same.map(createTextEdit).forEach(edit => sameTextChange.add(edit));
-                    commands.set(CommandIds.applySameFixes, sameFixes);
-                    let title = `Fix all ${ruleId} problems`;
-                    let command = vscode_languageserver_1.Command.create(title, CommandIds.applySameFixes);
-                    result.get(ruleId).fixAll = vscode_languageserver_1.CodeAction.create(title, command, vscode_languageserver_1.CodeActionKind.QuickFix);
+                    const sameFixes = new vscode_languageserver_1.WorkspaceChange();
+                    const sameTextChange = sameFixes.getTextEditChange({ uri, version: documentVersion });
+                    same.map(fix => FixableProblem.createTextEdit(textDocument, fix)).forEach(edit => sameTextChange.add(edit));
+                    changes.set(CommandIds.applySameFixes, sameFixes);
+                    result.get(ruleId).fixAll = createCodeAction(`Fix all ${ruleId} problems`, kind, CommandIds.applySameFixes, CommandParams.create(textDocument));
                 }
             });
-            if (all.length > 1) {
-                let allFixes = new vscode_languageserver_1.WorkspaceChange();
-                let allTextChange = allFixes.getTextEditChange({ uri, version: documentVersion });
-                all.map(createTextEdit).forEach(edit => allTextChange.add(edit));
-                commands.set(CommandIds.applyAllFixes, allFixes);
-                let title = `Fix all auto-fixable problems`;
-                let command = vscode_languageserver_1.Command.create(title, CommandIds.applyAllFixes);
-                result.fixAll = vscode_languageserver_1.CodeAction.create(title, command, vscode_languageserver_1.CodeActionKind.QuickFix);
-            }
+            result.fixAll.push(createCodeAction(`Fix all auto-fixable problems`, kind, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
         }
         return result.all();
     });
 }, (params) => {
-    let document = documents.get(params.textDocument.uri);
-    return document ? document.version : undefined;
+    const document = documents.get(params.textDocument.uri);
+    return document !== undefined ? document.version : undefined;
 });
-function computeAllFixes(identifier) {
-    let uri = identifier.uri;
-    let textDocument = documents.get(uri);
-    if (!textDocument || identifier.version !== textDocument.version) {
+var AllFixesMode;
+(function (AllFixesMode) {
+    AllFixesMode["onSave"] = "onsave";
+    AllFixesMode["format"] = "format";
+    AllFixesMode["command"] = "command";
+})(AllFixesMode || (AllFixesMode = {}));
+function computeAllFixes(identifier, mode) {
+    const uri = identifier.uri;
+    const textDocument = documents.get(uri);
+    if (textDocument === undefined || identifier.version !== textDocument.version) {
         return undefined;
     }
-    let edits = codeActions.get(uri);
-    function createTextEdit(editInfo) {
-        return vscode_languageserver_1.TextEdit.replace(vscode_languageserver_1.Range.create(textDocument.positionAt(editInfo.edit.range[0]), textDocument.positionAt(editInfo.edit.range[1])), editInfo.edit.text || '');
-    }
-    if (edits) {
-        let fixes = new Fixes(edits);
-        if (!fixes.isEmpty()) {
-            return fixes.getOverlapFree().filter(fix => !!fix.edit).map(createTextEdit);
+    return resolveSettings(textDocument).then((settings) => {
+        if (settings.validate !== Validate.on || !TextDocumentSettings.hasLibrary(settings) || (mode === AllFixesMode.format && !settings.format)) {
+            return [];
         }
-    }
-    return undefined;
+        const filePath = getFilePath(textDocument);
+        return withCLIEngine((cli) => {
+            const problems = codeActions.get(uri);
+            const originalContent = textDocument.getText();
+            let problemFixes;
+            const result = [];
+            let start = Date.now();
+            // Only use known fixes when running in onSave mode. See https://github.com/microsoft/vscode-eslint/issues/871
+            // for details
+            if (mode === AllFixesMode.onSave && problems !== undefined && problems.size > 0) {
+                const fixes = (new Fixes(problems)).getApplicable();
+                if (fixes.length > 0) {
+                    problemFixes = fixes.map(fix => FixableProblem.createTextEdit(textDocument, fix));
+                }
+            }
+            if (mode === AllFixesMode.onSave && settings.codeActionOnSave.mode === CodeActionsOnSaveMode.problems) {
+                connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
+                if (problemFixes !== undefined) {
+                    result.push(...problemFixes);
+                }
+            }
+            else {
+                let content;
+                if (problemFixes !== undefined) {
+                    content = vscode_languageserver_textdocument_1.TextDocument.applyEdits(textDocument, problemFixes);
+                }
+                else {
+                    content = originalContent;
+                }
+                const report = cli.executeOnText(content, filePath);
+                connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
+                if (Array.isArray(report.results) && report.results.length === 1 && report.results[0].output !== undefined) {
+                    const fixedContent = report.results[0].output;
+                    start = Date.now();
+                    const diffs = diff_1.stringDiff(originalContent, fixedContent, false);
+                    connection.tracer.log(`Computing minimal edits took: ${Date.now() - start} ms.`);
+                    for (let diff of diffs) {
+                        result.push({
+                            range: {
+                                start: textDocument.positionAt(diff.originalStart),
+                                end: textDocument.positionAt(diff.originalStart + diff.originalLength)
+                            },
+                            newText: fixedContent.substr(diff.modifiedStart, diff.modifiedLength)
+                        });
+                    }
+                }
+                else if (problemFixes !== undefined) {
+                    result.push(...problemFixes);
+                }
+            }
+            return result;
+        }, settings, { fix: true });
+    });
 }
-messageQueue.registerRequest(vscode_languageserver_1.ExecuteCommandRequest.type, (params) => {
+messageQueue.registerRequest(vscode_languageserver_1.ExecuteCommandRequest.type, async (params) => {
     let workspaceChange;
-    if (params.command === CommandIds.applyAutoFix) {
-        let identifier = params.arguments[0];
-        let edits = computeAllFixes(identifier);
-        if (edits) {
+    const commandParams = params.arguments[0];
+    if (params.command === CommandIds.applyAllFixes) {
+        const edits = await computeAllFixes(commandParams, AllFixesMode.command);
+        if (edits !== undefined) {
             workspaceChange = new vscode_languageserver_1.WorkspaceChange();
-            let textChange = workspaceChange.getTextEditChange(identifier);
+            const textChange = workspaceChange.getTextEditChange(commandParams);
             edits.forEach(edit => textChange.add(edit));
         }
     }
     else {
         if ([CommandIds.applySingleFix, CommandIds.applyDisableLine, CommandIds.applyDisableFile].indexOf(params.command) !== -1) {
-            let ruleId = params.arguments[0];
-            workspaceChange = commands.get(`${params.command}:${ruleId}`);
+            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}`);
         }
-        else if (params.command === CommandIds.openRuleDoc) {
-            let ruleId = params.arguments[0];
-            let url = ruleDocData.urls.get(ruleId);
+        else if ([CommandIds.applySuggestion].indexOf(params.command) !== -1) {
+            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}:${commandParams.sequence}`);
+        }
+        else if (params.command === CommandIds.openRuleDoc && CommandParams.hasRuleId(commandParams)) {
+            const url = ruleDocData.urls.get(commandParams.ruleId);
             if (url) {
                 connection.sendRequest(OpenESLintDocRequest.type, { url });
             }
         }
         else {
-            workspaceChange = commands.get(params.command);
+            workspaceChange = changes.get(params.command);
         }
     }
-    if (!workspaceChange) {
+    if (workspaceChange === undefined) {
         return {};
     }
     return connection.workspace.applyEdit(workspaceChange.edit).then((response) => {
@@ -1127,13 +1500,23 @@ messageQueue.registerRequest(vscode_languageserver_1.ExecuteCommandRequest.type,
         connection.console.error(`Failed to apply command: ${params.command}`);
     });
 }, (params) => {
-    if (params.command === CommandIds.applyAutoFix) {
-        let identifier = params.arguments[0];
-        return identifier.version;
+    const commandParam = params.arguments[0];
+    if (changes.isUsable(commandParam.uri, commandParam.version)) {
+        return commandParam.version;
     }
     else {
         return undefined;
     }
+});
+messageQueue.registerRequest(vscode_languageserver_1.DocumentFormattingRequest.type, (params) => {
+    const textDocument = documents.get(params.textDocument.uri);
+    if (textDocument === undefined) {
+        return [];
+    }
+    return computeAllFixes({ uri: textDocument.uri, version: textDocument.version }, AllFixesMode.format);
+}, (params) => {
+    const document = documents.get(params.textDocument.uri);
+    return document !== undefined ? document.version : undefined;
 });
 connection.listen();
 //# sourceMappingURL=eslintServer.js.map
