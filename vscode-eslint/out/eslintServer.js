@@ -897,11 +897,6 @@ function validate(document, settings, publishDiagnostics = true) {
     withCLIEngine((cli) => {
         codeActions.delete(uri);
         const report = cli.executeOnText(content, file, settings.onIgnoredFiles !== ESLintSeverity.off);
-        console.error({
-            file,
-            report,
-            checkIgnored: settings.onIgnoredFiles !== ESLintSeverity.off
-        })
         const diagnostics = [];
         if (report && report.results && Array.isArray(report.results) && report.results.length > 0) {
             const docReport = report.results[0];

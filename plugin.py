@@ -6,9 +6,12 @@ import threading
 import webbrowser
 
 from LSP.plugin.core.handlers import LanguageHandler
-from LSP.plugin.core.protocol import Response
+from LSP.plugin.core.protocol import Response, WorkspaceFolder
+from LSP.plugin.core.registry import windows
 from LSP.plugin.core.settings import ClientConfig
 from LSP.plugin.core.settings import read_client_config
+from LSP.plugin.core.typing import Dict
+from LSP.plugin.core.url import uri_to_filename
 
 
 package_path = os.path.dirname(__file__)
@@ -70,6 +73,9 @@ def logAndShowMessage(msg, additional_logs=None):
 
 
 class LspEslintPlugin(LanguageHandler):
+    def __init__(self):
+        self.window = None
+
     @property
     def name(self) -> str:
         return 'lsp-eslint'
@@ -132,6 +138,8 @@ class LspEslintPlugin(LanguageHandler):
         if not is_node_installed():
             sublime.status_message('Please install Node.js for the ESLint Language Server to work.')
             return False
+
+        self.window = window
         return True
 
     def on_initialized(self, client) -> None:
@@ -139,6 +147,23 @@ class LspEslintPlugin(LanguageHandler):
         client.on_request(
             'eslint/openDoc',
             lambda params, request_id: self.handle_open_doc(client, params, request_id))
+        client.on_request(
+            'workspace/configuration',
+            lambda params, request_id: self.handle_request_workspace_configuration(client, params, request_id))
+
+    def handle_request_workspace_configuration(self, client, params, request_id) -> None:
+        window_manager = windows.lookup(self.window)
+        items = []  # type: List[Optional[Dict[str, str]]]
+        requested_items = params.get('items') or []
+        for requested_item in requested_items:
+            settings = self.config.settings
+            project_path = window_manager.get_project_path(uri_to_filename(requested_item.get('scopeUri')))
+            if project_path:
+                settings['workspaceFolder'] = WorkspaceFolder.from_path(project_path).to_lsp()
+            items.append(settings)
+        client.send_response(Response(request_id, items))
+
+        pass
 
     def handle_status(self, params) -> None:
         pass
