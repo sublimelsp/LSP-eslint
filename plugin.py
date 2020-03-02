@@ -14,14 +14,15 @@ from LSP.plugin.core.typing import Dict
 from LSP.plugin.core.url import uri_to_filename
 
 
-package_path = os.path.dirname(__file__)
-server_path = os.path.join(package_path, 'vscode-eslint', 'out', 'eslintServer.js')
-vscode_eslint_path = os.path.join(package_path, 'vscode-eslint')
-node_modules_path = os.path.join(vscode_eslint_path, 'node_modules')
+PACKAGE_PATH = os.path.dirname(__file__)
+SERVER_PATH = os.path.join(PACKAGE_PATH, 'vscode-eslint', 'out', 'eslintServer.js')
+VSCODE_ESLINT_PATH = os.path.join(PACKAGE_PATH, 'vscode-eslint')
+NODE_MODULES_PATH = os.path.join(VSCODE_ESLINT_PATH, 'node_modules')
+SETTINGS_KEY = 'LSP-eslint.sublime-settings'
 
 
 def plugin_loaded():
-    dependencies_insalled = os.path.isdir(node_modules_path)
+    dependencies_insalled = os.path.isdir(NODE_MODULES_PATH)
     print('LSP-eslint: Server {} installed.'.format('is' if dependencies_insalled else 'is not'))
 
     if not dependencies_insalled:
@@ -32,7 +33,7 @@ def plugin_loaded():
 
         runCommand(
             onCommandDone,
-            ["npm", "install", "--verbose", "--prefix", vscode_eslint_path, vscode_eslint_path]
+            ["npm", "install", "--verbose", "--prefix", VSCODE_ESLINT_PATH, VSCODE_ESLINT_PATH]
         )
 
 
@@ -81,57 +82,76 @@ class LspEslintPlugin(LanguageHandler):
 
     @property
     def config(self) -> ClientConfig:
-        settings = sublime.load_settings("LSP-eslint.sublime-settings")
-        client_configuration = settings.get('client')
-        if client_configuration is None:
-            client_configuration = {}
+        configuration = self.migrate_and_read_configuration()
 
         default_configuration = {
-            "command": [
-                'node',
-                server_path,
-                '--stdio'
+            'enabled': True,
+            'command': ['node', SERVER_PATH, '--stdio'],
+            'languageId': 'eslint',
+            'scopes': ['source.js', 'text.html.vue'],
+            'syntaxes': [
+                'Packages/JavaScript/JavaScript.sublime-syntax',
+                'Packages/Babel/JavaScript (Babel).sublime-syntax'
+                'Packages/Vue Syntax Highlight/Vue Component.sublime-syntax',
             ],
-            "languages": [
-                {
-                    "languageId": "eslint",
-                    "scopes": ["source.js", "text.html.vue"],
-                    "syntaxes": [
-                        "Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
-                        "Packages/JavaScript/JavaScript.sublime-syntax",
-                        "Packages/User/JS Custom/Syntaxes/React.sublime-syntax",
-                        "Packages/JavaScript/JavaScript.sublime-syntax",
-                        "Packages/Babel/JavaScript (Babel).sublime-syntax"
-                    ]
-                }
-            ],
-            settings: {
-                "validate": "on",
-                "packageManager": "npm",
-                "options": {},
-                "run": "onType",
-                "nodePath": None,
-                "format": False,
-                "quiet": False,
-                "onIgnoredFiles": "off",
-                "codeAction": {
-                    "disableRuleComment": {
-                        "enable": True,
-                        "location": "separateLine"
+            'initializationOptions': {},
+            'settings': {
+                'validate': 'on',
+                'packageManager': 'npm',
+                'options': {},
+                'run': 'onType',
+                'nodePath': None,
+                'format': False,
+                'quiet': False,
+                'onIgnoredFiles': 'off',
+                'codeAction': {
+                    'disableRuleComment': {
+                        'enable': True,
+                        'location': 'separateLine'
                     },
-                    "showDocumentation": {
-                        "enable": True
+                    'showDocumentation': {
+                        'enable': True
                     }
                 },
-                "codeActionOnSave": {
-                    "enable": True,
-                    "mode": "all"
+                'codeActionOnSave': {
+                    'enable': True,
+                    'mode': 'all'
                 }
             }
         }
 
-        default_configuration.update(client_configuration)
+        default_configuration.update(configuration)
         return read_client_config('lsp-eslint', default_configuration)
+
+    def migrate_and_read_configuration(self) -> None:
+        settings = {}
+        loaded_settings = sublime.load_settings(SETTINGS_KEY)
+
+        if loaded_settings:
+            if loaded_settings.has('client'):
+                client = loaded_settings.get('client')
+                loaded_settings.erase('client')
+                # Migrate old keys
+                for key in ['languages', 'initializationOptions', 'settings']:
+                    value = client[key] if key in client else None
+                    if value:
+                        if key == 'languages':
+                            for languageConfiguration in value:
+                                if 'scopes' in languageConfiguration:
+                                    loaded_settings.set('scopes', languageConfiguration['scopes'])
+                                if 'syntaxes' in languageConfiguration:
+                                    loaded_settings.set('syntaxes', languageConfiguration['syntaxes'])
+                        elif key == 'settings':
+                            loaded_settings.set('old_settings', value)
+                        else:
+                            loaded_settings.set(key, value)
+                sublime.save_settings(SETTINGS_KEY)
+
+            # Read configuration keys
+            for key in ['scopes', 'syntaxes', 'initializationOptions', 'settings']:
+                settings[key] = loaded_settings.get(key)
+
+        return settings
 
     def on_start(self, window) -> bool:
         if not is_node_installed():
