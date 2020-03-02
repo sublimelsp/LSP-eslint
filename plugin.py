@@ -73,8 +73,7 @@ def logAndShowMessage(msg, additional_logs=None):
 
 
 class LspEslintPlugin(LanguageHandler):
-    def __init__(self):
-        self.window = None
+    api_version = 2
 
     @property
     def name(self) -> str:
@@ -139,31 +138,28 @@ class LspEslintPlugin(LanguageHandler):
             sublime.status_message('Please install Node.js for the ESLint Language Server to work.')
             return False
 
-        self.window = window
         return True
 
-    def on_initialized(self, client) -> None:
+    def on_initialized(self, session, window) -> None:
+        client = session.client
         client.on_notification('eslint/status', self.handle_status)
         client.on_request(
             'eslint/openDoc',
             lambda params, request_id: self.handle_open_doc(client, params, request_id))
         client.on_request(
             'workspace/configuration',
-            lambda params, request_id: self.handle_request_workspace_configuration(client, params, request_id))
+            lambda params, request_id: self.handle_request_workspace_configuration(session, params, request_id))
 
-    def handle_request_workspace_configuration(self, client, params, request_id) -> None:
-        window_manager = windows.lookup(self.window)
+    def handle_request_workspace_configuration(self, session, params, request_id) -> None:
         items = []  # type: List[Optional[Dict[str, str]]]
         requested_items = params.get('items') or []
         for requested_item in requested_items:
             settings = self.config.settings
-            project_path = window_manager.get_project_path(uri_to_filename(requested_item.get('scopeUri')))
-            if project_path:
-                settings['workspaceFolder'] = WorkspaceFolder.from_path(project_path).to_lsp()
+            folder = session.workspace_folder_from_path(uri_to_filename(requested_item.get('scopeUri')))
+            if folder:
+                settings['workspaceFolder'] = folder.to_lsp()
             items.append(settings)
-        client.send_response(Response(request_id, items))
-
-        pass
+        session.client.send_response(Response(request_id, items))
 
     def handle_status(self, params) -> None:
         pass
