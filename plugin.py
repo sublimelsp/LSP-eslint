@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import sublime
@@ -12,33 +13,78 @@ from LSP.plugin.core.settings import ClientConfig
 from LSP.plugin.core.settings import read_client_config
 from LSP.plugin.core.typing import Dict
 from LSP.plugin.core.url import uri_to_filename
+from sublime_lib import ResourcePath
 
 
-PACKAGE_PATH = os.path.dirname(__file__)
-SERVER_PATH = os.path.join(PACKAGE_PATH, 'vscode-eslint', 'out', 'eslintServer.js')
-VSCODE_ESLINT_PATH = os.path.join(PACKAGE_PATH, 'vscode-eslint')
-NODE_MODULES_PATH = os.path.join(VSCODE_ESLINT_PATH, 'node_modules')
+PACKAGE_NAME = 'LSP-eslint'
 SETTINGS_KEY = 'LSP-eslint.sublime-settings'
 
 
+class ServerResources(object):
+    """Global object providing paths to server resources and handles installing/updating server in cache.
+
+    It needs to be initialized during (or after) plugin_loaded() for  return
+    relevant and valid paths.
+    """
+    initialized = False
+    server_binary_path = None
+
+    @classmethod
+    def initialize(cls):
+        if cls.initialized:
+            return
+
+        cls.initialized = True
+
+        cache_path = sublime.cache_path()
+        server_path = os.path.join(cache_path, PACKAGE_NAME, 'server')
+        cls.server_binary_path = os.path.join(server_path, 'out', 'eslintServer.js')
+        cls.copy_resources(server_path)
+
+    @classmethod
+    def copy_resources(cls, server_path):
+        local_server_path = 'Packages/{}/vscode-eslint/'.format(PACKAGE_NAME)
+
+        if os.path.isdir(server_path):
+            # Server already in cache. Check if version has changed and if so,
+            # delete existing copy in cache.
+            delete_cached_server = False
+            cache_package_json_path = os.path.join(server_path, 'package.json')
+            if os.path.isfile(cache_package_json_path):
+                # Read package.json in cache
+                with open(cache_package_json_path, 'r') as f:
+                    cached_version = json.load(f)['version']
+                # Read local package.json
+                local_package_json_res = ResourcePath(local_server_path, 'package.json')
+                local_version = json.loads(local_package_json_res.read_text())['version']
+                delete_cached_server = cached_version != local_version
+            else:
+                # Server directory exists but there is no package.json
+                delete_cached_server = True
+
+            if delete_cached_server:
+                shutil.rmtree(server_path)
+
+        if not os.path.isdir(server_path):
+            ResourcePath(local_server_path).copytree(server_path, exist_ok=True)
+
+        dependencies_installed = os.path.isdir(os.path.join(server_path, 'node_modules'))
+        print('{}: Server {} installed.'.format(PACKAGE_NAME, 'is' if dependencies_installed else 'is not'))
+
+        if not dependencies_installed:
+            # this will be called only when the plugin gets:
+            # - installed for the first time,
+            # - or when updated on package control
+            logAndShowMessage('{}: Installing server.'.format(PACKAGE_NAME))
+
+            runCommand(
+                lambda: logAndShowMessage('{}: Server installed.'.format(PACKAGE_NAME)),
+                ["npm", "install", "--verbose", "--prefix", server_path, server_path]
+            )
+
+
 def plugin_loaded():
-    dependencies_insalled = os.path.isdir(NODE_MODULES_PATH)
-    print('LSP-eslint: Server {} installed.'.format('is' if dependencies_insalled else 'is not'))
-
-    if not dependencies_insalled:
-        # this will be called only when the plugin gets:
-        # - installed for the first time,
-        # - or when updated on package control
-        logAndShowMessage('LSP-eslint: Installing server.')
-
-        runCommand(
-            onCommandDone,
-            ["npm", "install", "--verbose", "--prefix", VSCODE_ESLINT_PATH, VSCODE_ESLINT_PATH]
-        )
-
-
-def onCommandDone():
-    logAndShowMessage('LSP-eslint: Server installed.')
+    ServerResources.initialize()
 
 
 def runCommand(onExit, popenArgs):
@@ -56,7 +102,7 @@ def runCommand(onExit, popenArgs):
                 subprocess.check_call(popenArgs)
             onExit()
         except subprocess.CalledProcessError as error:
-            logAndShowMessage('LSP-eslint: Error while installing the server.', error)
+            logAndShowMessage('{}: Error while installing the server.'.format(PACKAGE_NAME), error)
         return
     thread = threading.Thread(target=runInThread, args=(onExit, popenArgs))
     thread.start()
@@ -84,9 +130,14 @@ class LspEslintPlugin(LanguageHandler):
     def config(self) -> ClientConfig:
         configuration = self.migrate_and_read_configuration()
 
+        # Calling initialize() also here as this might run before `plugin_loaded`.
+        # Will be a no-op if already ran.
+        # See https://github.com/sublimelsp/LSP/issues/899
+        ServerResources.initialize()
+
         default_configuration = {
             'enabled': True,
-            'command': ['node', SERVER_PATH, '--stdio'],
+            'command': ['node', ServerResources.server_binary_path, '--stdio'],
             'languageId': 'eslint',
             'scopes': ['source.js', 'text.html.vue'],
             'syntaxes': [
