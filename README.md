@@ -7,7 +7,7 @@ Eslint support for Sublime's LSP plugin.
 
 ## Configuration
 
-Open configuration file using command palette by executing command `Preferences: LSP-eslint Settings` or opening it from the Sublime menu.
+Open configuration file using command palette with `Preferences: LSP-eslint Settings` command or opening it from the Sublime menu.
 
 Configuration file contains multiple configuration keys:
 
@@ -18,8 +18,6 @@ Defines which scopes eslint can run in.
 ### syntaxes
 
 Defines which syntax files eslint can run in.
-
-To enable linting of `typescript` code, add `Packages/TypeScript Syntax/TypeScript.tmLanguage` entry to default ones (requires also dedicated ESLint configuration).
 
 ### initializationOptions
 
