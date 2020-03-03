@@ -79,7 +79,7 @@ class ServerResources(object):
 
             runCommand(
                 lambda: logAndShowMessage('{}: Server installed.'.format(PACKAGE_NAME)),
-                ["npm", "install", "--verbose", "--prefix", server_path, server_path]
+                ["npm", "install", "--verbose", "--production", "--prefix", server_path, server_path]
             )
 
 
