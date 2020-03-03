@@ -95,33 +95,37 @@ class LspEslintPlugin(LanguageHandler):
                 'Packages/Vue Syntax Highlight/Vue Component.sublime-syntax',
             ],
             'initializationOptions': {},
-            'settings': {
-                'validate': 'on',
-                'packageManager': 'npm',
-                'options': {},
-                'run': 'onType',
-                'nodePath': None,
-                'format': False,
-                'quiet': False,
-                'onIgnoredFiles': 'off',
-                'codeAction': {
-                    'disableRuleComment': {
-                        'enable': True,
-                        'location': 'separateLine'
-                    },
-                    'showDocumentation': {
-                        'enable': True
-                    }
-                },
-                'codeActionOnSave': {
-                    'enable': True,
-                    'mode': 'all'
-                }
-            }
+            'settings': self.eslint_settings
         }
 
         default_configuration.update(configuration)
         return read_client_config('lsp-eslint', default_configuration)
+
+    @property
+    def eslint_settings(self) -> Dict:
+        return {
+            'validate': 'on',
+            'packageManager': 'npm',
+            'options': {},
+            'run': 'onType',
+            'nodePath': None,
+            'format': False,
+            'quiet': False,
+            'onIgnoredFiles': 'off',
+            'codeAction': {
+                'disableRuleComment': {
+                    'enable': True,
+                    'location': 'separateLine'
+                },
+                'showDocumentation': {
+                    'enable': True
+                }
+            },
+            'codeActionOnSave': {
+                'enable': True,
+                'mode': 'all'
+            }
+        }
 
     def migrate_and_read_configuration(self) -> None:
         settings = {}
@@ -174,7 +178,7 @@ class LspEslintPlugin(LanguageHandler):
         items = []  # type: List[Optional[Dict[str, str]]]
         requested_items = params.get('items') or []
         for requested_item in requested_items:
-            settings = self.config.settings
+            settings = self.eslint_settings
             folder = session.workspace_folder_from_path(uri_to_filename(requested_item.get('scopeUri')))
             if folder:
                 settings['workspaceFolder'] = folder.to_lsp()
