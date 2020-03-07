@@ -34,34 +34,34 @@ def log_and_show_message(msg, additional_logs=None):
     sublime.active_window().status_message(msg)
 
 
-class ServerNpmResources(object):
+class ServerNpmResource(object):
     """Global object providing paths to server resources.
     Also handles the installing and updating of the server in cache.
 
-    initialize_resources() needs to be called during (or after) plugin_loaded() for paths to be valid.
+    setup() needs to be called during (or after) plugin_loaded() for paths to be valid.
     """
 
     def __init__(self, package_name, server_directory, server_binary_path):
         self._initialized = False
         self._package_name = package_name
         self._server_directory = server_directory
-        self._server_binary_path = server_binary_path
+        self._binary_path = server_binary_path
         self._package_cache_path = None
 
     @property
-    def server_binary_path(self):
-        return os.path.join(self._package_cache_path, self._server_binary_path)
+    def binary_path(self):
+        return os.path.join(self._package_cache_path, self._binary_path)
 
-    def initialize_resources(self):
+    def setup(self):
         if self._initialized:
             return
 
         self._initialized = True
         self._package_cache_path = os.path.join(sublime.cache_path(), self._package_name)
 
-        self._copy_resources()
+        self._copy_to_cache()
 
-    def _copy_resources(self):
+    def _copy_to_cache(self):
         src_path = 'Packages/{}/{}/'.format(self._package_name, self._server_directory)
         dst_path = 'Cache/{}/{}/'.format(self._package_name, self._server_directory)
         cache_server_path = os.path.join(self._package_cache_path, self._server_directory)

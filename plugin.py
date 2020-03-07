@@ -7,18 +7,18 @@ from LSP.plugin.core.handlers import LanguageHandler
 from LSP.plugin.core.protocol import Response
 from LSP.plugin.core.settings import ClientConfig
 from LSP.plugin.core.settings import read_client_config
-from .utils.resources import ServerNpmResources
+from .utils.resources import ServerNpmResource
 
 PACKAGE_NAME = 'LSP-eslint'
 SETTINGS_FILENAME = 'LSP-eslint.sublime-settings'
 SERVER_DIRECTORY = 'vscode-eslint'
 SERVER_BINARY_PATH = os.path.join(SERVER_DIRECTORY, 'out', 'eslintServer.js')
 
-server_resources = ServerNpmResources(PACKAGE_NAME, SERVER_DIRECTORY, SERVER_BINARY_PATH)
+server = ServerNpmResource(PACKAGE_NAME, SERVER_DIRECTORY, SERVER_BINARY_PATH)
 
 
 def plugin_loaded():
-    server_resources.initialize_resources()
+    server.setup()
 
 
 def is_node_installed():
@@ -28,7 +28,7 @@ def is_node_installed():
 class LspEslintPlugin(LanguageHandler):
     @property
     def name(self) -> str:
-        return 'lsp-eslint'
+        return PACKAGE_NAME
 
     @property
     def config(self) -> ClientConfig:
@@ -37,14 +37,14 @@ class LspEslintPlugin(LanguageHandler):
         if client_configuration is None:
             client_configuration = {}
 
-        # Calling initialize_resources() also here as this might run before `plugin_loaded`.
+        # Calling setup() also here as this might run before `plugin_loaded`.
         # Will be a no-op if already ran.
         # See https://github.com/sublimelsp/LSP/issues/899
-        server_resources.initialize_resources()
+        server.setup()
 
         default_configuration = {
             'enabled': True,
-            'command': ['node', server_resources.server_binary_path, '--stdio'],
+            'command': ['node', server.binary_path, '--stdio'],
             "languages": [
                 {
                     "languageId": "eslint",
@@ -85,7 +85,7 @@ class LspEslintPlugin(LanguageHandler):
 
     def on_start(self, window) -> bool:
         if not is_node_installed():
-            sublime.status_message('Please install Node.js for the ESLint Language Server to work.')
+            sublime.status_message("{}: Please install Node.js for the server to work.".format(PACKAGE_NAME))
             return False
         return True
 
