@@ -32,7 +32,7 @@ def is_node_installed():
 class LspEslintPlugin(LanguageHandler):
     @property
     def name(self) -> str:
-        return PACKAGE_NAME
+        return PACKAGE_NAME.lower()
 
     @property
     def config(self) -> ClientConfig:
