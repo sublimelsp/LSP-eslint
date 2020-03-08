@@ -21,6 +21,10 @@ def plugin_loaded():
     server.setup()
 
 
+def plugin_unloaded():
+    server.cleanup()
+
+
 def is_node_installed():
     return shutil.which('node') is not None
 

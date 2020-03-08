@@ -61,6 +61,10 @@ class ServerNpmResource(object):
 
         self._copy_to_cache()
 
+    def cleanup(self):
+        if os.path.isdir(self._package_cache_path):
+            shutil.rmtree(self._package_cache_path)
+
     def _copy_to_cache(self):
         src_path = 'Packages/{}/{}/'.format(self._package_name, self._server_directory)
         dst_path = 'Cache/{}/{}/'.format(self._package_name, self._server_directory)
@@ -78,6 +82,7 @@ class ServerNpmResource(object):
                 shutil.rmtree(cache_server_path)
 
         if not os.path.isdir(cache_server_path):
+            # create cache folder
             ResourcePath(src_path).copytree(cache_server_path, exist_ok=True)
 
         self._install_dependencies(cache_server_path)
