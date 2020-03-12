@@ -7,7 +7,7 @@ from LSP.plugin.core.handlers import LanguageHandler
 from LSP.plugin.core.protocol import Response
 from LSP.plugin.core.settings import ClientConfig
 from LSP.plugin.core.settings import read_client_config
-from .utils.resources import ServerNpmResource
+from lsp_utils import ServerNpmResource
 
 PACKAGE_NAME = 'LSP-eslint'
 SETTINGS_FILENAME = 'LSP-eslint.sublime-settings'
