@@ -19,5 +19,9 @@
 		"vscode-languageserver": "6.0.1",
 		"vscode-languageserver-textdocument": "1.0.0"
 	},
-	"scripts": {}
+	"scripts": {},
+	"devDependencies": {
+		"@types/node": "^13.9.2",
+		"typescript": "^3.8.3"
+	}
 }
