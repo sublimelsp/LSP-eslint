@@ -62,7 +62,7 @@ class LspEslintPlugin(LanguageHandler):
                     ]
                 }
             ],
-            settings: {
+            "settings": {
                 "validate": True,
                 "packageManager": "npm",
                 "autoFix": True,
@@ -91,7 +91,7 @@ class LspEslintPlugin(LanguageHandler):
         if not is_node_installed():
             sublime.status_message("{}: Please install Node.js for the server to work.".format(PACKAGE_NAME))
             return False
-        return True
+        return server.ready
 
     def on_initialized(self, client) -> None:
         client.on_notification('eslint/status', self.handle_status)
