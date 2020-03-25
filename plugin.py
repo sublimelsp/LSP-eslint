@@ -62,7 +62,7 @@ class LspEslintPlugin(LanguageHandler):
                     ]
                 }
             ],
-            settings: {
+            "settings": {
                 "validate": True,
                 "packageManager": "npm",
                 "autoFix": True,
