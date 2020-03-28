@@ -49,19 +49,7 @@ class LspEslintPlugin(LanguageHandler):
         default_configuration = {
             'enabled': True,
             'command': ['node', server.binary_path, '--stdio'],
-            "languages": [
-                {
-                    "languageId": "eslint",
-                    "scopes": ["source.js", "text.html.vue"],
-                    "syntaxes": [
-                        "Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
-                        "Packages/JavaScript/JavaScript.sublime-syntax",
-                        "Packages/User/JS Custom/Syntaxes/React.sublime-syntax",
-                        "Packages/JavaScript/JavaScript.sublime-syntax",
-                        "Packages/Babel/JavaScript (Babel).sublime-syntax"
-                    ]
-                }
-            ],
+            "languages": [{"languageId": "eslint", "scopes": ["source.js", "text.html.vue"]}],
             settings: {
                 "validate": True,
                 "packageManager": "npm",
