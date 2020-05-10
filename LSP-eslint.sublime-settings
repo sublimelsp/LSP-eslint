@@ -1,39 +1,39 @@
 {
-	"languages": [
-		{
-			"languageId": "eslint",
-			"scopes": ["source.js", "text.html.vue"],
-			"syntaxes": [
-				"Packages/Babel/JavaScript (Babel).sublime-syntax",
-				"Packages/JavaScript/JavaScript.sublime-syntax",
-				"Packages/JavaScript/JavaScript.sublime-syntax",
-				"Packages/User/JS Custom/Syntaxes/React.sublime-syntax",
-				"Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
-			],
-		},
-	],
-	"initializationOptions": {},
-	"settings": {
-		"validate": "on",
-		"packageManager": "npm",
-		"options": {},
-		"run": "onType",
-		"nodePath": null,
-		"format": false,
-		"quiet": false,
-		"onIgnoredFiles": "off",
-		"codeAction": {
-			"disableRuleComment": {
-				"enable": true,
-				"location": "separateLine"
-			},
-			"showDocumentation": {
-				"enable": true
+	"client" : {
+		"enabled": true,
+		"languages": [
+			{
+				"languageId": "eslint",
+				"scopes": ["source.js", "text.html.vue"],
+				"syntaxes": [
+					"Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
+					"Packages/JavaScript/JavaScript.sublime-syntax",
+					"Packages/User/JS Custom/Syntaxes/React.sublime-syntax",
+					"Packages/JavaScript/JavaScript.sublime-syntax",
+					"Packages/Babel/JavaScript (Babel).sublime-syntax"
+				]
 			}
-		},
-		"codeActionOnSave": {
-			"enable": true,
-			"mode": "all"
-		},
+		],
+		"initializationOptions": {},
+		"settings": {
+			"validate": true,
+			"packageManager": "npm",
+			"autoFix": true,
+			"autoFixOnSave": true,
+			"options": {},
+			"run": "onType",
+			"nodePath": null,
+			"quiet": false,
+			"workspaceFolder": null,
+			"codeAction": {
+				"disableRuleComment": {
+					"enable": true,
+					"location": "separateLine"
+				},
+				"showDocumentation": {
+					"enable": true
+				}
+			}
+		}
 	}
 }
