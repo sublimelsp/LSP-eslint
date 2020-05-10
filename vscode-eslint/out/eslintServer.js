@@ -430,7 +430,7 @@ function resolveSettings(document) {
         const filePath = getFilePath(document);
         const workspaceFolderPath = settings.workspaceFolder !== undefined ? getFilePath(settings.workspaceFolder.uri) : undefined;
         const hasUserDefinedWorkingDirectories = configuration.workingDirectory !== undefined;
-        const workingDirectoryConfig = (_a = configuration.workingDirectory) !== null && _a !== void 0 ? _a : { mode: ModeEnum.location };
+        const workingDirectoryConfig = (_a = configuration.workingDirectory, (_a !== null && _a !== void 0 ? _a : { mode: ModeEnum.location }));
         if (ModeItem.is(workingDirectoryConfig)) {
             let candidate;
             if (workingDirectoryConfig.mode === ModeEnum.location) {
@@ -1312,7 +1312,7 @@ messageQueue.registerRequest(vscode_languageserver_1.CodeActionRequest.type, (pa
         }
         let documentVersion = -1;
         const allFixableRuleIds = [];
-        const kind = only !== null && only !== void 0 ? only : vscode_languageserver_1.CodeActionKind.QuickFix;
+        const kind = (only !== null && only !== void 0 ? only : vscode_languageserver_1.CodeActionKind.QuickFix);
         for (let editInfo of fixes.getScoped(params.context.diagnostics)) {
             documentVersion = editInfo.documentVersion;
             const ruleId = editInfo.ruleId;

@@ -63,15 +63,15 @@ class MyArray {
      * them to another Array starting at the specified destination index. The length and the indexes
      * are specified as 64-bit integers.
      * sourceArray:
-     *		The Array that contains the data to copy.
+     *      The Array that contains the data to copy.
      * sourceIndex:
-     *		A 64-bit integer that represents the index in the sourceArray at which copying begins.
+     *      A 64-bit integer that represents the index in the sourceArray at which copying begins.
      * destinationArray:
-     *		The Array that receives the data.
+     *      The Array that receives the data.
      * destinationIndex:
-     *		A 64-bit integer that represents the index in the destinationArray at which storing begins.
+     *      A 64-bit integer that represents the index in the destinationArray at which storing begins.
      * length:
-     *		A 64-bit integer that represents the number of elements to copy.
+     *      A 64-bit integer that represents the number of elements to copy.
      */
     static Copy(sourceArray, sourceIndex, destinationArray, destinationIndex, length) {
         for (let i = 0; i < length; i++) {
