@@ -5,8 +5,8 @@ import webbrowser
 
 from LSP.plugin.core.handlers import LanguageHandler
 from LSP.plugin.core.protocol import Response
-from LSP.plugin.core.settings import ClientConfig, read_client_config
-from LSP.plugin.core.typing import Dict
+from LSP.plugin.core.settings import ClientConfig
+from LSP.plugin.core.settings import read_client_config
 from lsp_utils import ServerNpmResource
 
 PACKAGE_NAME = 'LSP-eslint'
@@ -36,42 +36,56 @@ class LspEslintPlugin(LanguageHandler):
 
     @property
     def config(self) -> ClientConfig:
+        settings = sublime.load_settings(SETTINGS_FILENAME)
+        client_configuration = settings.get('client')
+        if client_configuration is None:
+            client_configuration = {}
+
         # Calling setup() also here as this might run before `plugin_loaded`.
         # Will be a no-op if already ran.
         # See https://github.com/sublimelsp/LSP/issues/899
         server.setup()
 
-        configuration = self.migrate_and_read_configuration()
-
         default_configuration = {
             'enabled': True,
             'command': ['node', server.binary_path, '--stdio'],
+            "languages": [
+                {
+                    "languageId": "eslint",
+                    "scopes": ["source.js", "text.html.vue"],
+                    "syntaxes": [
+                        "Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
+                        "Packages/JavaScript/JavaScript.sublime-syntax",
+                        "Packages/User/JS Custom/Syntaxes/React.sublime-syntax",
+                        "Packages/JavaScript/JavaScript.sublime-syntax",
+                        "Packages/Babel/JavaScript (Babel).sublime-syntax"
+                    ]
+                }
+            ],
+            "settings": {
+                "validate": True,
+                "packageManager": "npm",
+                "autoFix": True,
+                "autoFixOnSave": True,
+                "options": {},
+                "run": "onType",
+                "nodePath": None,
+                "quiet": False,
+                "workspaceFolder": None,
+                "codeAction": {
+                    "disableRuleComment": {
+                        "enable": True,
+                        "location": "separateLine"
+                    },
+                    "showDocumentation": {
+                        "enable": True
+                    }
+                }
+            }
         }
 
-        default_configuration.update(configuration)
+        default_configuration.update(client_configuration)
         return read_client_config(self.name, default_configuration)
-
-    def migrate_and_read_configuration(self) -> Dict:
-        settings = {}
-        loaded_settings = sublime.load_settings(SETTINGS_FILENAME)  # type: Dict
-
-        if loaded_settings:
-            if loaded_settings.has('client'):
-                client = loaded_settings.get('client')  # type: Dict
-                loaded_settings.erase('client')
-                # Migrate old keys
-                for key, value in client.items():
-                    if key == 'settings':
-                        loaded_settings.set('old_settings', value)
-                    else:
-                        loaded_settings.set(key, value)
-                sublime.save_settings(SETTINGS_FILENAME)
-
-            # Read configuration keys
-            for key in ['languages', 'initializationOptions', 'settings']:
-                settings[key] = loaded_settings.get(key)
-
-        return settings
 
     def on_start(self, window) -> bool:
         if not is_node_installed():
