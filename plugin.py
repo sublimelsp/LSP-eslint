@@ -2,12 +2,6 @@ import os
 import webbrowser
 
 from lsp_utils import NpmClientHandler
-from LSP.plugin import Response
-from LSP.plugin import register_plugin
-from LSP.plugin import unregister_plugin
-from LSP.plugin import LanguageConfig
-from LSP.plugin.core.typing import Optional, Dict, Any, List
-import sublime
 
 
 def plugin_loaded():
