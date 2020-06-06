@@ -1,0 +1,7 @@
+.dependabot export-ignore
+.github/ export-ignore
+codecov.yml export-ignore
+tests/ export-ignore
+tox.ini export-ignore
+compile-eslint-server.sh export-ignore
+unittesting.json export-ignore
