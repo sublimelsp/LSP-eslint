@@ -12,7 +12,6 @@
 			],
 		},
 	],
-	"initializationOptions": {},
 	"settings": {
 		"validate": "on",
 		"packageManager": "npm",
