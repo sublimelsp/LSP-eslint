@@ -14,7 +14,7 @@ def plugin_unloaded():
 
 class LspEslintPlugin(NpmClientHandler):
     package_name = __package__
-    server_directory = 'vscode-eslint'
+    server_directory = 'language-server'
     server_binary_path = os.path.join(server_directory, 'out', 'eslintServer.js')
 
     def on_ready(self, api) -> None:
