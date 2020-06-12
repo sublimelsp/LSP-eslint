@@ -60,10 +60,10 @@ var OpenESLintDocRequest;
 (function (OpenESLintDocRequest) {
     OpenESLintDocRequest.type = new node_1.RequestType('eslint/openDoc');
 })(OpenESLintDocRequest || (OpenESLintDocRequest = {}));
-var ProbleFailedRequest;
-(function (ProbleFailedRequest) {
-    ProbleFailedRequest.type = new node_1.RequestType('eslint/probleFailed');
-})(ProbleFailedRequest || (ProbleFailedRequest = {}));
+var ProbeFailedRequest;
+(function (ProbeFailedRequest) {
+    ProbeFailedRequest.type = new node_1.RequestType('eslint/probeFailed');
+})(ProbeFailedRequest || (ProbeFailedRequest = {}));
 var ModeEnum;
 (function (ModeEnum) {
     ModeEnum["auto"] = "auto";
@@ -141,8 +141,8 @@ function loadNodeModule(moduleName) {
 }
 function makeDiagnostic(problem) {
     const message = problem.message;
-    const startLine = Math.max(0, problem.line - 1);
-    const startChar = Math.max(0, problem.column - 1);
+    const startLine = Is.nullOrUndefined(problem.line) ? 0 : Math.max(0, problem.line - 1);
+    const startChar = Is.nullOrUndefined(problem.column) ? 0 : Math.max(0, problem.column - 1);
     const endLine = Is.nullOrUndefined(problem.endLine) ? startLine : Math.max(0, problem.endLine - 1);
     const endChar = Is.nullOrUndefined(problem.endColumn) ? startChar : Math.max(0, problem.endColumn - 1);
     const result = {
@@ -582,7 +582,7 @@ function resolveSettings(document) {
                 }
                 if (settings.validate === Validate.off) {
                     const params = { textDocument: { uri: document.uri } };
-                    connection.sendRequest(ProbleFailedRequest.type, params);
+                    connection.sendRequest(ProbeFailedRequest.type, params);
                 }
             }
             return settings;
