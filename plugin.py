@@ -27,3 +27,13 @@ class LspEslintPlugin(NpmClientHandler):
     def handle_open_doc(self, params, respond) -> None:
         webbrowser.open(params['url'])
         respond({})
+
+    def on_workspace_configuration(self, params, configuration) -> None:
+        session = self.weaksession()
+        if session:
+            scope_uri = params.get('scopeUri')
+            if scope_uri:
+                print(session.get_workspace_folders())
+                for folder in session.get_workspace_folders():
+                    if folder.includes_uri(scope_uri):
+                        configuration['workspaceFolder'] = folder.to_lsp()
