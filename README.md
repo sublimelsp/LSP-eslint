@@ -1,33 +1,31 @@
 # LSP-eslint
 
-Eslint support for Sublime's LSP plugin.
+Eslint support for Sublime's LSP plugin provided through [vscode-eslint](https://github.com/microsoft/vscode-eslint).
+
+### Installation
 
 * Install [LSP](https://packagecontrol.io/packages/LSP) and `LSP-eslint` from Package Control.
 * Restart Sublime.
 
-## Configuration
+### Configuration
 
 Open configuration file using command palette with `Preferences: LSP-eslint Settings` command or opening it from the Sublime menu.
 
 Configuration file contains multiple configuration keys:
 
-### scopes
+#### scopes
 
 Defines which scopes ESLint can run in.
 
-### syntaxes
+#### syntaxes
 
 Defines which syntax files ESLint can run in.
 
-### initializationOptions
+#### settings
 
-Configuration options sent with `initialize` message. I believe these are not used by ESLint.
+ESLint configuration options. Refer to [documentation for VSCode extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
 
-### settings
-
-ESLint configuration options. Those are currently not documented but [documentation for VSCode extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) roughly matches with those so can help in understanding them.
-
-## FAQ
+### FAQ
 
 Q: How to enable linting of Typescript code?
 
