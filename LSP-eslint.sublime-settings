@@ -1,15 +1,16 @@
 {
 	"languages": [
 		{
-			"languageId": "eslint",
-			"scopes": ["source.js", "text.html.vue"],
-			"syntaxes": [
-				"Packages/Babel/JavaScript (Babel).sublime-syntax",
-				"Packages/JavaScript/JavaScript.sublime-syntax",
-				"Packages/JavaScript/JavaScript.sublime-syntax",
-				"Packages/User/JS Custom/Syntaxes/React.sublime-syntax",
-				"Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
-			],
+			"languageId": "javascript",
+			"document_selector": "source.js",
+		},
+		{
+			"languageId": "typescript",
+			"document_selector": "source.ts",
+		},
+		{
+			"languageId": "vue",
+			"document_selector": "text.html.vue",
 		},
 	],
 	"settings": {
