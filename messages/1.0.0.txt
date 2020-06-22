@@ -1,0 +1,26 @@
+=> 1.0.0
+
+Breaking:
+
+* Formatting on save (controlled by "lsp_format_on_save" setting) is no longer supported
+  by this server. Instead, applying fixes is now handled by "code actions on save" feature,
+  controlled by "lsp_code_actions_on_save" setting.
+
+  Example LSP configuration that enables applying eslint fixes on save:
+
+  "lsp_code_actions_on_save": {
+    "source.fixAll.eslint": true,
+  },
+
+  To enable the feature, open "Preferences: LSP Settings" from the Command Palette and
+  set those settings.
+
+Change:
+
+* Enable for Typescript files by default.
+  (Make sure to update your eslint configuration according to
+   https://github.com/typescript-eslint/typescript-eslint)
+
+Maintenance:
+
+* Update eslint server to latest version

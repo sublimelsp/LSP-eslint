@@ -5,3 +5,8 @@ tests/ export-ignore
 tox.ini export-ignore
 compile-eslint-server.sh export-ignore
 unittesting.json export-ignore
+
+# Release script
+.release.json export-ignore
+scripts export-ignore
+VERSION export-ignore
