@@ -33,7 +33,6 @@ class LspEslintPlugin(NpmClientHandler):
         if session:
             scope_uri = params.get('scopeUri')
             if scope_uri:
-                print(session.get_workspace_folders())
                 for folder in session.get_workspace_folders():
                     if folder.includes_uri(scope_uri):
                         configuration['workspaceFolder'] = folder.to_lsp()
