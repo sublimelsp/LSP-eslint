@@ -64,13 +64,13 @@ class LspEslintPlugin(NpmClientHandler):
                 no_cwd = False
                 if isinstance(entry, str):
                     directory = entry
-                elif self.is_directory_item(entry):
+                elif self.is_working_directory_item(entry, 'directory'):
                     directory = entry.directory
                     if isinstance(entry.get('!cwd', None), bool):
                         no_cwd = entry['!cwd']
-                elif self.is_pattern_item(entry):
+                elif self.is_working_directory_item(entry, 'pattern'):
                     print('LSP-eslint: workingDirectories configuration that uses "pattern" is not supported')
-                    pass
+                    continue
                 elif self.is_mode_item(entry):
                     working_directory = entry
                     continue
@@ -94,19 +94,13 @@ class LspEslintPlugin(NpmClientHandler):
                             working_directory['directory'] = directory_value
                             working_directory['!cwd'] = no_cwd
             configuration['workingDirectory'] = working_directory
+            configuration.pop('workingDirectories', None)
 
-    def is_directory_item(self, item) -> bool:
+    def is_working_directory_item(self, item, configuration_key) -> bool:
         if isinstance(item, dict):
-            directory = item.get('directory', None)
+            value = item.get(configuration_key, None)
             not_cwd = item.get('!cwd', None)
-            return isinstance(directory, str) and (isinstance(not_cwd, bool) or not_cwd == None)
-        return False
-
-    def is_pattern_item(self, item) -> bool:
-        if isinstance(item, dict):
-            pattern = item.get('pattern', None)
-            not_cwd = item.get('!cwd', None)
-            return isinstance(pattern, str) and (isinstance(not_cwd, bool) or not_cwd == None)
+            return isinstance(value, str) and (isinstance(not_cwd, bool) or not_cwd == None)
         return False
 
     def is_mode_item(self, item) -> bool:
