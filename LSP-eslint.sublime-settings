@@ -35,12 +35,14 @@
 			"enable": true,
 			"mode": "all"
 		},
-		// Optional list of working directories.
+		// An optional list of working directories or a setting on how those are auto-resolved.
+		//
 		// This setting will normally only be set per-project to provide a list of working
-		// directories within that project that the server should consider as bases for resolving
-		// the eslint configuration.
+		// directories. The server will consider those as bases for resolving // the eslint configuration.
+		//
 		// Refer to the `eslint.workingDirectories` documentation at https://github.com/Microsoft/vscode-eslint
 		// for more info.
+		//
 		// NOTE that the `{ "pattern": glob pattern }` variant is not supported in LSP-eslint.
 		"workingDirectories": null
 	}
