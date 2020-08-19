@@ -13,17 +13,13 @@ Open configuration file using command palette with `Preferences: LSP-eslint Sett
 
 Configuration file contains multiple configuration keys:
 
-#### scopes
+#### languages
 
-Defines which scopes ESLint can run in.
-
-#### syntaxes
-
-Defines which syntax files ESLint can run in.
+Defines on which types of files the ESLint server will run.
 
 #### settings
 
-ESLint configuration options. Refer to [documentation for VSCode extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint).
+ESLint configuration options. Refer to [documentation for VSCode extension](https://github.com/Microsoft/vscode-eslint).
 
 ### FAQ
 
