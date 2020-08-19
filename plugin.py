@@ -21,14 +21,6 @@ class LspEslintPlugin(NpmClientHandler):
     server_directory = 'language-server'
     server_binary_path = os.path.join(server_directory, 'out', 'eslintServer.js')
 
-    @classmethod
-    def observe_file_changes(cls):
-        return [
-            '**/.eslintr{c.js,c.yaml,c.yml,c,c.json}',
-            '**/.eslintignore',
-            '**/package.json',
-        ]
-
     def on_ready(self, api) -> None:
         api.on_notification('eslint/status', self.handle_status)
         api.on_request('eslint/openDoc', self.handle_open_doc)
