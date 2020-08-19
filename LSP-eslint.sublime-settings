@@ -14,27 +14,40 @@
 		},
 	],
 	"settings": {
-		"validate": "on",
-		"packageManager": "npm",
-		"options": {},
-		"run": "onType",
-		"nodePath": null,
-		"format": false,
-		"quiet": false,
-		"onIgnoredFiles": "off",
-		"codeAction": {
-			"disableRuleComment": {
-				"enable": true,
-				"location": "separateLine"
-			},
-			"showDocumentation": {
-				"enable": true
-			}
-		},
-		"codeActionOnSave": {
+		"codeAction.disableRuleComment": {
+			// Show the disable code actions.
 			"enable": true,
-			"mode": "all"
+			// Configure the disable rule code action to insert the comment on the `sameLine` or `separateLine`.
+			"location": "separateLine"
 		},
+		"codeAction.showDocumentation": {
+			// Show the documentation code actions.
+			"enable": true
+		},
+		"codeActionOnSave.enable": true,
+		// Specifies the code action mode. Possible values are 'all' and 'problems'.
+		// possible values: all, problems
+		"codeActionsOnSave.mode": "all",
+		// Deprecated. Recommended to use the global LSP option `lsp_code_actions_on_save` with the.
+		// `"source.fixAll.eslint": true` key instead.
+		"format": false,
+		// A path added to NODE_PATH when resolving the eslint module (auto-detected by default).
+		"nodePath": null,
+		// Whether ESLint should issue a warning on ignored files.
+		// Possible values: `warn`, `off`
+		"onIgnoredFiles": "off",
+		// The eslint options object to provide args normally passed to eslint when
+		// executed from a command line (see https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
+		"options": {},
+		// The package manager you use to install node modules.
+		// Possible values: `npm`, `yarn`, `pnpm`
+		"packageManager": "npm",
+		// Turns on quiet mode, which ignores warnings.
+		"quiet": false,
+		// Run the linter on save or on type.
+		// Possible values: `onSave`, `onType`
+		"run": "onType",
+		"validate": "on",
 		// An optional list of working directories or a setting on how those are auto-resolved.
 		//
 		// This setting will normally only be set per-project to provide a list of working
@@ -45,5 +58,11 @@
 		//
 		// NOTE that the `{ "pattern": glob pattern }` variant is not supported in LSP-eslint.
 		"workingDirectories": null
-	}
+	},
+	"env": {
+		// Enables ESLint debug mode
+		// "DEBUG": "eslint:*,-eslint:code-path",
+		// The value of NODE_ENV to use when running eslint tasks.
+		// "NODE_ENV": "production",
+	},
 }
