@@ -80,7 +80,7 @@ class LspEslintPlugin(NpmClientHandler):
 
                 if directory_value:
                     if not working_directory or self.is_mode_item(working_directory):
-                        working_directory = { 'directory': directory_value, '!cwd': no_cwd }
+                        working_directory = {'directory': directory_value, '!cwd': no_cwd}
                     else:
                         if len(working_directory['directory']) < len(directory_value):
                             working_directory['directory'] = directory_value
@@ -92,7 +92,7 @@ class LspEslintPlugin(NpmClientHandler):
         if isinstance(item, dict):
             value = item.get(configuration_key, None)
             not_cwd = item.get('!cwd', None)
-            return isinstance(value, str) and (isinstance(not_cwd, bool) or not_cwd == None)
+            return isinstance(value, str) and (isinstance(not_cwd, bool) or not_cwd is None)
         return False
 
     def is_mode_item(self, item) -> bool:
@@ -104,4 +104,4 @@ class LspEslintPlugin(NpmClientHandler):
     def to_os_path(self, path) -> str:
         if sublime.platform == 'windows':
             path = re.sub(r'^\/(\w)\/', r'\1:\\', path)
-        return os.path.normpath(path);
+        return os.path.normpath(path)
