@@ -26,8 +26,7 @@
 		},
 		"codeActionOnSave.enable": true,
 		// Specifies the code action mode. Possible values are 'all' and 'problems'.
-		// possible values: all, problems
-		"codeActionsOnSave.mode": "all",
+		"codeActionOnSave.mode": "all",
 		// Deprecated. Recommended to use the global LSP option `lsp_code_actions_on_save` with the.
 		// `"source.fixAll.eslint": true` key instead.
 		"format": false,
@@ -51,13 +50,13 @@
 		// An optional list of working directories or a setting on how those are auto-resolved.
 		//
 		// This setting will normally only be set per-project to provide a list of working
-		// directories. The server will consider those as bases for resolving // the eslint configuration.
+		// directories. The server will consider those as bases for resolving the eslint configuration.
 		//
 		// Refer to the `eslint.workingDirectories` documentation at https://github.com/Microsoft/vscode-eslint
 		// for more info.
 		//
 		// NOTE that the `{ "pattern": glob pattern }` variant is not supported in LSP-eslint.
-		"workingDirectories": null
+		// "workingDirectories": null
 	},
 	"env": {
 		// Enables ESLint debug mode
