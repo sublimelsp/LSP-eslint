@@ -1,0 +1,286 @@
+{
+  "contributions": {
+    "settings": [
+      {
+        "file_patterns": [
+          "/LSP-eslint.sublime-settings"
+        ],
+        "schema": {
+          "$id": "sublime://settings/LSP-eslint",
+          "definitions": {
+            "PluginConfig": {
+              "properties": {
+                "env": {
+                  "properties": {
+                    "DEBUG": {
+                      "type": "string",
+                      "default": "",
+                      "description": "Enables ESLint debug mode (same as --debug on the command line)"
+                    },
+                    "NODE_ENV": {
+                      "type": "string",
+                      "default": "",
+                      "description": "The value of NODE_ENV to use when running eslint tasks."
+                    },
+                  }
+                },
+                "settings": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "codeActionOnSave.enable": {
+                      "type": "boolean",
+                      "default": true,
+                      "description": "Enables functionality to run code actions on save."
+                    },
+                    "codeActionOnSave.mode": {
+                      "type": "string",
+                      "default": "all",
+                      "enum": [
+                        "all",
+                        "problems"
+                      ],
+                      "enumDescriptions": [
+                        "Fixes all possible problems in the file. This option might take some time.",
+                        "Only fixes reported problems that have non overlapping textual edits. This options runs a lot faster."
+                      ],
+                      "markdownDescription": "Specifies the code action mode. Possible values are `all` and `problems`."
+                    },
+                    "format": {
+                      "type": "boolean",
+                      "default": false,
+                      "markdownDescription": "**Deprecated**. Enables DocumentFormattingRequest notification.\n\nRecommended to use global LSP option `lsp_code_actions_on_save` with the `\"source.fixAll.eslint\": true` key instead."
+                    },
+                    "packageManager": {
+                      "type": "string",
+                      "enum": [
+                        "npm",
+                        "yarn",
+                        "pnpm"
+                      ],
+                      "default": "npm",
+                      "description": "The package manager you use to install node modules."
+                    },
+                    "nodePath": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "default": null,
+                      "description": "A path added to NODE_PATH when resolving the eslint module."
+                    },
+                    "options": {
+                      "type": "object",
+                      "default": {},
+                      "markdownDescription": "The eslint options object to provide args normally passed to eslint when executed from a command line (see http://eslint.org/docs/developer-guide/nodejs-api#cliengine)."
+                    },
+                    "run": {
+                      "type": "string",
+                      "enum": [
+                        "onSave",
+                        "onType"
+                      ],
+                      "default": "onType",
+                      "markdownDescription": "Run the linter on save (`onSave`) or on type (`onType`)"
+                    },
+                    "quiet": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Turns on quiet mode, which ignores warnings."
+                    },
+                    "onIgnoredFiles": {
+                      "type": "string",
+                      "enum": [
+                        "warn",
+                        "off"
+                      ],
+                      "default": "off",
+                      "description": "Whether ESLint should issue a warning on ignored files."
+                    },
+                    "workingDirectories": {
+                      "type": "array",
+                      "markdownDescription": "Specifies custom configuration for ESLint's working directories.",
+                      "defaultSnippets": [
+                        {
+                          "body": [
+                            "./folder1",
+                            "./folder2",
+                          ]
+                        },
+                        {
+                          "body": [
+                            {
+                              "mode": "location"
+                            }
+                          ]
+                        },
+                        {
+                          "body": [
+                            {
+                              "directory": "./folder",
+                              "!cwd": true
+                            }
+                          ]
+                        }
+                      ],
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "description": "The project-relative path of the working directory."
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "auto",
+                                  "location"
+                                ],
+                                "markdownEnumDescriptions": [
+                                  "Instructs ESLint to infer a working directory based on the location of `package.json`, `.eslintignore` and `.eslintrc*` files. This might work in many cases but can lead to unexpected results as well.",
+                                  "Instructs ESLint to uses the workspace folder location or the file location (if no workspace folder is open) as the working directory. This is the default."
+                                ],
+                                "default": "location",
+                              },
+                            },
+                            "required": [
+                              "mode"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "directory": {
+                                "type": "string",
+                                "description": "The working directory to use if a file's path starts with this directory."
+                              },
+                              "changeProcessCWD": {
+                                "type": "boolean",
+                                "description": "Whether the process's cwd should be changed as well."
+                              }
+                            },
+                            "deprecationMessage": "Use the new !cwd form.",
+                            "required": [
+                              "directory"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "directory": {
+                                "type": "string",
+                                "description": "The working directory to use if a file's path starts with this directory."
+                              },
+                              "!cwd": {
+                                "type": "boolean",
+                                "description": "Set to true if ESLint shouldn't change the working directory."
+                              }
+                            },
+                            "required": [
+                              "directory"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "pattern": {
+                                "type": "string",
+                                "description": "A glob pattern to match a working directory."
+                              },
+                              "!cwd": {
+                                "type": "boolean",
+                                "description": "Set to true if ESLint shouldn't change the working directory."
+                              }
+                            },
+                            "markdownDescription": "**Not supported in ST**. Allows to specify a pattern to detect the working directory. This is basically a short cut for listing every directory. If you have a mono repository with all your projects being below a packages folder you can use `{ \"pattern\": \"./packages/*/\" }` to make all these folders working directories.",
+                            "required": [
+                              "pattern"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "validate": {
+                      "type": "string",
+                      "enum": [
+                        "off",
+                        "on",
+                        "probe"
+                      ],
+                      "description": "Whether validation is enabled."
+                    },
+                    "codeAction.disableRuleComment": {
+                      "type": "object",
+                      "default": {
+                        "enable": true,
+                        "location": "separateLine"
+                      },
+                      "properties": {
+                        "enable": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Show the disable code actions."
+                        },
+                        "location": {
+                          "type": "string",
+                          "enum": [
+                            "separateLine",
+                            "sameLine"
+                          ],
+                          "default": "separateLine",
+                          "description": "Configure the disable rule code action to insert the comment on the same line or a new line."
+                        }
+                      }
+                    },
+                    "codeAction.showDocumentation": {
+                      "type": "object",
+                      "default": {
+                        "enable": true
+                      },
+                      "properties": {
+                        "enable": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Show the documentation code actions."
+                        }
+                      }
+                    },
+                  }
+                }
+              },
+            },
+          },
+          "allOf": [
+            {
+              "$ref": "sublime://settings/LSP-plugin-base"
+            },
+            {
+              "$ref": "sublime://settings/LSP-eslint#/definitions/PluginConfig"
+            }
+          ],
+        }
+      },
+      {
+        "file_patterns": [
+          "/*.sublime-project"
+        ],
+        "schema": {
+          "properties": {
+            "settings": {
+              "properties": {
+                "LSP": {
+                  "properties": {
+                    "LSP-eslint": {
+                      "$ref": "sublime://settings/LSP-eslint#/definitions/PluginConfig"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+    ]
+  }
+}
