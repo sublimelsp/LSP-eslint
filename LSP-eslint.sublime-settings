@@ -1,20 +1,20 @@
 {
 	"languages": [
 		{
-			"languageId": "javascript",
-			"document_selector": "source.js",
-		},
-		{
 			"languageId": "javascriptreact",
 			"document_selector": "source.jsx | source.js.react",
 		},
 		{
-			"languageId": "typescript",
-			"document_selector": "source.ts",
+			"languageId": "javascript",
+			"document_selector": "source.js",
 		},
 		{
 			"languageId": "typescriptreact",
-			"document_selector": "source.tsx",
+			"document_selector": "source.tsx | source.ts.react",
+		},
+		{
+			"languageId": "typescript",
+			"document_selector": "source.ts",
 		},
 		{
 			"languageId": "vue",
