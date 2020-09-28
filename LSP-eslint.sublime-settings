@@ -15,23 +15,32 @@
 	],
 	"initializationOptions": {},
 	"settings": {
-		"validate": true,
-		"packageManager": "npm",
+		"codeAction.disableRuleComment": {
+			// Show the disable code actions.
+			"enable": true,
+			// Configure the disable rule code action to insert the comment on the `sameLine` or `separateLine`.
+			"location": "separateLine"
+		},
+		"codeAction.showDocumentation": {
+			// Show the documentation code actions.
+			"enable": true
+		},
 		"autoFix": true,
 		"autoFixOnSave": true,
-		"options": {},
-		"run": "onType",
+		// A path added to NODE_PATH when resolving the eslint module (auto-detected by default).
 		"nodePath": null,
+		// The eslint options object to provide args normally passed to eslint when
+		// executed from a command line (see https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
+		"options": {},
+		// The package manager you use to install node modules.
+		// Possible values: `npm`, `yarn`, `pnpm`
+		"packageManager": "npm",
+		// Turns on quiet mode, which ignores warnings.
 		"quiet": false,
+		// Run the linter on save or on type.
+		// Possible values: `onSave`, `onType`
+		"run": "onType",
+		"validate": true,
 		"workspaceFolder": null,
-		"codeAction": {
-			"disableRuleComment": {
-				"enable": true,
-				"location": "separateLine"
-			},
-			"showDocumentation": {
-				"enable": true
-			},
-		},
 	},
 }
