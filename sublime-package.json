@@ -27,6 +27,14 @@
                 "settings": {
                   "additionalProperties": false,
                   "properties": {
+                    "autoFix": {
+                      "type": "boolean",
+                      "default": true,
+                    },
+                    "autoFixOnSave": {
+                      "type": "boolean",
+                      "default": true,
+                    },
                     "packageManager": {
                       "type": "string",
                       "enum": [
@@ -104,6 +112,10 @@
                         }
                       }
                     },
+                    "workspaceFolder": {
+                      "type": ["string", "null"],
+                      "default": null
+                    }
                   }
                 }
               },
