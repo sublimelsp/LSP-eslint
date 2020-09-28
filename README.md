@@ -26,3 +26,7 @@ ESLint configuration options. Refer to [documentation for VSCode extension](http
 Q: How to enable linting of Typescript code?
 
 A: Make sure that eslint configuration in your project has `typescript-eslint` plugin configured. See https://github.com/typescript-eslint/typescript-eslint for more information.
+
+Q: How to use this in a Yarn 2 project?
+
+A: Install ESLint in the project, run `yarn dlx @yarnpkg/pnpify --sdk base` ([docs](https://yarnpkg.com/advanced/editor-sdks)) and set `settings.nodePath` to `.yarn/sdks`.
