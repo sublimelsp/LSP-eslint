@@ -6,7 +6,7 @@
 		},
 		{
 			"languageId": "javascriptreact",
-			"document_selector": ["source.jsx", "source.js.react"],
+			"document_selector": "source.jsx | source.js.react",
 		},
 		{
 			"languageId": "typescript",
