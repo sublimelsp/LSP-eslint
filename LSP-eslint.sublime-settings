@@ -20,6 +20,10 @@
 			"languageId": "vue",
 			"document_selector": "text.html.vue",
 		},
+		{
+			"languageId": "html",
+			"document_selector": "text.html",
+		},
 	],
 	"settings": {
 		"codeAction.disableRuleComment": {
