@@ -2,11 +2,12 @@
 	"languages": [
 		{
 			"languageId": "eslint",
-			"scopes": ["source.js", "text.html.vue"],
+			"scopes": ["source.js", "source.jsx", "source.js.react", "source.ts", "source.tsx", "text.html.vue"],
 			"syntaxes": [
 				"Packages/Babel/JavaScript (Babel).sublime-syntax",
 				"Packages/JavaScript/JavaScript.sublime-syntax",
-				"Packages/JavaScript/JavaScript.sublime-syntax",
+				"Packages/TypeScript Syntax/TypeScript.tmLanguage",
+				"Packages/TypeScript Syntax/TypeScriptReact.tmLanguage",
 				"Packages/User/JS Custom/Syntaxes/React.sublime-syntax",
 				"Packages/Vue Syntax Highlight/Vue Component.sublime-syntax",
 			],

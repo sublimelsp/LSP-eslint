@@ -31,4 +31,4 @@ ESLint configuration options. Those are currently not documented but [documentat
 
 Q: How to enable linting of Typescript code?
 
-A: Add `"source.ts"` entry to `scopes` option and `"Packages/TypeScript Syntax/TypeScript.tmLanguage"` entry to `syntaxes` option. It's also necessary to have appropriate ESLint configuration in your project. See https://github.com/typescript-eslint/typescript-eslint for more information.
+A: Make sure that eslint configuration in your project has `typescript-eslint` plugin configured. See typescript-eslint/typescript-eslint for more information.
