@@ -22,7 +22,7 @@
 		},
 		{
 			"languageId": "html",
-			"document_selector": "text.html",
+			"document_selector": "text.html.basic",
 		},
 	],
 	"settings": {
