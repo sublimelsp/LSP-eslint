@@ -5,8 +5,16 @@
 			"document_selector": "source.js",
 		},
 		{
+			"languageId": "javascriptreact",
+			"document_selector": ["source.jsx", "source.js.react"],
+		},
+		{
 			"languageId": "typescript",
 			"document_selector": "source.ts",
+		},
+		{
+			"languageId": "typescriptreact",
+			"document_selector": "source.tsx",
 		},
 		{
 			"languageId": "vue",
