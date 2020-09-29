@@ -29,4 +29,19 @@ A: Make sure that eslint configuration in your project has `typescript-eslint` p
 
 Q: How to use this in a Yarn 2 project?
 
-A: Install ESLint in the project, run `yarn dlx @yarnpkg/pnpify --sdk base` ([docs](https://yarnpkg.com/advanced/editor-sdks)) and set `settings.nodePath` to `.yarn/sdks`.
+A: Install ESLint in the project, run `yarn dlx @yarnpkg/pnpify --sdk base` ([docs](https://yarnpkg.com/advanced/editor-sdks)) and set `settings.nodePath` to `.yarn/sdks` either in `LSP-eslint`'s settings or, if have other non-Yarn-2 projects, in your `.sublime-project`:
+
+```json
+{
+  "settings": {
+    "LSP": {
+      "LSP-eslint": {
+        "settings": {
+          "nodePath": ".yarn/sdks"
+        }
+      }
+    }
+  }
+}
+
+```
