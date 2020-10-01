@@ -1,11 +1,16 @@
+from LSP.plugin.core.typing import Any, Dict, Literal, Set, Union
+from LSP.plugin.core.url import uri_to_filename
+from lsp_utils import NpmClientHandler
 import os
 import posixpath
 import re
 import sublime
 import webbrowser
 
-from LSP.plugin.core.url import uri_to_filename
-from lsp_utils import NpmClientHandler
+EslintValidateOn = Literal['on']
+EslintValidateOff = Literal['off']
+EslintValidateProbe = Literal['probe']
+EslintValidate = Union[EslintValidateOn, EslintValidateOff, EslintValidateProbe]
 
 
 def plugin_loaded():
@@ -21,9 +26,14 @@ class LspEslintPlugin(NpmClientHandler):
     server_directory = 'language-server'
     server_binary_path = os.path.join(server_directory, 'out', 'eslintServer.js')
 
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._probe_failed = set()  # type: Set[str]
+
     def on_ready(self, api) -> None:
         api.on_notification('eslint/status', self.handle_status)
         api.on_request('eslint/openDoc', self.handle_open_doc)
+        api.on_request('eslint/probeFailed', self.handle_probe_failed)
 
     def handle_status(self, params) -> None:
         pass
@@ -31,6 +41,10 @@ class LspEslintPlugin(NpmClientHandler):
     def handle_open_doc(self, params, respond) -> None:
         webbrowser.open(params['url'])
         respond({})
+
+    def handle_probe_failed(self, params, respond) -> None:
+        self._probe_failed.add(params['textDocument']['uri'])
+        respond(None)
 
     def on_workspace_configuration(self, params, configuration) -> None:
         session = self.weaksession()
@@ -45,6 +59,12 @@ class LspEslintPlugin(NpmClientHandler):
                 if workspace_folder:
                     configuration['workspaceFolder'] = workspace_folder.to_lsp()
                 self.resolve_working_directory(configuration, scope_uri, workspace_folder)
+                buf = self.get_session_buffer_for_uri(scope_uri)
+                if buf:
+                    configuration['validate'] = self.compute_validate(buf.language_id, scope_uri, configuration)
+                else:
+                    configuration['validate'] = 'on'
+                del configuration['probe']
 
     def resolve_working_directory(self, configuration, scope_uri, workspace_folder) -> None:
         working_directories = configuration.get('workingDirectories', None)
@@ -105,3 +125,18 @@ class LspEslintPlugin(NpmClientHandler):
         if sublime.platform == 'windows':
             path = re.sub(r'^\/(\w)\/', r'\1:\\', path)
         return os.path.normpath(path)
+
+    def compute_validate(self, language_id: str, scope_uri: str, config: Dict[str, Any]) -> EslintValidate:
+        validate = config.get('validate')
+        if isinstance(validate, list):
+            for validate_langugage_id in validate:
+                if validate_langugage_id == language_id:
+                    return 'on'
+        if scope_uri in self._probe_failed:
+            return 'off'
+        probe = config.get('probe')
+        if isinstance(probe, list):
+            for probe_language_id in probe:
+                if probe_language_id == language_id:
+                    return 'probe';
+        return 'off';

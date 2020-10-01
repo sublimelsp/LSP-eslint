@@ -53,12 +53,26 @@
 		// The package manager you use to install node modules.
 		// Possible values: `npm`, `yarn`, `pnpm`
 		"packageManager": "npm",
+		// An array of language ids for which the plugin should probe if support is installed.
+		"probe": [
+			"javascript",
+			"javascriptreact",
+			"typescript",
+			"typescriptreact",
+			"html",
+			"vue",
+			"markdown",
+		],
 		// Turns on quiet mode, which ignores warnings.
 		"quiet": false,
 		// Run the linter on save or on type.
 		// Possible values: `onSave`, `onType`
 		"run": "onType",
-		"validate": "on",
+		// An array of language ids which should be validated by ESLint.
+		"validate": [
+			"javascript",
+			"javascriptreact",
+		],
 		// An optional list of working directories or a setting on how those are auto-resolved.
 		//
 		// This setting will normally only be set per-project to provide a list of working

@@ -73,6 +73,22 @@
                       "default": {},
                       "markdownDescription": "The eslint options object to provide args normally passed to eslint when executed from a command line (see http://eslint.org/docs/developer-guide/nodejs-api#cliengine)."
                     },
+                    "probe": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": [
+                        "javascript",
+                        "javascriptreact",
+                        "typescript",
+                        "typescriptreact",
+                        "html",
+                        "vue",
+                        "markdown"
+                      ],
+                      "description": "An array of language ids for which the plugin should probe if support is installed."
+                    },
                     "run": {
                       "type": "string",
                       "enum": [
@@ -202,13 +218,15 @@
                       }
                     },
                     "validate": {
-                      "type": "string",
-                      "enum": [
-                        "off",
-                        "on",
-                        "probe"
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": [
+                        "javascript",
+                        "javascriptreact"
                       ],
-                      "description": "Whether validation is enabled."
+                      "description": "An array of language ids which should be validated by ESLint. If not installed ESLint will show an error."
                     },
                     "codeAction.disableRuleComment": {
                       "type": "object",
