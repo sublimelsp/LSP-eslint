@@ -7,10 +7,7 @@ import re
 import sublime
 import webbrowser
 
-EslintValidateOn = Literal['on']
-EslintValidateOff = Literal['off']
-EslintValidateProbe = Literal['probe']
-EslintValidate = Union[EslintValidateOn, EslintValidateOff, EslintValidateProbe]
+EslintValidate = Literal['off', 'on', 'probe']
 
 
 def plugin_loaded():
