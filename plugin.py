@@ -59,7 +59,7 @@ class LspEslintPlugin(NpmClientHandler):
                 if workspace_folder:
                     configuration['workspaceFolder'] = workspace_folder.to_lsp()
                 self.resolve_working_directory(configuration, scope_uri, workspace_folder)
-                buf = self.get_session_buffer_for_uri(scope_uri)
+                buf = session.get_session_buffer_for_uri_async(scope_uri)
                 if buf:
                     configuration['validate'] = self.compute_validate(buf.language_id, scope_uri, configuration)
                 else:
