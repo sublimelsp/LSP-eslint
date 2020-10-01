@@ -7,8 +7,6 @@ import re
 import sublime
 import webbrowser
 
-EslintValidate = Literal['off', 'on', 'probe']
-
 
 def plugin_loaded():
     LspEslintPlugin.setup()
@@ -123,7 +121,7 @@ class LspEslintPlugin(NpmClientHandler):
             path = re.sub(r'^\/(\w)\/', r'\1:\\', path)
         return os.path.normpath(path)
 
-    def compute_validate(self, language_id: str, scope_uri: str, config: Dict[str, Any]) -> EslintValidate:
+    def compute_validate(self, language_id: str, scope_uri: str, config: Dict[str, Any]) -> Literal['off', 'on', 'probe']:
         validate = config.get('validate')
         if isinstance(validate, list):
             for validate_langugage_id in validate:
