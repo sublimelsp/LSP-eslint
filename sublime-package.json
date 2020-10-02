@@ -1,0 +1,156 @@
+{
+  "contributions": {
+    "settings": [
+      {
+        "file_patterns": [
+          "/LSP-eslint.sublime-settings"
+        ],
+        "schema": {
+          "$id": "sublime://settings/LSP-eslint",
+          "definitions": {
+            "PluginConfig": {
+              "properties": {
+                "env": {
+                  "properties": {
+                    "DEBUG": {
+                      "type": "string",
+                      "default": "",
+                      "description": "Enables ESLint debug mode (same as --debug on the command line)"
+                    },
+                    "NODE_ENV": {
+                      "type": "string",
+                      "default": "",
+                      "description": "The value of NODE_ENV to use when running eslint tasks."
+                    },
+                  }
+                },
+                "settings": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "autoFix": {
+                      "type": "boolean",
+                      "default": true,
+                    },
+                    "autoFixOnSave": {
+                      "type": "boolean",
+                      "default": true,
+                    },
+                    "packageManager": {
+                      "type": "string",
+                      "enum": [
+                        "npm",
+                        "yarn",
+                        "pnpm"
+                      ],
+                      "default": "npm",
+                      "description": "The package manager you use to install node modules."
+                    },
+                    "nodePath": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "default": null,
+                      "description": "A path added to NODE_PATH when resolving the eslint module."
+                    },
+                    "options": {
+                      "type": "object",
+                      "default": {},
+                      "markdownDescription": "The eslint options object to provide args normally passed to eslint when executed from a command line (see http://eslint.org/docs/developer-guide/nodejs-api#cliengine)."
+                    },
+                    "run": {
+                      "type": "string",
+                      "enum": [
+                        "onSave",
+                        "onType"
+                      ],
+                      "default": "onType",
+                      "markdownDescription": "Run the linter on save (`onSave`) or on type (`onType`)"
+                    },
+                    "quiet": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Turns on quiet mode, which ignores warnings."
+                    },
+                    "validate": {
+                      "type": "boolean",
+                      "description": "Whether validation is enabled."
+                    },
+                    "codeAction.disableRuleComment": {
+                      "type": "object",
+                      "default": {
+                        "enable": true,
+                        "location": "separateLine"
+                      },
+                      "properties": {
+                        "enable": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Show the disable code actions."
+                        },
+                        "location": {
+                          "type": "string",
+                          "enum": [
+                            "separateLine",
+                            "sameLine"
+                          ],
+                          "default": "separateLine",
+                          "description": "Configure the disable rule code action to insert the comment on the same line or a new line."
+                        }
+                      }
+                    },
+                    "codeAction.showDocumentation": {
+                      "type": "object",
+                      "default": {
+                        "enable": true
+                      },
+                      "properties": {
+                        "enable": {
+                          "type": "boolean",
+                          "default": true,
+                          "description": "Show the documentation code actions."
+                        }
+                      }
+                    },
+                    "workspaceFolder": {
+                      "type": ["string", "null"],
+                      "default": null
+                    }
+                  }
+                }
+              },
+            },
+          },
+          "allOf": [
+            {
+              "$ref": "sublime://settings/LSP-plugin-base"
+            },
+            {
+              "$ref": "sublime://settings/LSP-eslint#/definitions/PluginConfig"
+            }
+          ],
+        }
+      },
+      {
+        "file_patterns": [
+          "/*.sublime-project"
+        ],
+        "schema": {
+          "properties": {
+            "settings": {
+              "properties": {
+                "LSP": {
+                  "properties": {
+                    "LSP-eslint": {
+                      "$ref": "sublime://settings/LSP-eslint#/definitions/PluginConfig"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+    ]
+  }
+}
