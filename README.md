@@ -27,6 +27,16 @@ Q: How to enable linting of Typescript code?
 
 A: Make sure that eslint configuration in your project has `typescript-eslint` plugin configured. See https://github.com/typescript-eslint/typescript-eslint for more information.
 
+Q: How to enable eslint to fix all issues automatically on saving the file?
+
+A: Open `Preferences: LSP Settings` from the command palette and add or modify the following setting:
+
+```js
+"lsp_code_actions_on_save": {
+  "source.fixAll.eslint": true,
+},
+```
+
 Q: How to use this in a Yarn 2 project?
 
 A: Install ESLint in the project, run `yarn dlx @yarnpkg/pnpify --sdk base` ([docs](https://yarnpkg.com/advanced/editor-sdks)) and set `settings.nodePath` to `.yarn/sdks` either in `LSP-eslint`'s settings or, if you have other non-Yarn-2 projects, in your `.sublime-project`:
