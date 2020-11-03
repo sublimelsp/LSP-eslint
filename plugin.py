@@ -21,6 +21,10 @@ class LspEslintPlugin(NpmClientHandler):
     server_directory = 'language-server'
     server_binary_path = os.path.join(server_directory, 'out', 'eslintServer.js')
 
+    @classmethod
+    def install_in_cache(cls) -> bool:
+        return False
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._probe_failed = set()  # type: Set[str]
