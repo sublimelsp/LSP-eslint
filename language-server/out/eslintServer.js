@@ -43,6 +43,9 @@ var Status;
     Status[Status["ok"] = 1] = "ok";
     Status[Status["warn"] = 2] = "warn";
     Status[Status["error"] = 3] = "error";
+    Status[Status["confirmationPending"] = 4] = "confirmationPending";
+    Status[Status["confirmationCanceled"] = 5] = "confirmationCanceled";
+    Status[Status["executionDenied"] = 6] = "executionDenied";
 })(Status || (Status = {}));
 var StatusNotification;
 (function (StatusNotification) {
@@ -64,6 +67,36 @@ var ProbeFailedRequest;
 (function (ProbeFailedRequest) {
     ProbeFailedRequest.type = new node_1.RequestType('eslint/probeFailed');
 })(ProbeFailedRequest || (ProbeFailedRequest = {}));
+var ConfirmExecutionResult;
+(function (ConfirmExecutionResult) {
+    ConfirmExecutionResult[ConfirmExecutionResult["deny"] = 1] = "deny";
+    ConfirmExecutionResult[ConfirmExecutionResult["confirmationPending"] = 2] = "confirmationPending";
+    ConfirmExecutionResult[ConfirmExecutionResult["confirmationCanceled"] = 3] = "confirmationCanceled";
+    ConfirmExecutionResult[ConfirmExecutionResult["approved"] = 4] = "approved";
+})(ConfirmExecutionResult || (ConfirmExecutionResult = {}));
+(function (ConfirmExecutionResult) {
+    function toStatus(value) {
+        switch (value) {
+            case ConfirmExecutionResult.deny:
+                return Status.executionDenied;
+            case ConfirmExecutionResult.confirmationPending:
+                return Status.confirmationPending;
+            case ConfirmExecutionResult.confirmationCanceled:
+                return Status.confirmationCanceled;
+            case ConfirmExecutionResult.approved:
+                return Status.ok;
+        }
+    }
+    ConfirmExecutionResult.toStatus = toStatus;
+})(ConfirmExecutionResult || (ConfirmExecutionResult = {}));
+var ConfirmExecution;
+(function (ConfirmExecution) {
+    ConfirmExecution.type = new node_1.RequestType('eslint/confirmESLintExecution');
+})(ConfirmExecution || (ConfirmExecution = {}));
+var ShowOutputChannel;
+(function (ShowOutputChannel) {
+    ShowOutputChannel.type = new node_1.NotificationType0('eslint/showOutputChannel');
+})(ShowOutputChannel || (ShowOutputChannel = {}));
 var ModeEnum;
 (function (ModeEnum) {
     ModeEnum["auto"] = "auto";
@@ -156,14 +189,14 @@ function makeDiagnostic(problem) {
     };
     if (problem.ruleId) {
         const url = ruleDocData.urls.get(problem.ruleId);
+        result.code = problem.ruleId;
         if (url !== undefined) {
-            result.code = {
-                value: problem.ruleId,
-                target: url
+            result.codeDescription = {
+                href: url
             };
         }
-        else {
-            result.code = problem.ruleId;
+        if (problem.ruleId === 'no-unused-vars') {
+            result.tags = [node_1.DiagnosticTag.Unnecessary];
         }
     }
     return result;
@@ -208,7 +241,15 @@ function recordCodeAction(document, diagnostic, problem) {
         edits = new Map();
         codeActions.set(uri, edits);
     }
-    edits.set(computeKey(diagnostic), { label: `Fix this ${problem.ruleId} problem`, documentVersion: document.version, ruleId: problem.ruleId, edit: problem.fix, suggestions: problem.suggestions, line: problem.line });
+    edits.set(computeKey(diagnostic), {
+        label: `Fix this ${problem.ruleId} problem`,
+        documentVersion: document.version,
+        ruleId: problem.ruleId,
+        line: problem.line,
+        diagnostic: diagnostic,
+        edit: problem.fix,
+        suggestions: problem.suggestions
+    });
 }
 function convertSeverity(severity) {
     switch (severity) {
@@ -371,14 +412,16 @@ const languageId2DefaultExt = new Map([
 const languageId2ParserRegExp = function createLanguageId2ParserRegExp() {
     const result = new Map();
     const typescript = /\/@typescript-eslint\/parser\//;
-    result.set('typescript', [typescript]);
-    result.set('typescriptreact', [typescript]);
+    const babelESLint = /\/babel-eslint\/lib\/index.js$/;
+    result.set('typescript', [typescript, babelESLint]);
+    result.set('typescriptreact', [typescript, babelESLint]);
     return result;
 }();
 const languageId2ParserOptions = function createLanguageId2ParserOptionsRegExp() {
     const result = new Map();
     const vue = /vue-eslint-parser\/.*\.js$/;
-    result.set('typescript', { regExps: [vue], parsers: new Set(['@typescript-eslint/parser']) });
+    const typescriptEslintParser = /@typescript-eslint\/parser\/.*\.js$/;
+    result.set('typescript', { regExps: [vue], parsers: new Set(['@typescript-eslint/parser']), parserRegExps: [typescriptEslintParser] });
     return result;
 }();
 const languageId2PluginName = new Map([
@@ -391,6 +434,7 @@ const defaultLanguageIds = new Set([
 ]);
 const path2Library = new Map();
 const document2Settings = new Map();
+const executionConfirmations = new Map();
 const projectFolderIndicators = [
     ['package.json', true],
     ['.eslintignore', true],
@@ -497,95 +541,142 @@ function resolveSettings(document) {
         }
         settings.silent = settings.validate === Validate.probe;
         return promise.then((libraryPath) => {
-            var _a;
-            let library = path2Library.get(libraryPath);
-            if (library === undefined) {
-                library = loadNodeModule(libraryPath);
-                if (library === undefined) {
+            const scope = settings.resolvedGlobalPackageManagerPath !== undefined && libraryPath.startsWith(settings.resolvedGlobalPackageManagerPath)
+                ? 'global'
+                : 'local';
+            const cachedExecutionConfirmation = executionConfirmations.get(libraryPath);
+            const confirmationPromise = cachedExecutionConfirmation === undefined
+                ? connection.sendRequest(ConfirmExecution.type, { scope: scope, uri: uri, libraryPath })
+                : Promise.resolve(cachedExecutionConfirmation);
+            return confirmationPromise.then((confirmed) => {
+                var _a;
+                // Only cache if the execution got confirm to give the UI the change
+                // to update on un confirmed execution.
+                if (confirmed !== ConfirmExecutionResult.approved) {
                     settings.validate = Validate.off;
-                    if (!settings.silent) {
-                        connection.console.error(`Failed to load eslint library from ${libraryPath}. See output panel for more information.`);
-                    }
-                }
-                else if (library.CLIEngine === undefined) {
-                    settings.validate = Validate.off;
-                    connection.console.error(`The eslint library loaded from ${libraryPath} doesn\'t export a CLIEngine. You need at least eslint@1.0.0`);
+                    connection.sendDiagnostics({ uri: uri, diagnostics: [] });
+                    connection.sendNotification(StatusNotification.type, { uri: uri, state: ConfirmExecutionResult.toStatus(confirmed) });
+                    return settings;
                 }
                 else {
-                    connection.console.info(`ESLint library loaded from: ${libraryPath}`);
+                    executionConfirmations.set(libraryPath, confirmed);
+                }
+                let library = path2Library.get(libraryPath);
+                if (library === undefined) {
+                    library = loadNodeModule(libraryPath);
+                    if (library === undefined) {
+                        settings.validate = Validate.off;
+                        if (!settings.silent) {
+                            connection.console.error(`Failed to load eslint library from ${libraryPath}. See output panel for more information.`);
+                        }
+                    }
+                    else if (library.CLIEngine === undefined) {
+                        settings.validate = Validate.off;
+                        connection.console.error(`The eslint library loaded from ${libraryPath} doesn\'t export a CLIEngine. You need at least eslint@1.0.0`);
+                    }
+                    else {
+                        connection.console.info(`ESLint library loaded from: ${libraryPath}`);
+                        settings.library = library;
+                        path2Library.set(libraryPath, library);
+                    }
+                }
+                else {
                     settings.library = library;
-                    path2Library.set(libraryPath, library);
                 }
-            }
-            else {
-                settings.library = library;
-            }
-            if (settings.validate === Validate.probe && TextDocumentSettings.hasLibrary(settings)) {
-                settings.validate = Validate.off;
-                const uri = vscode_uri_1.URI.parse(document.uri);
-                let filePath = getFilePath(document);
-                if (filePath === undefined && uri.scheme === 'untitled' && settings.workspaceFolder !== undefined) {
-                    const ext = languageId2DefaultExt.get(document.languageId);
-                    const workspacePath = getFilePath(settings.workspaceFolder.uri);
-                    if (workspacePath !== undefined && ext !== undefined) {
-                        filePath = path.join(workspacePath, `test${ext}`);
+                if (settings.validate === Validate.probe && TextDocumentSettings.hasLibrary(settings)) {
+                    settings.validate = Validate.off;
+                    const uri = vscode_uri_1.URI.parse(document.uri);
+                    let filePath = getFilePath(document);
+                    if (filePath === undefined && uri.scheme === 'untitled' && settings.workspaceFolder !== undefined) {
+                        const ext = languageId2DefaultExt.get(document.languageId);
+                        const workspacePath = getFilePath(settings.workspaceFolder.uri);
+                        if (workspacePath !== undefined && ext !== undefined) {
+                            filePath = path.join(workspacePath, `test${ext}`);
+                        }
                     }
-                }
-                if (filePath !== undefined) {
-                    const parserRegExps = languageId2ParserRegExp.get(document.languageId);
-                    const pluginName = languageId2PluginName.get(document.languageId);
-                    const parserOptions = languageId2ParserOptions.get(document.languageId);
-                    if (defaultLanguageIds.has(document.languageId)) {
-                        settings.validate = Validate.on;
-                    }
-                    else if (parserRegExps !== undefined || pluginName !== undefined || parserOptions !== undefined) {
-                        const eslintConfig = withCLIEngine((cli) => {
-                            if (typeof cli.getConfigForFile === 'function') {
-                                return cli.getConfigForFile(filePath);
-                            }
-                            else {
-                                return undefined;
-                            }
-                        }, settings);
-                        if (eslintConfig !== undefined) {
-                            const parser = eslintConfig.parser !== null
-                                ? (process.platform === 'win32' ? eslintConfig.parser.replace(/\\/g, '/') : eslintConfig.parser)
-                                : undefined;
-                            if (parser !== undefined) {
-                                if (parserRegExps !== undefined) {
-                                    for (const regExp of parserRegExps) {
-                                        if (regExp.test(parser)) {
-                                            settings.validate = Validate.on;
-                                            break;
+                    if (filePath !== undefined) {
+                        const parserRegExps = languageId2ParserRegExp.get(document.languageId);
+                        const pluginName = languageId2PluginName.get(document.languageId);
+                        const parserOptions = languageId2ParserOptions.get(document.languageId);
+                        if (defaultLanguageIds.has(document.languageId)) {
+                            settings.validate = Validate.on;
+                        }
+                        else if (parserRegExps !== undefined || pluginName !== undefined || parserOptions !== undefined) {
+                            const eslintConfig = withCLIEngine((cli) => {
+                                try {
+                                    if (typeof cli.getConfigForFile === 'function') {
+                                        return cli.getConfigForFile(filePath);
+                                    }
+                                    else {
+                                        return undefined;
+                                    }
+                                }
+                                catch (err) {
+                                    return undefined;
+                                }
+                            }, settings);
+                            if (eslintConfig !== undefined) {
+                                const parser = eslintConfig.parser !== null
+                                    ? (process.platform === 'win32' ? eslintConfig.parser.replace(/\\/g, '/') : eslintConfig.parser)
+                                    : undefined;
+                                if (parser !== undefined) {
+                                    if (parserRegExps !== undefined) {
+                                        for (const regExp of parserRegExps) {
+                                            if (regExp.test(parser)) {
+                                                settings.validate = Validate.on;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (settings.validate !== Validate.on && parserOptions !== undefined && typeof ((_a = eslintConfig.parserOptions) === null || _a === void 0 ? void 0 : _a.parser) === 'string') {
+                                        for (const regExp of parserOptions.regExps) {
+                                            if (regExp.test(parser) && (parserOptions.parsers.has(eslintConfig.parserOptions.parser) ||
+                                                parserOptions.parserRegExps !== undefined && parserOptions.parserRegExps.some(parserRegExp => parserRegExp.test(eslintConfig.parserOptions.parser)))) {
+                                                settings.validate = Validate.on;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
-                                if (settings.validate !== Validate.on && parserOptions !== undefined && typeof ((_a = eslintConfig.parserOptions) === null || _a === void 0 ? void 0 : _a.parser) === 'string') {
-                                    for (const regExp of parserOptions.regExps) {
-                                        if (regExp.test(parser) && parserOptions.parsers.has(eslintConfig.parserOptions.parser)) {
+                                if (settings.validate !== Validate.on && Array.isArray(eslintConfig.plugins) && eslintConfig.plugins.length > 0 && pluginName !== undefined) {
+                                    for (const name of eslintConfig.plugins) {
+                                        if (name === pluginName) {
                                             settings.validate = Validate.on;
                                             break;
                                         }
-                                    }
-                                }
-                            }
-                            if (settings.validate !== Validate.on && Array.isArray(eslintConfig.plugins) && eslintConfig.plugins.length > 0 && pluginName !== undefined) {
-                                for (const name of eslintConfig.plugins) {
-                                    if (name === pluginName) {
-                                        settings.validate = Validate.on;
-                                        break;
                                     }
                                 }
                             }
                         }
                     }
+                    if (settings.validate === Validate.off) {
+                        const params = { textDocument: { uri: document.uri } };
+                        connection.sendRequest(ProbeFailedRequest.type, params);
+                    }
                 }
-                if (settings.validate === Validate.off) {
-                    const params = { textDocument: { uri: document.uri } };
-                    connection.sendRequest(ProbeFailedRequest.type, params);
+                if (settings.format && settings.validate === Validate.on && TextDocumentSettings.hasLibrary(settings)) {
+                    const Uri = vscode_uri_1.URI.parse(uri);
+                    const isFile = Uri.scheme === 'file';
+                    let pattern = isFile
+                        ? Uri.fsPath.replace(/\\/g, '/')
+                        : Uri.fsPath;
+                    pattern = pattern.replace(/[\[\]\{\}]/g, '?');
+                    const filter = { scheme: Uri.scheme, pattern: pattern };
+                    const options = { documentSelector: [filter] };
+                    if (!isFile) {
+                        formatterRegistrations.set(uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
+                    }
+                    else {
+                        const filePath = getFilePath(uri);
+                        withCLIEngine((cli) => {
+                            if (!cli.isPathIgnored(filePath)) {
+                                formatterRegistrations.set(uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
+                            }
+                        }, settings);
+                    }
                 }
-            }
-            return settings;
+                return settings;
+            });
         }, () => {
             settings.validate = Validate.off;
             if (!settings.silent) {
@@ -676,7 +767,7 @@ class BufferedMessageQueue {
         if (Request.is(message)) {
             const requestMessage = message;
             if (requestMessage.token.isCancellationRequested) {
-                requestMessage.reject(new node_1.ResponseError(node_1.ErrorCodes.RequestCancelled, 'Request got cancelled'));
+                requestMessage.reject(new node_1.ResponseError(node_1.LSPErrorCodes.RequestCancelled, 'Request got cancelled'));
                 return;
             }
             const elem = this.requestHandlers.get(requestMessage.method);
@@ -684,7 +775,7 @@ class BufferedMessageQueue {
                 throw new Error(`No handler registered`);
             }
             if (elem.versionProvider && requestMessage.documentVersion !== undefined && requestMessage.documentVersion !== elem.versionProvider(requestMessage.params)) {
-                requestMessage.reject(new node_1.ResponseError(node_1.ErrorCodes.RequestCancelled, 'Request got cancelled'));
+                requestMessage.reject(new node_1.ResponseError(node_1.LSPErrorCodes.RequestCancelled, 'Request got cancelled'));
                 return;
             }
             const result = elem.handler(requestMessage.params, requestMessage.token);
@@ -732,30 +823,6 @@ function setupDocumentsListeners() {
             if (settings.validate !== Validate.on || !TextDocumentSettings.hasLibrary(settings)) {
                 return;
             }
-            if (settings.format) {
-                const uri = vscode_uri_1.URI.parse(event.document.uri);
-                const isFile = uri.scheme === 'file';
-                let pattern = isFile
-                    ? uri.path.replace(/\\/g, '/')
-                    : uri.path;
-                pattern = pattern.replace('[', '\\[');
-                pattern = pattern.replace(']', '\\]');
-                pattern = pattern.replace('{', '\\{');
-                pattern = pattern.replace('}', '\\}');
-                const filter = { scheme: uri.scheme, pattern: pattern };
-                const options = { documentSelector: [filter] };
-                if (!isFile) {
-                    formatterRegistrations.set(event.document.uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
-                }
-                else {
-                    const filePath = getFilePath(uri);
-                    withCLIEngine((cli) => {
-                        if (!cli.isPathIgnored(filePath)) {
-                            formatterRegistrations.set(event.document.uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
-                        }
-                    }, settings);
-                }
-            }
             if (settings.run === 'onSave') {
                 messageQueue.addNotificationMessage(ValidateNotification.type, event.document, event.document.version);
             }
@@ -763,6 +830,8 @@ function setupDocumentsListeners() {
     });
     // A text document has changed. Validate the document according the run setting.
     documents.onDidChangeContent((event) => {
+        const uri = event.document.uri;
+        codeActions.delete(uri);
         resolveSettings(event.document).then((settings) => {
             if (settings.validate !== Validate.on || settings.run !== 'onType') {
                 return;
@@ -797,9 +866,14 @@ function setupDocumentsListeners() {
 }
 function environmentChanged() {
     document2Settings.clear();
+    executionConfirmations.clear();
     for (let document of documents.all()) {
         messageQueue.addNotificationMessage(ValidateNotification.type, document, document.version);
     }
+    for (const unregistration of formatterRegistrations.values()) {
+        unregistration.then(disposable => disposable.dispose());
+    }
+    formatterRegistrations.clear();
 }
 function trace(message, verbose) {
     connection.tracer.log(message, verbose);
@@ -868,9 +942,12 @@ function validateSingle(document, publishDiagnostics = true) {
         }
         try {
             validate(document, settings, publishDiagnostics);
-            connection.sendNotification(StatusNotification.type, { state: Status.ok });
+            connection.sendNotification(StatusNotification.type, { uri: document.uri, state: Status.ok });
         }
         catch (err) {
+            // if an exception has occurred while validating clear all errors to ensure
+            // we are not showing any stale once
+            connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });
             if (!settings.silent) {
                 let status = undefined;
                 for (let handler of singleErrorHandlers) {
@@ -880,11 +957,11 @@ function validateSingle(document, publishDiagnostics = true) {
                     }
                 }
                 status = status || Status.error;
-                connection.sendNotification(StatusNotification.type, { state: status });
+                connection.sendNotification(StatusNotification.type, { uri: document.uri, state: status });
             }
             else {
                 connection.console.info(getMessage(err, document));
-                connection.sendNotification(StatusNotification.type, { state: Status.ok });
+                connection.sendNotification(StatusNotification.type, { uri: document.uri, state: Status.ok });
             }
         }
     });
@@ -1080,7 +1157,11 @@ function tryHandleMissingModule(error, document, library) {
     return undefined;
 }
 function showErrorMessage(error, document) {
-    connection.window.showErrorMessage(`ESLint: ${getMessage(error, document)}. Please see the 'ESLint' output channel for details.`);
+    connection.window.showErrorMessage(`ESLint: ${getMessage(error, document)}. Please see the 'ESLint' output channel for details.`, { title: 'Open Output', id: 1 }).then((value) => {
+        if (value !== undefined && value.id === 1) {
+            connection.sendNotification(ShowOutputChannel.type);
+        }
+    });
     if (Is.string(error.stack)) {
         connection.console.error('ESLint stack trace:');
         connection.console.error(error.stack);
@@ -1282,9 +1363,12 @@ messageQueue.registerRequest(node_1.CodeActionRequest.type, (params) => {
         changes.clear(textDocument);
         return result.all();
     }
-    function createCodeAction(title, kind, commandId, arg) {
+    function createCodeAction(title, kind, commandId, arg, diagnostic) {
         const command = node_1.Command.create(title, commandId, arg);
         const action = node_1.CodeAction.create(title, command, kind);
+        if (diagnostic !== undefined) {
+            action.diagnostics = [diagnostic];
+        }
         return action;
     }
     function createDisableLineTextEdit(editInfo, indentationText) {
@@ -1294,7 +1378,10 @@ messageQueue.registerRequest(node_1.CodeActionRequest.type, (params) => {
         return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, Number.MAX_VALUE), ` // eslint-disable-line ${editInfo.ruleId}`);
     }
     function createDisableFileTextEdit(editInfo) {
-        return node_1.TextEdit.insert(node_1.Position.create(0, 0), `/* eslint-disable ${editInfo.ruleId} */${os_1.EOL}`);
+        // If firts line contains a shebang, insert on the next line instead.
+        const shebang = textDocument === null || textDocument === void 0 ? void 0 : textDocument.getText(node_1.Range.create(node_1.Position.create(0, 0), node_1.Position.create(0, 2)));
+        const line = shebang === '#!' ? 1 : 0;
+        return node_1.TextEdit.insert(node_1.Position.create(line, 0), `/* eslint-disable ${editInfo.ruleId} */${os_1.EOL}`);
     }
     function getLastEdit(array) {
         const length = array.length;
@@ -1343,7 +1430,7 @@ messageQueue.registerRequest(node_1.CodeActionRequest.type, (params) => {
                 const workspaceChange = new node_1.WorkspaceChange();
                 workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(FixableProblem.createTextEdit(textDocument, editInfo));
                 changes.set(`${CommandIds.applySingleFix}:${ruleId}`, workspaceChange);
-                const action = createCodeAction(editInfo.label, kind, CommandIds.applySingleFix, CommandParams.create(textDocument, ruleId));
+                const action = createCodeAction(editInfo.label, kind, CommandIds.applySingleFix, CommandParams.create(textDocument, ruleId), editInfo.diagnostic);
                 action.isPreferred = true;
                 result.get(ruleId).fixes.push(action);
             }
@@ -1352,7 +1439,7 @@ messageQueue.registerRequest(node_1.CodeActionRequest.type, (params) => {
                     const workspaceChange = new node_1.WorkspaceChange();
                     workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(SuggestionsProblem.createTextEdit(textDocument, suggestion));
                     changes.set(`${CommandIds.applySuggestion}:${ruleId}:${suggestionSequence}`, workspaceChange);
-                    const action = createCodeAction(`${suggestion.desc} (${editInfo.ruleId})`, node_1.CodeActionKind.QuickFix, CommandIds.applySuggestion, CommandParams.create(textDocument, ruleId, suggestionSequence));
+                    const action = createCodeAction(`${suggestion.desc} (${editInfo.ruleId})`, node_1.CodeActionKind.QuickFix, CommandIds.applySuggestion, CommandParams.create(textDocument, ruleId, suggestionSequence), editInfo.diagnostic);
                     result.get(ruleId).suggestions.push(action);
                 });
             }

@@ -31,11 +31,22 @@ class LspEslintPlugin(NpmClientHandler):
 
     def on_ready(self, api) -> None:
         api.on_notification('eslint/status', self.handle_status)
+        api.on_notification('eslint/exitCalled', self.handle_exit_called)
+        api.on_notification('eslint/showOutputChannel', self.handle_show_output_channel)
         api.on_request('eslint/openDoc', self.handle_open_doc)
         api.on_request('eslint/probeFailed', self.handle_probe_failed)
+        api.on_request('eslint/noConfig', self.handle_no_config)
+        api.on_request('eslint/noLibrary', self.handle_no_library)
+        api.on_request('eslint/confirmESLintExecution', self.handle_confirm_execution)
 
     def handle_status(self, params) -> None:
         pass
+
+    def handle_exit_called(self, params) -> None:
+        pass
+
+    def handle_show_output_channel(self, params) -> None:
+        sublime.active_window().run_command('lsp_toggle_server_panel')
 
     def handle_open_doc(self, params, respond) -> None:
         webbrowser.open(params['url'])
@@ -44,6 +55,20 @@ class LspEslintPlugin(NpmClientHandler):
     def handle_probe_failed(self, params, respond) -> None:
         self._probe_failed.add(params['textDocument']['uri'])
         respond(None)
+
+    def handle_no_config(self, params, respond) -> None:
+        # TODO: Show better notification that no eslint configuration was found.
+        print('LSP-eslint: Could not find eslint configuration ({}) for {}'.format(
+            params['message'], params['document']['uri']))
+        respond(None)
+
+    def handle_no_library(self, params, respond) -> None:
+        # TODO: Show better notification that no eslint library was found.
+        print('LSP-eslint: Failed resolving eslint library for {}'.format(params['source']['uri']))
+        respond(None)
+
+    def handle_confirm_execution(self, params, respond) -> None:
+        respond(4)  # ConfirmExecutionResult.approved
 
     def on_workspace_configuration(self, params, configuration) -> None:
         session = self.weaksession()
