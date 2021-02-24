@@ -1,18 +1,20 @@
-from LSP.plugin.core.typing import Any, Dict, Literal, Set, Union
-from LSP.plugin.core.url import uri_to_filename
+from LSP.plugin.core.typing import Any, Callable, Dict, Literal, Optional, Set
+from LSP.plugin import uri_to_filename
+from LSP.plugin import WorkspaceFolder
+from lsp_utils import notification_handler
 from lsp_utils import NpmClientHandler
+from lsp_utils import request_handler
 import os
-import posixpath
 import re
 import sublime
 import webbrowser
 
 
-def plugin_loaded():
+def plugin_loaded() -> None:
     LspEslintPlugin.setup()
 
 
-def plugin_unloaded():
+def plugin_unloaded() -> None:
     LspEslintPlugin.cleanup()
 
 
@@ -21,61 +23,55 @@ class LspEslintPlugin(NpmClientHandler):
     server_directory = 'language-server'
     server_binary_path = os.path.join(server_directory, 'out', 'eslintServer.js')
 
-    @classmethod
-    def install_in_cache(cls) -> bool:
-        return False
-
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._probe_failed = set()  # type: Set[str]
 
-    def on_ready(self, api) -> None:
-        api.on_notification('eslint/status', self.handle_status)
-        api.on_notification('eslint/exitCalled', self.handle_exit_called)
-        api.on_notification('eslint/showOutputChannel', self.handle_show_output_channel)
-        api.on_request('eslint/openDoc', self.handle_open_doc)
-        api.on_request('eslint/probeFailed', self.handle_probe_failed)
-        api.on_request('eslint/noConfig', self.handle_no_config)
-        api.on_request('eslint/noLibrary', self.handle_no_library)
-        api.on_request('eslint/confirmESLintExecution', self.handle_confirm_execution)
-
-    def handle_status(self, params) -> None:
+    @notification_handler('eslint/status')
+    def handle_status(self, params: Any) -> None:
         pass
 
-    def handle_exit_called(self, params) -> None:
+    @notification_handler('eslint/exitCalled')
+    def handle_exit_called(self, params: Any) -> None:
         pass
 
-    def handle_show_output_channel(self, params) -> None:
+    @notification_handler('eslint/showOutputChannel')
+    def handle_show_output_channel(self, params: Any) -> None:
         sublime.active_window().run_command('lsp_toggle_server_panel')
 
-    def handle_open_doc(self, params, respond) -> None:
+    @request_handler('eslint/openDoc')
+    def handle_open_doc(self, params: Any, respond: Callable[[Any], None]) -> None:
         webbrowser.open(params['url'])
         respond({})
 
-    def handle_probe_failed(self, params, respond) -> None:
+    @request_handler('eslint/probeFailed')
+    def handle_probe_failed(self, params: Any, respond: Callable[[Any], None]) -> None:
         self._probe_failed.add(params['textDocument']['uri'])
         respond(None)
 
-    def handle_no_config(self, params, respond) -> None:
+    @request_handler('eslint/noConfig')
+    def handle_no_config(self, params: Any, respond: Callable[[Any], None]) -> None:
         # TODO: Show better notification that no eslint configuration was found.
         print('LSP-eslint: Could not find eslint configuration ({}) for {}'.format(
             params['message'], params['document']['uri']))
         respond(None)
 
-    def handle_no_library(self, params, respond) -> None:
+    @request_handler('eslint/noLibrary')
+    def handle_no_library(self, params: Any, respond: Callable[[Any], None]) -> None:
         # TODO: Show better notification that no eslint library was found.
         print('LSP-eslint: Failed resolving eslint library for {}'.format(params['source']['uri']))
         respond(None)
 
-    def handle_confirm_execution(self, params, respond) -> None:
+    @request_handler('eslint/confirmESLintExecution')
+    def handle_confirm_execution(self, params: Any, respond: Callable[[Any], None]) -> None:
         respond(4)  # ConfirmExecutionResult.approved
 
-    def on_workspace_configuration(self, params, configuration) -> None:
+    def on_workspace_configuration(self, params: Any, configuration: Dict) -> None:
         session = self.weaksession()
         if session:
             scope_uri = params.get('scopeUri')
             if scope_uri:
-                workspace_folder = None
+                workspace_folder = None  # type: Optional[WorkspaceFolder]
                 for folder in session.get_workspace_folders():
                     if folder.includes_uri(scope_uri):
                         workspace_folder = folder
@@ -90,7 +86,8 @@ class LspEslintPlugin(NpmClientHandler):
                     configuration['validate'] = 'on'
                 del configuration['probe']
 
-    def resolve_working_directory(self, configuration, scope_uri, workspace_folder) -> None:
+    def resolve_working_directory(self, configuration: Dict, scope_uri: str,
+                                  workspace_folder: Optional[WorkspaceFolder]) -> None:
         working_directories = configuration.get('workingDirectories', None)
         if isinstance(working_directories, list):
             working_directory = None
@@ -132,25 +129,27 @@ class LspEslintPlugin(NpmClientHandler):
             configuration['workingDirectory'] = working_directory
             configuration.pop('workingDirectories', None)
 
-    def is_working_directory_item(self, item, configuration_key) -> bool:
+    def is_working_directory_item(self, item: Any, configuration_key: str) -> bool:
         if isinstance(item, dict):
             value = item.get(configuration_key, None)
             not_cwd = item.get('!cwd', None)
             return isinstance(value, str) and (isinstance(not_cwd, bool) or not_cwd is None)
         return False
 
-    def is_mode_item(self, item) -> bool:
+    def is_mode_item(self, item: Any) -> bool:
         if isinstance(item, dict):
             mode = item.get('mode', None)
             return isinstance(mode, str) and mode in ('auto', 'location')
         return False
 
-    def to_os_path(self, path) -> str:
+    def to_os_path(self, path: str) -> str:
         if sublime.platform == 'windows':
             path = re.sub(r'^\/(\w)\/', r'\1:\\', path)
         return os.path.normpath(path)
 
-    def compute_validate(self, language_id: str, scope_uri: str, config: Dict[str, Any]) -> Literal['off', 'on', 'probe']:
+    def compute_validate(
+        self, language_id: str, scope_uri: str, config: Dict[str, Any]
+    ) -> Literal['off', 'on', 'probe']:
         validate = config.get('validate')
         if isinstance(validate, list):
             for validate_langugage_id in validate:
@@ -162,5 +161,5 @@ class LspEslintPlugin(NpmClientHandler):
         if isinstance(probe, list):
             for probe_language_id in probe:
                 if probe_language_id == language_id:
-                    return 'probe';
-        return 'off';
+                    return 'probe'
+        return 'off'
