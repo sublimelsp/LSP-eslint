@@ -28,11 +28,10 @@ popd || exit
 pushd "${TEMP_DIR}" || exit
 
 echo 'Enter commit SHA, branch or tag (for example 2.1.0) to build'
-read -rp 'SHA, branch or tag (default: master): ' ref
+read -rp 'SHA, branch or tag (default: main): ' ref
 
-# use the "master" branch by default
 if [ "${ref}" = "" ]; then
-    ref="master"
+    ref="main"
 fi
 
 temp_zip="src-${ref}.zip"

@@ -12,6 +12,7 @@ const fs = require("fs");
 const child_process_1 = require("child_process");
 const os_1 = require("os");
 const diff_1 = require("./diff");
+const linkedMap_1 = require("./linkedMap");
 var Is;
 (function (Is) {
     const toString = Object.prototype.toString;
@@ -141,6 +142,18 @@ var CodeActionsOnSaveMode;
     CodeActionsOnSaveMode["all"] = "all";
     CodeActionsOnSaveMode["problems"] = "problems";
 })(CodeActionsOnSaveMode || (CodeActionsOnSaveMode = {}));
+var RuleSeverity;
+(function (RuleSeverity) {
+    // Original ESLint values
+    RuleSeverity["info"] = "info";
+    RuleSeverity["warn"] = "warn";
+    RuleSeverity["error"] = "error";
+    // Added severity override changes
+    RuleSeverity["off"] = "off";
+    RuleSeverity["default"] = "default";
+    RuleSeverity["downgrade"] = "downgrade";
+    RuleSeverity["upgrade"] = "upgrade";
+})(RuleSeverity || (RuleSeverity = {}));
 var TextDocumentSettings;
 (function (TextDocumentSettings) {
     function hasLibrary(settings) {
@@ -172,7 +185,27 @@ function loadNodeModule(moduleName) {
     }
     return undefined;
 }
-function makeDiagnostic(problem) {
+const ruleSeverityCache = new linkedMap_1.LRUCache(1024);
+let ruleCustomizationsKey;
+function asteriskMatches(matcher, ruleId) {
+    return matcher.startsWith('!')
+        ? !(new RegExp(`^${matcher.slice(1).replace(/\*/g, '.*')}$`, 'g').test(ruleId))
+        : new RegExp(`^${matcher.replace(/\*/g, '.*')}$`, 'g').test(ruleId);
+}
+function getSeverityOverride(ruleId, customizations) {
+    if (ruleSeverityCache.has(ruleId)) {
+        return ruleSeverityCache.get(ruleId);
+    }
+    let result;
+    for (const customization of customizations) {
+        if (asteriskMatches(customization.rule, ruleId)) {
+            result = customization.severity;
+        }
+    }
+    ruleSeverityCache.set(ruleId, result);
+    return result;
+}
+function makeDiagnostic(settings, problem) {
     const message = problem.message;
     const startLine = Is.nullOrUndefined(problem.line) ? 0 : Math.max(0, problem.line - 1);
     const startChar = Is.nullOrUndefined(problem.column) ? 0 : Math.max(0, problem.column - 1);
@@ -180,7 +213,7 @@ function makeDiagnostic(problem) {
     const endChar = Is.nullOrUndefined(problem.endColumn) ? startChar : Math.max(0, problem.endColumn - 1);
     const result = {
         message: message,
-        severity: convertSeverity(problem.severity),
+        severity: convertSeverityToDiagnosticWithOverride(problem.severity, getSeverityOverride(problem.ruleId, settings.rulesCustomizations)),
         source: 'eslint',
         range: {
             start: { line: startLine, character: startChar },
@@ -251,16 +284,50 @@ function recordCodeAction(document, diagnostic, problem) {
         suggestions: problem.suggestions
     });
 }
-function convertSeverity(severity) {
+function adjustSeverityForOverride(severity, severityOverride) {
+    switch (severityOverride) {
+        case RuleSeverity.info:
+        case RuleSeverity.warn:
+        case RuleSeverity.error:
+            return severityOverride;
+        case RuleSeverity.downgrade:
+            switch (convertSeverityToDiagnostic(severity)) {
+                case node_1.DiagnosticSeverity.Error:
+                    return RuleSeverity.warn;
+                case node_1.DiagnosticSeverity.Warning:
+                case node_1.DiagnosticSeverity.Information:
+                    return RuleSeverity.info;
+            }
+        case RuleSeverity.upgrade:
+            switch (convertSeverityToDiagnostic(severity)) {
+                case node_1.DiagnosticSeverity.Information:
+                    return RuleSeverity.warn;
+                case node_1.DiagnosticSeverity.Warning:
+                case node_1.DiagnosticSeverity.Error:
+                    return RuleSeverity.error;
+            }
+        default:
+            return severity;
+    }
+}
+function convertSeverityToDiagnostic(severity) {
+    // RuleSeverity concerns an overridden rule. A number is direct from ESLint.
     switch (severity) {
         // Eslint 1 is warning
         case 1:
+        case RuleSeverity.warn:
             return node_1.DiagnosticSeverity.Warning;
         case 2:
+        case RuleSeverity.error:
             return node_1.DiagnosticSeverity.Error;
+        case RuleSeverity.info:
+            return node_1.DiagnosticSeverity.Information;
         default:
             return node_1.DiagnosticSeverity.Error;
     }
+}
+function convertSeverityToDiagnosticWithOverride(severity, severityOverride) {
+    return convertSeverityToDiagnostic(adjustSeverityForOverride(severity, severityOverride));
 }
 /**
  * Check if the path follows this pattern: `\\hostname\sharename`.
@@ -304,16 +371,21 @@ function isUNC(path) {
     return true;
 }
 function getFileSystemPath(uri) {
-    const result = uri.fsPath;
+    let result = uri.fsPath;
     if (process.platform === 'win32' && result.length >= 2 && result[1] === ':') {
         // Node by default uses an upper case drive letter and ESLint uses
         // === to compare paths which results in the equal check failing
         // if the drive letter is lower case in th URI. Ensure upper case.
-        return result[0].toUpperCase() + result.substr(1);
+        result = result[0].toUpperCase() + result.substr(1);
     }
-    else {
-        return result;
+    if (process.platform === 'win32' || process.platform === 'darwin') {
+        const realpath = fs.realpathSync.native(result);
+        // Only use the real path if only the casing has changed.
+        if (realpath.toLowerCase() === result.toLowerCase()) {
+            result = realpath;
+        }
     }
+    return result;
 }
 function getFilePath(documentOrUri) {
     if (!documentOrUri) {
@@ -368,7 +440,7 @@ process.on('uncaughtException', (error) => {
 });
 const connection = node_1.createConnection();
 connection.console.info(`ESLint server running in node ${process.version}`);
-// Is instantiated in the initalize handle;
+// Is instantiated in the initialize handle;
 let documents;
 const _globalPaths = {
     yarn: {
@@ -1004,6 +1076,11 @@ function validate(document, settings, publishDiagnostics = true) {
             fixTypes = undefined;
         }
     }
+    const newRuleCustomizationsKey = JSON.stringify(settings.rulesCustomizations);
+    if (ruleCustomizationsKey !== newRuleCustomizationsKey) {
+        ruleCustomizationsKey = newRuleCustomizationsKey;
+        ruleSeverityCache.clear();
+    }
     const content = document.getText();
     const uri = document.uri;
     const file = getFilePath(document);
@@ -1024,12 +1101,12 @@ function validate(document, settings, publishDiagnostics = true) {
             if (docReport.messages && Array.isArray(docReport.messages)) {
                 docReport.messages.forEach((problem) => {
                     if (problem) {
-                        const isWarning = convertSeverity(problem.severity) === node_1.DiagnosticSeverity.Warning;
+                        const isWarning = convertSeverityToDiagnostic(problem.severity) === node_1.DiagnosticSeverity.Warning;
                         if (settings.quiet && isWarning) {
                             // Filter out warnings when quiet mode is enabled
                             return;
                         }
-                        const diagnostic = makeDiagnostic(problem);
+                        const diagnostic = makeDiagnostic(settings, problem);
                         diagnostics.push(diagnostic);
                         if (fixTypes !== undefined && CLIEngine.hasRule(cli) && problem.ruleId !== undefined && problem.fix !== undefined) {
                             const rule = cli.getRules().get(problem.ruleId);
@@ -1239,13 +1316,15 @@ class Fixes {
             if (d !== 0) {
                 return d;
             }
-            if (a.edit.range[1] === 0) {
+            const al = a.edit.range[1] - a.edit.range[0];
+            if (al === 0) {
                 return -1;
             }
-            if (b.edit.range[1] === 0) {
+            const bl = b.edit.range[1] - b.edit.range[0];
+            if (bl === 0) {
                 return 1;
             }
-            return a.edit.range[1] - b.edit.range[1];
+            return al - bl;
         });
     }
     getApplicable() {
@@ -1375,7 +1454,8 @@ messageQueue.registerRequest(node_1.CodeActionRequest.type, (params) => {
         return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, 0), `${indentationText}// eslint-disable-next-line ${editInfo.ruleId}${os_1.EOL}`);
     }
     function createDisableSameLineTextEdit(editInfo) {
-        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, Number.MAX_VALUE), ` // eslint-disable-line ${editInfo.ruleId}`);
+        // Todo@dbaeumer Use uinteger.MAX_VALUE instead.
+        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, 2147483647), ` // eslint-disable-line ${editInfo.ruleId}`);
     }
     function createDisableFileTextEdit(editInfo) {
         // If firts line contains a shebang, insert on the next line instead.
@@ -1391,6 +1471,10 @@ messageQueue.registerRequest(node_1.CodeActionRequest.type, (params) => {
         return array[length - 1];
     }
     return resolveSettings(textDocument).then(async (settings) => {
+        // The file is not validated at all or we couldn't load an eslint library for it.
+        if (settings.validate !== Validate.on || !TextDocumentSettings.hasLibrary(settings)) {
+            return result.all();
+        }
         const problems = codeActions.get(uri);
         // We validate on type and have no problems ==> nothing to fix.
         if (problems === undefined && settings.run === 'onType') {
@@ -1449,7 +1533,8 @@ messageQueue.registerRequest(node_1.CodeActionRequest.type, (params) => {
                     workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableSameLineTextEdit(editInfo));
                 }
                 else {
-                    const lineText = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, Number.MAX_VALUE)));
+                    // Todo@dbaeumer Use uinteger.MAX_VALUE instead.
+                    const lineText = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, 2147483647)));
                     const matches = /^([ \t]*)/.exec(lineText);
                     const indentationText = matches !== null && matches.length > 0 ? matches[1] : '';
                     workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableLineTextEdit(editInfo, indentationText));

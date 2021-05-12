@@ -249,7 +249,8 @@
                           "default": "separateLine",
                           "description": "Configure the disable rule code action to insert the comment on the same line or a new line."
                         }
-                      }
+                      },
+                      "additionalProperties": false
                     },
                     "codeAction.showDocumentation": {
                       "type": "object",
@@ -262,8 +263,41 @@
                           "default": true,
                           "description": "Show the documentation code actions."
                         }
-                      }
+                      },
+                      "additionalProperties": false
                     },
+                    "rulesCustomizations": {
+                      "markdownDescription": "Override the severity of one or more rules, regardless of the project's ESLint config. Use globs to apply default severities for multiple rules. Contains two properties:\n\n - `\"rule\"`: Select on rules with names that match, factoring in asterisks as wildcards: `{ \"rule\": \"no-*\", \"severity\": \"warn\" }`. Prefix the name with a `\"!\"` to target all rules that _don't_ match the name: `{ \"rule\": \"!no-*\", \"severity\": \"info\" }`\n - `\"severity\"`: Sets a new severity for matched rule(s), `\"downgrade\"`s them to a lower severity, `\"upgrade\"`s them to a higher severity, or `\"default\"`s them to their original severity\n\nIn this example, all rules are overridden to warnings:\n```json\n\"eslint.rules.customizations\": [\n  { \"rule\": \"*\", \"severity\": \"warn\" }\n]\n```\n\nIn this example, `no-` rules are informative, other rules are downgraded, and `\"radix\"` is reset to default:\n```json\n\"eslint.rules.customizations\": [\n  { \"rule\": \"no-*\", \"severity\": \"info\" },\n  { \"rule\": \"!no-*\", \"severity\": \"downgrade\" },\n  { \"rule\": \"radix\", \"severity\": \"default\" }\n]\n```",
+                      "items": {
+                        "properties": {
+                          "severity": {
+                            "enum": [
+                              "downgrade",
+                              "error",
+                              "info",
+                              "default",
+                              "upgrade",
+                              "warn"
+                            ],
+                            "type": "string"
+                          },
+                          "rule": {
+                            "type": "string"
+                          },
+                        },
+                        "required": ["severity", "rule"],
+                        "defaultSnippets": [
+                          {
+                            "body": {
+                              "rule": "$1",
+                              "severity": "$0"
+                            }
+                          }
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
                   }
                 }
               },

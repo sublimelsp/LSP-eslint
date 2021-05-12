@@ -64,6 +64,9 @@
 			"vue",
 			"markdown",
 		],
+		// Override the severity of one or more rules, regardless of the project's ESLint config. Use globs to
+		// apply default severities for multiple rules.
+		"rulesCustomizations": [],
 		// Turns on quiet mode, which ignores warnings.
 		"quiet": false,
 		// Run the linter on save or on type.
