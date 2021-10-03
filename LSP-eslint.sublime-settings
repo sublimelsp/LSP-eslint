@@ -1,31 +1,4 @@
 {
-	"command": ["${node_bin}", "${server_path}", "--stdio"],
-	"languages": [
-		{
-			"languageId": "javascriptreact",
-			"document_selector": "source.jsx | source.js.jsx | source.js.react",
-		},
-		{
-			"languageId": "javascript",
-			"document_selector": "source.js",
-		},
-		{
-			"languageId": "typescriptreact",
-			"document_selector": "source.tsx | source.ts.react",
-		},
-		{
-			"languageId": "typescript",
-			"document_selector": "source.ts",
-		},
-		{
-			"languageId": "vue",
-			"document_selector": "text.html.vue",
-		},
-		{
-			"languageId": "html",
-			"document_selector": "text.html.basic",
-		},
-	],
 	"settings": {
 		"codeAction.disableRuleComment": {
 			// Show the disable code actions.
@@ -88,10 +61,45 @@
 		// NOTE that the `{ "pattern": glob pattern }` variant is not supported in LSP-eslint.
 		// "workingDirectories": null
 	},
+	// File watching functionality only works with "LSP-file-watcher-chokidar" package installed.
+	"file_watcher": {
+		"patterns": [
+			"**/.eslintr{c.js,c.yaml,c.yml,c,c.json}",
+			"**/.eslintignore",
+			"**/package.json",
+		]
+	},
+	"command": ["${node_bin}", "${server_path}", "--stdio"],
 	"env": {
 		// Enables ESLint debug mode
 		// "DEBUG": "eslint:*,-eslint:code-path",
 		// The value of NODE_ENV to use when running eslint tasks.
 		// "NODE_ENV": "production",
 	},
+	"languages": [
+		{
+			"languageId": "javascriptreact",
+			"document_selector": "source.jsx | source.js.jsx | source.js.react",
+		},
+		{
+			"languageId": "javascript",
+			"document_selector": "source.js",
+		},
+		{
+			"languageId": "typescriptreact",
+			"document_selector": "source.tsx | source.ts.react",
+		},
+		{
+			"languageId": "typescript",
+			"document_selector": "source.ts",
+		},
+		{
+			"languageId": "vue",
+			"document_selector": "text.html.vue",
+		},
+		{
+			"languageId": "html",
+			"document_selector": "text.html.basic",
+		},
+	],
 }
