@@ -13,6 +13,9 @@
 		"codeActionOnSave.enable": true,
 		// Specifies the code action mode. Possible values are 'all' and 'problems'.
 		"codeActionOnSave.mode": "all",
+		// The rules that should be executed when computing the code actions on save or formatting a file.
+		// Defaults to the rules configured via the ESLint configuration.
+		// "codeActionOnSave.rules": [],
 		// Deprecated. Recommended to use the global LSP option `lsp_code_actions_on_save` with the.
 		// `"source.fixAll.eslint": true` key instead.
 		"format": false,
@@ -21,9 +24,26 @@
 		// Whether ESLint should issue a warning on ignored files.
 		// Possible values: `warn`, `off`
 		"onIgnoredFiles": "off",
-		// The eslint options object to provide args normally passed to eslint when
-		// executed from a command line (see https://eslint.org/docs/developer-guide/nodejs-api#cliengine).
+		// Options to configure how ESLint is started using either the [ESLint class API](http://eslint.org/docs/developer-guide/nodejs-api#eslint-class)
+		// or the [CLIEngine API](http://eslint.org/docs/developer-guide/nodejs-api#cliengine). The server uses the
+		// ESLint class API if ESLint version 8 or higher is used or if ESLint version 7 is used and the setting
+		// `eslint.useESLintCLass` is set to true. I all other cases the CLIEngine API is used.
+		// An example to point to a custom `.eslintrc.json` file using the new ESLint API is:
+		// ```json
+		// {
+		//   "eslint.options": { "overrideConfigFile": "C:/mydirectory/.eslintrc.json" }
+		// }
+		// ```
+		// An example to point to a custom `.eslintrc.json` file using the old CLIEngine API is:
+		// ```json
+		// {
+		//   "eslint.options": { "configFile": "C:/mydirectory/.eslintrc.json" }
+		// }
+		// ```
 		"options": {},
+		// Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored
+		// when using using ESLint version 7.x.
+		"useESLintClass": false,
 		// The package manager you use to install node modules.
 		// Possible values: `npm`, `yarn`, `pnpm`
 		"packageManager": "npm",

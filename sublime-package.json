@@ -45,6 +45,14 @@
                       ],
                       "markdownDescription": "Specifies the code action mode. Possible values are `all` and `problems`."
                     },
+                    "codeActionOnSave.rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": [],
+                      "markdownDescription": "The rules that should be executed when computing the code actions on save or formatting a file. Defaults to the rules configured via the ESLint configuration."
+                    },
                     "format": {
                       "type": "boolean",
                       "default": false,
@@ -71,7 +79,12 @@
                     "options": {
                       "type": "object",
                       "default": {},
-                      "markdownDescription": "The eslint options object to provide args normally passed to eslint when executed from a command line (see http://eslint.org/docs/developer-guide/nodejs-api#cliengine)."
+                      "markdownDescription": "Options to configure how ESLint is started using either the [ESLint class API](http://eslint.org/docs/developer-guide/nodejs-api#eslint-class) or the [CLIEngine API](http://eslint.org/docs/developer-guide/nodejs-api#cliengine). The extension uses the ESLint class API if ESLint version 8 or higher is used or if ESLint version 7 is used and the setting `eslint.useESLintCLass` is set to true. In all other cases the CLIEngine API is used.\n\n  An example to point to a custom `.eslintrc.json` file using the new ESLint API is:\n  ```json\n  {\n    \"eslint.options\": { \"overrideConfigFile\": \"C:/mydirectory/.eslintrc.json\" }\n  }\n ```\n\n  An example to point to a custom `.eslintrc.json` file using the old CLIEngine API is:\n  ```json\n  {\n    \"eslint.options\": { \"configFile\": \"C:/mydirectory/.eslintrc.json\" }\n  }\n  ```"
+                    },
+                    "useESLintClass": {
+                      "type": "boolean",
+                      "default": false,
+                      "markdownDescription": "Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored when using using ESLint version 7.x."
                     },
                     "probe": {
                       "type": "array",
@@ -114,7 +127,7 @@
                     },
                     "workingDirectories": {
                       "type": "array",
-                      "markdownDescription": "Specifies custom configuration for ESLint's working directories.",
+                      "markdownDescription": "Specifies how the working directories ESLint is using are computed. ESLint resolves configuration files (e.g. `eslintrc`, `.eslintignore`) relative to a working directory so it is important to configure this correctly.",
                       "defaultSnippets": [
                         {
                           "body": [
@@ -250,7 +263,8 @@
                           "description": "Configure the disable rule code action to insert the comment on the same line or a new line."
                         }
                       },
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "markdownDescription": "Show disable lint rule in the quick fix menu."
                     },
                     "codeAction.showDocumentation": {
                       "type": "object",
@@ -264,7 +278,8 @@
                           "description": "Show the documentation code actions."
                         }
                       },
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "markdownDescription": "Show open lint rule documentation web page in the quick fix menu."
                     },
                     "rulesCustomizations": {
                       "markdownDescription": "Override the severity of one or more rules, regardless of the project's ESLint config. Use globs to apply default severities for multiple rules. Contains two properties:\n\n - `\"rule\"`: Select on rules with names that match, factoring in asterisks as wildcards: `{ \"rule\": \"no-*\", \"severity\": \"warn\" }`. Prefix the name with a `\"!\"` to target all rules that _don't_ match the name: `{ \"rule\": \"!no-*\", \"severity\": \"info\" }`\n - `\"severity\"`: Sets a new severity for matched rule(s), `\"downgrade\"`s them to a lower severity, `\"upgrade\"`s them to a higher severity, or `\"default\"`s them to their original severity\n\nIn this example, all rules are overridden to warnings:\n```json\n\"eslint.rules.customizations\": [\n  { \"rule\": \"*\", \"severity\": \"warn\" }\n]\n```\n\nIn this example, `no-` rules are informative, other rules are downgraded, and `\"radix\"` is reset to default:\n```json\n\"eslint.rules.customizations\": [\n  { \"rule\": \"no-*\", \"severity\": \"info\" },\n  { \"rule\": \"!no-*\", \"severity\": \"downgrade\" },\n  { \"rule\": \"radix\", \"severity\": \"default\" }\n]\n```",
@@ -277,7 +292,8 @@
                               "info",
                               "default",
                               "upgrade",
-                              "warn"
+                              "warn",
+                              "off"
                             ],
                             "type": "string"
                           },
