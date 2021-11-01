@@ -19,7 +19,7 @@ Defines on which types of files the ESLint server will run.
 
 #### settings
 
-ESLint configuration options. Refer to [documentation for VSCode extension](https://github.com/Microsoft/vscode-eslint).
+ESLint configuration options. Refer to the comments for documentation and install [LSP-json](https://packagecontrol.io/packages/LSP-json) to automatically validate settings.
 
 ### FAQ
 
@@ -53,5 +53,4 @@ A: Install ESLint in the project, run `yarn dlx @yarnpkg/pnpify --sdk base` ([do
     }
   }
 }
-
 ```
