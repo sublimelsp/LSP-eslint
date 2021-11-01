@@ -34,8 +34,10 @@ if [ "${ref}" = "" ]; then
     ref="main"
 fi
 
-temp_zip="src-${ref}.zip"
-curl -L "${GITHUB_REPO_URL}/archive/${ref}.zip" -o "${temp_zip}"
+temp_zip="src-${ref//\//-}.zip"
+download_url="${GITHUB_REPO_URL}/archive/${ref}.zip"
+echo "Downloading ${download_url}"
+curl -L "${download_url}" -o "${temp_zip}"
 unzip -z "${temp_zip}" > update-info.log
 unzip "${temp_zip}" && rm -f "${temp_zip}"
 mv "${GITHUB_REPO_NAME}-"*/* "${TEMP_DIR}"

@@ -3,6 +3,7 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LRUCache = exports.LinkedMap = exports.Touch = void 0;
 var Touch;
@@ -15,7 +16,7 @@ var Touch;
 })(Touch = exports.Touch || (exports.Touch = {}));
 class LinkedMap {
     constructor() {
-        this[Symbol.toStringTag] = 'LinkedMap';
+        this[_a] = 'LinkedMap';
         this._map = new Map();
         this._head = undefined;
         this._tail = undefined;
@@ -36,12 +37,10 @@ class LinkedMap {
         return this._size;
     }
     get first() {
-        var _a;
-        return (_a = this._head) === null || _a === void 0 ? void 0 : _a.value;
+        return this._head?.value;
     }
     get last() {
-        var _a;
-        return (_a = this._tail) === null || _a === void 0 ? void 0 : _a.value;
+        return this._tail?.value;
     }
     has(key) {
         return this._map.has(key);
@@ -199,7 +198,7 @@ class LinkedMap {
         };
         return iterator;
     }
-    [Symbol.iterator]() {
+    [(_a = Symbol.toStringTag, Symbol.iterator)]() {
         return this.entries();
     }
     trimOld(newSize) {
