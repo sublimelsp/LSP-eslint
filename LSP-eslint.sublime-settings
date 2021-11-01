@@ -1,11 +1,16 @@
 {
 	"settings": {
+		// Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored
+		// when using using ESLint version 7.x.
+		"useESLintClass": false,
+		// Show disable lint rule in the quick fix menu.
 		"codeAction.disableRuleComment": {
 			// Show the disable code actions.
 			"enable": true,
 			// Configure the disable rule code action to insert the comment on the `sameLine` or `separateLine`.
 			"location": "separateLine"
 		},
+		// Show open lint rule documentation web page in the quick fix.
 		"codeAction.showDocumentation": {
 			// Show the documentation code actions.
 			"enable": true
@@ -15,6 +20,40 @@
 		"codeActionOnSave.mode": "all",
 		// The rules that should be executed when computing the code actions on save or formatting a file.
 		// Defaults to the rules configured via the ESLint configuration.
+		// An empty array results in no rules being considered.
+		// If the array contains more than one entry the order matters and the first match determines the rule's
+		// on/off state. This setting is only honored if either ESLint version 8 or greater is used or ESLint
+		// version 7 is used and the setting `useESLintClass` is set to `true`.
+		//
+		// In this example only semicolon related rules are considered:
+		//
+		// ```json
+		// "codeActionOnSave.rules": [
+		//   "*semi*"
+		// ]
+		// ```
+		//
+		// This example removes all TypeScript ESLint specific rules from the code action on save pass but
+		// keeps all other rules:
+		//
+		// ```json
+		// "codeActionOnSave.rules": [
+		//   "!@typescript-eslint/*",
+		//   "*"
+		// ]
+		// ```
+		//
+		// This example keeps the indent and semi rule from TypeScript ESLint, disables all other TypeScript
+		// ESLint rules and keeps the rest:
+		//
+		// ```json
+		// "codeActionOnSave.rules": [
+		 //  "@typescript-eslint/semi",
+		 //  "@typescript-eslint/indent",
+		 //  "!@typescript-eslint/*",
+		 //  "*"
+		// ]
+		// ```
 		// "codeActionOnSave.rules": [],
 		// Deprecated. Recommended to use the global LSP option `lsp_code_actions_on_save` with the.
 		// `"source.fixAll.eslint": true` key instead.
@@ -24,10 +63,9 @@
 		// Whether ESLint should issue a warning on ignored files.
 		// Possible values: `warn`, `off`
 		"onIgnoredFiles": "off",
-		// Options to configure how ESLint is started using either the [ESLint class API](http://eslint.org/docs/developer-guide/nodejs-api#eslint-class)
-		// or the [CLIEngine API](http://eslint.org/docs/developer-guide/nodejs-api#cliengine). The server uses the
-		// ESLint class API if ESLint version 8 or higher is used or if ESLint version 7 is used and the setting
-		// `eslint.useESLintCLass` is set to true. I all other cases the CLIEngine API is used.
+		// Options to configure how ESLint is started using the [ESLint class API](http://eslint.org/docs/developer-guide/nodejs-api#eslint-class).
+		// The server uses the ESLint class API if ESLint version 8 or higher is used or if ESLint version 7 is used,
+		// and the setting `useESLintClass` is set to `true`. I all other cases the old CLIEngine API is used.
 		// An example to point to a custom `.eslintrc.json` file using the new ESLint API is:
 		// ```json
 		// {
@@ -41,9 +79,6 @@
 		// }
 		// ```
 		"options": {},
-		// Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored
-		// when using using ESLint version 7.x.
-		"useESLintClass": false,
 		// The package manager you use to install node modules.
 		// Possible values: `npm`, `yarn`, `pnpm`
 		"packageManager": "npm",
@@ -93,7 +128,7 @@
 	"env": {
 		// Enables ESLint debug mode
 		// "DEBUG": "eslint:*,-eslint:code-path",
-		// The value of NODE_ENV to use when running eslint tasks.
+		// The value of `NODE_ENV` to use when running eslint tasks.
 		// "NODE_ENV": "production",
 	},
 	"languages": [

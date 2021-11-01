@@ -62,10 +62,6 @@ class LspEslintPlugin(NpmClientHandler):
         print('LSP-eslint: Failed resolving eslint library for {}'.format(params['source']['uri']))
         respond(None)
 
-    @request_handler('eslint/confirmESLintExecution')
-    def handle_confirm_execution(self, params: Any, respond: Callable[[Any], None]) -> None:
-        respond(4)  # ConfirmExecutionResult.approved
-
     def on_workspace_configuration(self, params: Any, configuration: Dict) -> None:
         session = self.weaksession()
         if session:

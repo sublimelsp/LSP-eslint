@@ -20,7 +20,7 @@
                     "NODE_ENV": {
                       "type": "string",
                       "default": "",
-                      "description": "The value of NODE_ENV to use when running eslint tasks."
+                      "markdownDescription": "The value of `NODE_ENV` to use when running eslint tasks."
                     },
                   }
                 },
@@ -51,7 +51,7 @@
                         "type": "string"
                       },
                       "default": [],
-                      "markdownDescription": "The rules that should be executed when computing the code actions on save or formatting a file. Defaults to the rules configured via the ESLint configuration."
+                      "markdownDescription": "The rules that should be executed when computing the code actions on save or formatting a file. Defaults to the rules configured via the ESLint configuration. An empty array results in no rules being considered.\nIf the array contains more than one entry the order matters and the first match determines the rule's on / off state. This setting is only honored if either ESLint version 8 or greater is used or ESLint version 7 is used and the setting `useESLintClass` is set to `true`.\n\nIn this example only semicolon related rules are considered:\n\n\n```json\n\"codeActionOnSave.rules\": [\n  \"*semi*\"\n]\n```\n\n\nThis example removes all TypeScript ESLint specific rules from the code action on save pass but keeps all other rules:\n\n\n```json\n\"codeActionOnSave.rules\": [\n  \"!@typescript-eslint/*\",\n  \"*\"\n]\n```\n\n\nThis example keeps the indent and semi rule from TypeScript ESLint, disables all other TypeScript ESLint rules and keeps the rest:\n\n\n```json\n\"codeActionOnSave.rules\": [\n  \"@typescript-eslint/semi\",\n  \"@typescript-eslint/indent\",\n  \"!@typescript-eslint/*\",\n  \"*\"\n]\n```"
                     },
                     "format": {
                       "type": "boolean",
@@ -74,12 +74,12 @@
                         "null"
                       ],
                       "default": null,
-                      "description": "A path added to NODE_PATH when resolving the eslint module."
+                      "markdownDescription": "A path added to `NODE_PATH` when resolving the eslint module."
                     },
                     "options": {
                       "type": "object",
                       "default": {},
-                      "markdownDescription": "Options to configure how ESLint is started using either the [ESLint class API](http://eslint.org/docs/developer-guide/nodejs-api#eslint-class) or the [CLIEngine API](http://eslint.org/docs/developer-guide/nodejs-api#cliengine). The extension uses the ESLint class API if ESLint version 8 or higher is used or if ESLint version 7 is used and the setting `eslint.useESLintCLass` is set to true. In all other cases the CLIEngine API is used.\n\n  An example to point to a custom `.eslintrc.json` file using the new ESLint API is:\n  ```json\n  {\n    \"eslint.options\": { \"overrideConfigFile\": \"C:/mydirectory/.eslintrc.json\" }\n  }\n ```\n\n  An example to point to a custom `.eslintrc.json` file using the old CLIEngine API is:\n  ```json\n  {\n    \"eslint.options\": { \"configFile\": \"C:/mydirectory/.eslintrc.json\" }\n  }\n  ```"
+                      "markdownDescription": "Options to configure how ESLint is started using the [ESLint class API](https://eslint.org/docs/developer-guide/nodejs-api#eslint-class). The extension uses the ESLint class API if ESLint version 8 or higher is used or if ESLint version 7 is used and the setting `useESLintClass` is set to `true`. In all other cases the old CLIEngine API is used.\n\n  An example to point to a custom `.eslintrc.json` file using the new ESLint API is:\n  ```json\n  {\n    \"eslint.options\": { \"overrideConfigFile\": \"C:/mydirectory/.eslintrc.json\" }\n  }\n ```\n\n  An example to point to a custom `.eslintrc.json` file using the old CLIEngine API is:\n  ```json\n  {\n    \"eslint.options\": { \"configFile\": \"C:/mydirectory/.eslintrc.json\" }\n  }\n  ```"
                     },
                     "useESLintClass": {
                       "type": "boolean",
