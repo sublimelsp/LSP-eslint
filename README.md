@@ -7,6 +7,8 @@ Eslint support for Sublime's LSP plugin provided through [vscode-eslint](https:/
 * Install [LSP](https://packagecontrol.io/packages/LSP) and `LSP-eslint` from Package Control.
 * Restart Sublime.
 
+The server requires the Node runtime to be at version 14 or later.
+
 ### Configuration
 
 Open configuration file using command palette with `Preferences: LSP-eslint Settings` command or opening it from the Sublime menu.
