@@ -125,36 +125,11 @@
 		]
 	},
 	"command": ["${node_bin}", "${server_path}", "--stdio"],
+	"selector": "source.js | source.ts | source.jsx | source.js.jsx | source.js.react | source.tsx | source.ts.react | text.html.vue | text.html.basic",
 	"env": {
 		// Enables ESLint debug mode
 		// "DEBUG": "eslint:*,-eslint:code-path",
 		// The value of `NODE_ENV` to use when running eslint tasks.
 		// "NODE_ENV": "production",
 	},
-	"languages": [
-		{
-			"languageId": "javascriptreact",
-			"document_selector": "source.jsx | source.js.jsx | source.js.react",
-		},
-		{
-			"languageId": "javascript",
-			"document_selector": "source.js",
-		},
-		{
-			"languageId": "typescriptreact",
-			"document_selector": "source.tsx | source.ts.react",
-		},
-		{
-			"languageId": "typescript",
-			"document_selector": "source.ts",
-		},
-		{
-			"languageId": "vue",
-			"document_selector": "text.html.vue",
-		},
-		{
-			"languageId": "html",
-			"document_selector": "text.html.basic",
-		},
-	],
 }
