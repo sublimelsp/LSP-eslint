@@ -125,7 +125,7 @@
 		]
 	},
 	"command": ["${node_bin}", "${server_path}", "--stdio"],
-	"selector": "source.js | source.ts | source.jsx | source.js.jsx | source.js.react | source.tsx | source.ts.react | text.html.vue | text.html.basic",
+	"selector": "source.js | source.ts | source.jsx | source.tsx | source.js.jsx | source.js.react | source.ts.react | text.html.vue | text.html.basic",
 	"env": {
 		// Enables ESLint debug mode
 		// "DEBUG": "eslint:*,-eslint:code-path",
