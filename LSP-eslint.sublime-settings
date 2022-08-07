@@ -119,7 +119,7 @@
 	// File watching functionality only works with "LSP-file-watcher-chokidar" package installed.
 	"file_watcher": {
 		"patterns": [
-			"**/.eslintr{c.js,c.yaml,c.yml,c,c.json}",
+			"**/.eslintr{c.js,c.cjs,c.yaml,c.yml,c,c.json}",
 			"**/.eslintignore",
 			"**/package.json",
 		]
