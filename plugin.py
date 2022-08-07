@@ -22,6 +22,7 @@ class LspEslintPlugin(NpmClientHandler):
     package_name = __package__
     server_directory = 'language-server'
     server_binary_path = os.path.join(server_directory, 'out', 'eslintServer.js')
+    skip_npm_install = True
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
