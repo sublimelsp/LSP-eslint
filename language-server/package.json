@@ -1,6 +1,6 @@
 {
 	"name": "eslint-server",
-	"version": "2.1.25",
+	"version": "2.2.5",
 	"private": true,
 	"author": "Microsoft Corporation",
 	"license": "MIT",
@@ -15,15 +15,14 @@
 		"node": "*"
 	},
 	"dependencies": {
-		"vscode-languageserver": "8.0.0-next.3",
-		"vscode-languageserver-textdocument": "1.0.2",
-		"vscode-uri": "^3.0.2"
+		"vscode-languageserver": "8.0.2-next.5",
+		"vscode-languageserver-textdocument": "1.0.4",
+		"vscode-uri": "^3.0.3"
 	},
 	"scripts": {
+		"webpack": "npm run clean && webpack --mode production --config ./webpack.config.js",
+		"webpack:dev": "npm run clean && webpack --mode none --config ./webpack.config.js",
+		"clean": "rimraf ./out",
 		"lint": "node ../node_modules/eslint/bin/eslint.js --ext ts src"
-	},
-	"devDependencies": {
-		"@types/node": "^16.11.6",
-		"typescript": "^4.4.4"
 	}
 }

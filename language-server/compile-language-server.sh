@@ -48,11 +48,10 @@ popd || exit
 # prepare deps #
 # ------------ #
 
-pushd "${SRC_SERVER_DIR}" || exit
+pushd "${TEMP_DIR}" || exit
 
 echo 'Installing dependencies...'
 npm install
-npm install -D typescript @types/node
 
 popd || exit
 
@@ -64,7 +63,7 @@ popd || exit
 pushd "${SRC_SERVER_DIR}" || exit
 
 echo 'Compiling server...'
-npx tsc --newLine LF -p .
+npm run webpack
 
 popd || exit
 
@@ -78,7 +77,7 @@ pushd "${SRC_SERVER_DIR}" || exit
 echo 'Copying and cleaning up files...'
 find ./out -name "*.map" -delete
 cp -f ../update-info.log "${REPO_DIR}"
-cp -r out package.json package-lock.json "${REPO_DIR}"
+cp -r out package.json "${REPO_DIR}"
 rm -rf "${TEMP_DIR}"
 
 popd || exit
