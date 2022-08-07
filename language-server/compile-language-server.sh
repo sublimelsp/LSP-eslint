@@ -48,11 +48,10 @@ popd || exit
 # prepare deps #
 # ------------ #
 
-pushd "${SRC_SERVER_DIR}" || exit
+pushd "${TEMP_DIR}" || exit
 
 echo 'Installing dependencies...'
 npm install
-npm install -D typescript @types/node
 
 popd || exit
 
@@ -64,7 +63,7 @@ popd || exit
 pushd "${SRC_SERVER_DIR}" || exit
 
 echo 'Compiling server...'
-npx tsc --newLine LF -p .
+npm run webpack
 
 popd || exit
 
