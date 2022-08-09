@@ -125,6 +125,9 @@
 		]
 	},
 	"command": ["${node_bin}", "${server_path}", "--stdio"],
+	// Experimental. Helps with configs and plugins that print to stdout. Make
+	// sure to replace `--stdio` with `--node-ipc` above when you enable this.
+	"use_node_ipc": false,
 	"selector": "source.js | source.ts | source.jsx | source.tsx | source.js.jsx | source.js.react | source.ts.react | text.html.vue | text.html.basic",
 	"env": {
 		// Enables ESLint debug mode
