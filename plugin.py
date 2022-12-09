@@ -67,7 +67,7 @@ class LspEslintPlugin(NpmClientHandler):
         print('LSP-eslint: Failed resolving eslint library for {}'.format(params['source']['uri']))
         respond(None)
 
-    def on_workspace_configuration(self, params: Any, configuration: Dict) -> None:
+    def on_workspace_configuration(self, params: Any, configuration: Dict) -> Dict:
         session = self.weaksession()
         if session:
             scope_uri = params.get('scopeUri')
@@ -86,6 +86,7 @@ class LspEslintPlugin(NpmClientHandler):
                 else:
                     configuration['validate'] = 'on'
                 del configuration['probe']
+        return configuration
 
     def resolve_working_directory(self, configuration: Dict, scope_uri: str,
                                   workspace_folder: Optional[WorkspaceFolder]) -> None:
