@@ -100,7 +100,7 @@ class LspEslintPlugin(NpmClientHandler):
                 if isinstance(entry, str):
                     directory = entry
                 elif self.is_working_directory_item(entry, 'directory'):
-                    directory = entry.directory
+                    directory = entry.get('directory')
                     if isinstance(entry.get('!cwd', None), bool):
                         no_cwd = entry['!cwd']
                 elif self.is_working_directory_item(entry, 'pattern'):
