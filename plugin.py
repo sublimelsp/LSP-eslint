@@ -82,7 +82,8 @@ class LspEslintPlugin(NpmClientHandler):
                 self.resolve_working_directory(configuration, scope_uri, workspace_folder)
                 buf = session.get_session_buffer_for_uri_async(scope_uri)
                 if buf:
-                    configuration['validate'] = self.compute_validate(buf.language_id, scope_uri, configuration)
+                    configuration['validate'] = self.compute_validate(
+                        buf.get_language_id() or '', scope_uri, configuration)
                 else:
                     configuration['validate'] = 'on'
                 del configuration['probe']
