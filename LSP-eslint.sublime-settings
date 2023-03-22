@@ -1,14 +1,13 @@
 {
 	"settings": {
-		// Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored
-		// when using using ESLint version 7.x.
-		"useESLintClass": false,
 		// Show disable lint rule in the quick fix menu.
 		"codeAction.disableRuleComment": {
 			// Show the disable code actions.
 			"enable": true,
 			// Configure the disable rule code action to insert the comment on the `sameLine` or `separateLine`.
-			"location": "separateLine"
+			"location": "separateLine",
+			// The comment style to use when disabling a rule on a specific line.
+			"commentStyle": "line"
 		},
 		// Show open lint rule documentation web page in the quick fix.
 		"codeAction.showDocumentation": {
@@ -18,6 +17,8 @@
 		"codeActionOnSave.enable": true,
 		// Specifies the code action mode. Possible values are 'all' and 'problems'.
 		"codeActionOnSave.mode": "all",
+		// Enables support for experimental Flat Config (aka `eslint.config.js`, supported by ESLint version 8.21 or later).
+		"experimental.useFlatConfig": false,
 		// The rules that should be executed when computing the code actions on save or formatting a file.
 		// Defaults to the rules configured via the ESLint configuration.
 		// An empty array results in no rules being considered.
@@ -58,6 +59,8 @@
 		// Deprecated. Recommended to use the global LSP option `lsp_code_actions_on_save` with the.
 		// `"source.fixAll.eslint": true` key instead.
 		"format": false,
+		// If true, untitled files won't be validated by ESLint.
+		"ignoreUntitled": false,
 		// A path added to NODE_PATH when resolving the eslint module (auto-detected by default).
 		"nodePath": null,
 		// Whether ESLint should issue a warning on ignored files.
@@ -92,6 +95,8 @@
 			"vue",
 			"markdown",
 		],
+		// Shortens the text spans of underlined problems to their first related line.
+		"problems.shortenToSingleLine": false,
 		// Override the severity of one or more rules, regardless of the project's ESLint config. Use globs to
 		// apply default severities for multiple rules.
 		"rulesCustomizations": [],
@@ -100,6 +105,9 @@
 		// Run the linter on save or on type.
 		// Possible values: `onSave`, `onType`
 		"run": "onType",
+		// Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored
+		// when using using ESLint version 7.x.
+		"useESLintClass": false,
 		// An array of language ids which should be validated by ESLint.
 		"validate": [
 			"javascript",

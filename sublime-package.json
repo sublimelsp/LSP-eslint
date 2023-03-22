@@ -27,6 +27,18 @@
                 "settings": {
                   "additionalProperties": false,
                   "properties": {
+                    "problems.shortenToSingleLine": {
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Shortens the text spans of underlined problems to their first related line.",
+                      "scope": "resource"
+                    },
+                    "experimental.useFlatConfig": {
+                      "scope": "resource",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Enables support for experimental Flat Config (aka `eslint.config.js`, supported by ESLint version 8.21 or later)."
+                    },
                     "codeActionOnSave.enable": {
                       "type": "boolean",
                       "default": true,
@@ -41,7 +53,7 @@
                       ],
                       "enumDescriptions": [
                         "Fixes all possible problems in the file. This option might take some time.",
-                        "Only fixes reported problems that have non overlapping textual edits. This options runs a lot faster."
+                        "Fixes only reported problems that have non-overlapping textual edits. This option runs a lot faster."
                       ],
                       "markdownDescription": "Specifies the code action mode. Possible values are `all` and `problems`."
                     },
@@ -85,6 +97,12 @@
                       "type": "boolean",
                       "default": false,
                       "markdownDescription": "Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored when using using ESLint version 7.x."
+                    },
+                    "ignoreUntitled": {
+                      "scope": "resource",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "If true, untitled files won't be validated by ESLint."
                     },
                     "probe": {
                       "type": "array",
@@ -245,7 +263,8 @@
                       "type": "object",
                       "default": {
                         "enable": true,
-                        "location": "separateLine"
+                        "location": "separateLine",
+                        "commentStyle": "line"
                       },
                       "properties": {
                         "enable": {
@@ -261,6 +280,15 @@
                           ],
                           "default": "separateLine",
                           "description": "Configure the disable rule code action to insert the comment on the same line or a new line."
+                        },
+                        "commentStyle": {
+                          "type": "string",
+                          "enum": [
+                            "line",
+                            "block"
+                          ],
+                          "default": "line",
+                          "definition": "The comment style to use when disabling a rule on a specific line."
                         }
                       },
                       "additionalProperties": false,
