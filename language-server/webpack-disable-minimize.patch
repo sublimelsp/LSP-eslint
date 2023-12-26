@@ -1,0 +1,14 @@
+diff --git a/server/webpack.config.js b/server/webpack.config.js
+index abf210a..ffaca68 100644
+--- a/server/webpack.config.js
++++ b/server/webpack.config.js
+@@ -11,6 +11,9 @@ const withDefaults = require('../shared.webpack.config');
+ const path = require('path');
+ 
+ module.exports = withDefaults({
++	optimization: {
++		minimize: false
++	},
+ 	context: path.join(__dirname),
+ 	entry: {
+ 		extension: './src/eslintServer.ts',

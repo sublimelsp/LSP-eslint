@@ -53,6 +53,9 @@ pushd "${TEMP_DIR}" || exit
 echo 'Installing dependencies...'
 npm install
 
+echo 'Applying patches...'
+patch -p1 < "${SCRIPT_DIR}/webpack-disable-minimize.patch" || exit
+
 popd || exit
 
 

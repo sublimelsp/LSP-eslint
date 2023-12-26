@@ -1,2 +1,14941 @@
-(()=>{"use strict";var e={5232:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.LcsDiff=t.Debug=t.stringDiff=void 0,t.stringDiff=function(e,t,i){return new a(new n(e),new n(t)).ComputeDiff(i).changes};class n{constructor(e){this.source=e}getElements(){const e=this.source,t=new Int32Array(e.length);for(let n=0,i=e.length;n<i;n++)t[n]=e.charCodeAt(n);return t}}class i{constructor(e,t,n,i){this.originalStart=e,this.originalLength=t,this.modifiedStart=n,this.modifiedLength=i}getOriginalEnd(){return this.originalStart+this.originalLength}getModifiedEnd(){return this.modifiedStart+this.modifiedLength}}class o{static Assert(e,t){if(!e)throw new Error(t)}}t.Debug=o;class r{static Copy(e,t,n,i,o){for(let r=0;r<o;r++)n[i+r]=e[t+r]}static Copy2(e,t,n,i,o){for(let r=0;r<o;r++)n[i+r]=e[t+r]}}class s{constructor(){this.m_changes=[],this.m_originalStart=1073741824,this.m_modifiedStart=1073741824,this.m_originalCount=0,this.m_modifiedCount=0}MarkNextChange(){(this.m_originalCount>0||this.m_modifiedCount>0)&&this.m_changes.push(new i(this.m_originalStart,this.m_originalCount,this.m_modifiedStart,this.m_modifiedCount)),this.m_originalCount=0,this.m_modifiedCount=0,this.m_originalStart=1073741824,this.m_modifiedStart=1073741824}AddOriginalElement(e,t){this.m_originalStart=Math.min(this.m_originalStart,e),this.m_modifiedStart=Math.min(this.m_modifiedStart,t),this.m_originalCount++}AddModifiedElement(e,t){this.m_originalStart=Math.min(this.m_originalStart,e),this.m_modifiedStart=Math.min(this.m_modifiedStart,t),this.m_modifiedCount++}getChanges(){return(this.m_originalCount>0||this.m_modifiedCount>0)&&this.MarkNextChange(),this.m_changes}getReverseChanges(){return(this.m_originalCount>0||this.m_modifiedCount>0)&&this.MarkNextChange(),this.m_changes.reverse(),this.m_changes}}class a{constructor(e,t,n=null){this.ContinueProcessingPredicate=n;const[i,o,r]=a._getElements(e),[s,c,u]=a._getElements(t);this._hasStrings=r&&u,this._originalStringElements=i,this._originalElementsOrHash=o,this._modifiedStringElements=s,this._modifiedElementsOrHash=c,this.m_forwardHistory=[],this.m_reverseHistory=[]}static _getElements(e){const t=e.getElements();return t instanceof Int32Array?[[],t,!1]:[[],new Int32Array(t),!1]}ElementsAreEqual(e,t){return this._originalElementsOrHash[e]===this._modifiedElementsOrHash[t]&&(!this._hasStrings||this._originalStringElements[e]===this._modifiedStringElements[t])}OriginalElementsAreEqual(e,t){return this._originalElementsOrHash[e]===this._originalElementsOrHash[t]&&(!this._hasStrings||this._originalStringElements[e]===this._originalStringElements[t])}ModifiedElementsAreEqual(e,t){return this._modifiedElementsOrHash[e]===this._modifiedElementsOrHash[t]&&(!this._hasStrings||this._modifiedStringElements[e]===this._modifiedStringElements[t])}ComputeDiff(e){return this._ComputeDiff(0,this._originalElementsOrHash.length-1,0,this._modifiedElementsOrHash.length-1,e)}_ComputeDiff(e,t,n,i,o){const r=[!1];let s=this.ComputeDiffRecursive(e,t,n,i,r);return o&&(s=this.PrettifyChanges(s)),{quitEarly:r[0],changes:s}}ComputeDiffRecursive(e,t,n,r,s){for(s[0]=!1;e<=t&&n<=r&&this.ElementsAreEqual(e,n);)e++,n++;for(;t>=e&&r>=n&&this.ElementsAreEqual(t,r);)t--,r--;if(e>t||n>r){let s;return n<=r?(o.Assert(e===t+1,"originalStart should only be one more than originalEnd"),s=[new i(e,0,n,r-n+1)]):e<=t?(o.Assert(n===r+1,"modifiedStart should only be one more than modifiedEnd"),s=[new i(e,t-e+1,n,0)]):(o.Assert(e===t+1,"originalStart should only be one more than originalEnd"),o.Assert(n===r+1,"modifiedStart should only be one more than modifiedEnd"),s=[]),s}const a=[0],c=[0],u=this.ComputeRecursionPoint(e,t,n,r,a,c,s),l=a[0],d=c[0];if(null!==u)return u;if(!s[0]){const o=this.ComputeDiffRecursive(e,l,n,d,s);let a=[];return a=s[0]?[new i(l+1,t-(l+1)+1,d+1,r-(d+1)+1)]:this.ComputeDiffRecursive(l+1,t,d+1,r,s),this.ConcatenateChanges(o,a)}return[new i(e,t-e+1,n,r-n+1)]}WALKTRACE(e,t,n,o,r,a,c,u,l,d,f,h,g,m,p,y,v,b){let R=null,D=null,_=new s,S=t,C=n,w=g[0]-y[0]-o,T=-1073741824,k=this.m_forwardHistory.length-1;do{const t=w+e;t===S||t<C&&l[t-1]<l[t+1]?(m=(f=l[t+1])-w-o,f<T&&_.MarkNextChange(),T=f,_.AddModifiedElement(f+1,m),w=t+1-e):(m=(f=l[t-1]+1)-w-o,f<T&&_.MarkNextChange(),T=f-1,_.AddOriginalElement(f,m+1),w=t-1-e),k>=0&&(e=(l=this.m_forwardHistory[k])[0],S=1,C=l.length-1)}while(--k>=-1);if(R=_.getReverseChanges(),b[0]){let e=g[0]+1,t=y[0]+1;if(null!==R&&R.length>0){const n=R[R.length-1];e=Math.max(e,n.getOriginalEnd()),t=Math.max(t,n.getModifiedEnd())}D=[new i(e,h-e+1,t,p-t+1)]}else{_=new s,S=a,C=c,w=g[0]-y[0]-u,T=1073741824,k=v?this.m_reverseHistory.length-1:this.m_reverseHistory.length-2;do{const e=w+r;e===S||e<C&&d[e-1]>=d[e+1]?(m=(f=d[e+1]-1)-w-u,f>T&&_.MarkNextChange(),T=f+1,_.AddOriginalElement(f+1,m+1),w=e+1-r):(m=(f=d[e-1])-w-u,f>T&&_.MarkNextChange(),T=f,_.AddModifiedElement(f+1,m+1),w=e-1-r),k>=0&&(r=(d=this.m_reverseHistory[k])[0],S=1,C=d.length-1)}while(--k>=-1);D=_.getChanges()}return this.ConcatenateChanges(R,D)}ComputeRecursionPoint(e,t,n,o,s,a,c){let u=0,l=0,d=0,f=0,h=0,g=0;e--,n--,s[0]=0,a[0]=0,this.m_forwardHistory=[],this.m_reverseHistory=[];const m=t-e+(o-n),p=m+1,y=new Int32Array(p),v=new Int32Array(p),b=o-n,R=t-e,D=e-n,_=t-o,S=(R-b)%2==0;y[b]=e,v[R]=t,c[0]=!1;for(let C=1;C<=m/2+1;C++){let m=0,w=0;d=this.ClipDiagonalBound(b-C,C,b,p),f=this.ClipDiagonalBound(b+C,C,b,p);for(let e=d;e<=f;e+=2){u=e===d||e<f&&y[e-1]<y[e+1]?y[e+1]:y[e-1]+1,l=u-(e-b)-D;const n=u;for(;u<t&&l<o&&this.ElementsAreEqual(u+1,l+1);)u++,l++;if(y[e]=u,u+l>m+w&&(m=u,w=l),!S&&Math.abs(e-R)<=C-1&&u>=v[e])return s[0]=u,a[0]=l,n<=v[e]&&C<=1448?this.WALKTRACE(b,d,f,D,R,h,g,_,y,v,u,t,s,l,o,a,S,c):null}const T=(m-e+(w-n)-C)/2;if(null!==this.ContinueProcessingPredicate&&!this.ContinueProcessingPredicate(m,T))return c[0]=!0,s[0]=m,a[0]=w,T>0&&C<=1448?this.WALKTRACE(b,d,f,D,R,h,g,_,y,v,u,t,s,l,o,a,S,c):(e++,n++,[new i(e,t-e+1,n,o-n+1)]);h=this.ClipDiagonalBound(R-C,C,R,p),g=this.ClipDiagonalBound(R+C,C,R,p);for(let i=h;i<=g;i+=2){u=i===h||i<g&&v[i-1]>=v[i+1]?v[i+1]-1:v[i-1],l=u-(i-R)-_;const r=u;for(;u>e&&l>n&&this.ElementsAreEqual(u,l);)u--,l--;if(v[i]=u,S&&Math.abs(i-b)<=C&&u<=y[i])return s[0]=u,a[0]=l,r>=y[i]&&C<=1448?this.WALKTRACE(b,d,f,D,R,h,g,_,y,v,u,t,s,l,o,a,S,c):null}if(C<=1447){let e=new Int32Array(f-d+2);e[0]=b-d+1,r.Copy2(y,d,e,1,f-d+1),this.m_forwardHistory.push(e),e=new Int32Array(g-h+2),e[0]=R-h+1,r.Copy2(v,h,e,1,g-h+1),this.m_reverseHistory.push(e)}}return this.WALKTRACE(b,d,f,D,R,h,g,_,y,v,u,t,s,l,o,a,S,c)}PrettifyChanges(e){for(let t=0;t<e.length;t++){const n=e[t],i=t<e.length-1?e[t+1].originalStart:this._originalElementsOrHash.length,o=t<e.length-1?e[t+1].modifiedStart:this._modifiedElementsOrHash.length,r=n.originalLength>0,s=n.modifiedLength>0;for(;n.originalStart+n.originalLength<i&&n.modifiedStart+n.modifiedLength<o&&(!r||this.OriginalElementsAreEqual(n.originalStart,n.originalStart+n.originalLength))&&(!s||this.ModifiedElementsAreEqual(n.modifiedStart,n.modifiedStart+n.modifiedLength));)n.originalStart++,n.modifiedStart++;let a=[null];t<e.length-1&&this.ChangesOverlap(e[t],e[t+1],a)&&(e[t]=a[0],e.splice(t+1,1),t--)}for(let t=e.length-1;t>=0;t--){const n=e[t];let i=0,o=0;if(t>0){const n=e[t-1];n.originalLength>0&&(i=n.originalStart+n.originalLength),n.modifiedLength>0&&(o=n.modifiedStart+n.modifiedLength)}const r=n.originalLength>0,s=n.modifiedLength>0;let a=0,c=this._boundaryScore(n.originalStart,n.originalLength,n.modifiedStart,n.modifiedLength);for(let e=1;;e++){const t=n.originalStart-e,u=n.modifiedStart-e;if(t<i||u<o)break;if(r&&!this.OriginalElementsAreEqual(t,t+n.originalLength))break;if(s&&!this.ModifiedElementsAreEqual(u,u+n.modifiedLength))break;const l=this._boundaryScore(t,n.originalLength,u,n.modifiedLength);l>c&&(c=l,a=e)}n.originalStart-=a,n.modifiedStart-=a}return e}_OriginalIsBoundary(e){return e<=0||e>=this._originalElementsOrHash.length-1||this._hasStrings&&/^\s*$/.test(this._originalStringElements[e])}_OriginalRegionIsBoundary(e,t){if(this._OriginalIsBoundary(e)||this._OriginalIsBoundary(e-1))return!0;if(t>0){const n=e+t;if(this._OriginalIsBoundary(n-1)||this._OriginalIsBoundary(n))return!0}return!1}_ModifiedIsBoundary(e){return e<=0||e>=this._modifiedElementsOrHash.length-1||this._hasStrings&&/^\s*$/.test(this._modifiedStringElements[e])}_ModifiedRegionIsBoundary(e,t){if(this._ModifiedIsBoundary(e)||this._ModifiedIsBoundary(e-1))return!0;if(t>0){const n=e+t;if(this._ModifiedIsBoundary(n-1)||this._ModifiedIsBoundary(n))return!0}return!1}_boundaryScore(e,t,n,i){return(this._OriginalRegionIsBoundary(e,t)?1:0)+(this._ModifiedRegionIsBoundary(n,i)?1:0)}ConcatenateChanges(e,t){let n=[];if(0===e.length||0===t.length)return t.length>0?t:e;if(this.ChangesOverlap(e[e.length-1],t[0],n)){const i=new Array(e.length+t.length-1);return r.Copy(e,0,i,0,e.length-1),i[e.length-1]=n[0],r.Copy(t,1,i,e.length,t.length-1),i}{const n=new Array(e.length+t.length);return r.Copy(e,0,n,0,e.length),r.Copy(t,0,n,e.length,t.length),n}}ChangesOverlap(e,t,n){if(o.Assert(e.originalStart<=t.originalStart,"Left change is not less than or equal to right change"),o.Assert(e.modifiedStart<=t.modifiedStart,"Left change is not less than or equal to right change"),e.originalStart+e.originalLength>=t.originalStart||e.modifiedStart+e.modifiedLength>=t.modifiedStart){const o=e.originalStart;let r=e.originalLength;const s=e.modifiedStart;let a=e.modifiedLength;return e.originalStart+e.originalLength>=t.originalStart&&(r=t.originalStart+t.originalLength-e.originalStart),e.modifiedStart+e.modifiedLength>=t.modifiedStart&&(a=t.modifiedStart+t.modifiedLength-e.modifiedStart),n[0]=new i(o,r,s,a),!0}return n[0]=null,!1}ClipDiagonalBound(e,t,n,i){if(e>=0&&e<i)return e;const o=t%2==0;return e<0?o===(n%2==0)?0:1:o===((i-n-1)%2==0)?i-1:i-2}}t.LcsDiff=a},7567:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ESLint=t.CodeActions=t.RuleSeverities=t.SaveRuleConfigs=t.Fixes=t.ESLintModule=t.SuggestionsProblem=t.FixableProblem=t.Problem=t.RuleMetaData=t.ESLintError=t.TextDocumentSettings=void 0;const i=n(7147),o=n(1017),r=n(6113),s=n(2081),a=n(8212),c=n(6883),u=n(2116),l=n(7237),d=n(2389),f=n(572),h=n(9675),g=n(2388);var m,p,y,v,b,R,D,_,S,C,w,T,k,x;!function(e){e.hasLibrary=function(e){return void 0!==e.library}}(m||(t.TextDocumentSettings=m={})),function(e){e.isNoConfigFound=function(e){const t=e;return"no-config-found"===t.messageTemplate||"No ESLint configuration found."===t.message}}(p||(t.ESLintError=p={})),function(e){e.unusedDisableDirectiveId="unused-disable-directive";const t={docs:{url:"https://eslint.org/docs/latest/use/configure/rules#report-unused-eslint-disable-comments"},type:"directive"},n=new Set,i=new Map([[e.unusedDisableDirectiveId,t]]);e.capture=function(e,t){let o;if(e.isCLIEngine){const i=t.filter((e=>!n.has(e.filePath)));if(0===i.length)return;o="function"==typeof e.getRulesMetaForResults?e.getRulesMetaForResults(i):void 0,i.forEach((e=>n.add(e.filePath)))}else o="function"==typeof e.getRulesMetaForResults?e.getRulesMetaForResults(t):void 0;void 0!==o&&Object.entries(o).forEach((([e,t])=>{i.has(e)||t&&t.docs&&d.string(t.docs.url)&&i.set(e,t)}))},e.clear=function(){n.clear(),i.clear(),i.set(e.unusedDisableDirectiveId,t)},e.getUrl=function(e){return i.get(e)?.docs?.url},e.getType=function(e){return i.get(e)?.type},e.hasRuleId=function(e){return i.has(e)},e.isUnusedDisableDirectiveProblem=function(e){return null===e.ruleId&&e.message.startsWith("Unused eslint-disable directive")}}(y||(t.RuleMetaData=y={})),function(e){e.isFixable=function(e){return void 0!==e.edit},e.hasSuggestions=function(e){return void 0!==e.suggestions}}(v||(t.Problem=v={})),function(e){e.createTextEdit=function(e,t){return a.TextEdit.replace(a.Range.create(e.positionAt(t.edit.range[0]),e.positionAt(t.edit.range[1])),t.edit.text||"")}}(b||(t.FixableProblem=b={})),function(e){e.createTextEdit=function(e,t){return a.TextEdit.replace(a.Range.create(e.positionAt(t.fix.range[0]),e.positionAt(t.fix.range[1])),t.fix.text||"")}}(R||(t.SuggestionsProblem=R={})),function(e){e.hasESLintClass=function(e){return void 0!==e.ESLint},e.hasCLIEngine=function(e){return void 0!==e.CLIEngine},e.isFlatConfig=function(e){const t=e;return void 0!==t.ESLint&&!0===t.isFlatConfig}}(D||(t.ESLintModule=D={})),function(e){e.hasMetaType=function(e){return void 0!==e&&void 0!==e.type}}(_||(_={})),function(e){e.hasRule=function(e){return void 0!==e.getRules}}(S||(S={}));class P{constructor(e){this.cli=e}get isCLIEngine(){return!0}async lintText(e,t){return this.cli.executeOnText(e,t.filePath,t.warnIgnored).results}async isPathIgnored(e){return this.cli.isPathIgnored(e)}getRulesMetaForResults(e){if(!S.hasRule(this.cli))return;const t={};for(const[e,n]of this.cli.getRules())void 0!==n.meta&&(t[e]=n.meta);return t}async calculateConfigForFile(e){return"function"==typeof this.cli.getConfigForFile?this.cli.getConfigForFile(e):void 0}}class q{constructor(e){this.edits=e}static overlaps(e,t){return void 0!==e&&e.edit.range[1]>t.edit.range[0]}static sameRange(e,t){return e.edit.range[0]===t.edit.range[0]&&e.edit.range[1]===t.edit.range[1]}isEmpty(){return 0===this.edits.size}getDocumentVersion(){if(this.isEmpty())throw new Error("No edits recorded.");return this.edits.values().next().value.documentVersion}getScoped(e){const t=[];for(const n of e){const e=T.computeKey(n),i=this.edits.get(e);i&&t.push(i)}return t}getAllSorted(){const e=[];for(const t of this.edits.values())v.isFixable(t)&&e.push(t);return e.sort(((e,t)=>{const n=e.edit.range[0]-t.edit.range[0];if(0!==n)return n;const i=e.edit.range[1]-e.edit.range[0],o=t.edit.range[1]-t.edit.range[0];return i===o?0:0===i?-1:0===o?1:i-o}))}getApplicable(){const e=this.getAllSorted();if(e.length<=1)return e;const t=[];let n=e[0];t.push(n);for(let i=1;i<e.length;i++){let o=e[i];q.overlaps(n,o)||q.sameRange(n,o)||(t.push(o),n=o)}return t}}t.Fixes=q,function(e){const t=new f.LRUCache(128);function n(e,t){for(const n of t){if(n.startsWith("!")&&new RegExp(`^${n.slice(1).replace(/\*/g,".*")}$`,"g").test(e))return!0;if(new RegExp(`^${n.replace(/\*/g,".*")}$`,"g").test(e))return!1}return!0}e.get=async function(i,o){const r=e.inferFilePath(i);let s=t.get(i);if(void 0===r||null===s)return;if(void 0!==s)return s;const a=o.codeActionOnSave.rules;return s=await x.withClass((async e=>{if(void 0===a||e.isCLIEngine)return;const t=await e.calculateConfigForFile(r);if(void 0===t||void 0===t.rules||0===t.rules.length)return;const i=new Set,o=new Set;if(0===a.length)Object.keys(t.rules).forEach((e=>i.add(e)));else for(const e of Object.keys(t.rules))n(e,a)?i.add(e):o.add(e);return i.size>0?{offRules:i,onRules:o}:void 0}),o),null==s?void t.set(i,null):(t.set(i,s),s)},e.remove=function(e){return t.delete(e)},e.clear=function(){t.clear()}}(C||(t.SaveRuleConfigs=C={})),function(e){const t=new f.LRUCache(1024);function n(e,t){return e.startsWith("!")?!new RegExp(`^${e.slice(1).replace(/\*/g,".*")}$`,"g").test(t):new RegExp(`^${e.replace(/\*/g,".*")}$`,"g").test(t)}e.getOverride=function(e,i){let o=t.get(e);if(null!==o){if(void 0!==o)return o;for(const t of i)n(t.rule,e)&&(o=t.severity);if(void 0!==o)return t.set(e,o),o;t.set(e,null)}},e.clear=function(){t.clear()}}(w||(t.RuleSeverities=w={})),function(e){function t(e,t){switch(t){case l.RuleSeverity.off:case l.RuleSeverity.info:case l.RuleSeverity.warn:case l.RuleSeverity.error:return t;case l.RuleSeverity.downgrade:switch(n(e)){case a.DiagnosticSeverity.Error:return l.RuleSeverity.warn;case a.DiagnosticSeverity.Warning:case a.DiagnosticSeverity.Information:return l.RuleSeverity.info}case l.RuleSeverity.upgrade:switch(n(e)){case a.DiagnosticSeverity.Information:return l.RuleSeverity.warn;case a.DiagnosticSeverity.Warning:case a.DiagnosticSeverity.Error:return l.RuleSeverity.error}default:return e}}function n(e){switch(e){case 1:case l.RuleSeverity.warn:return a.DiagnosticSeverity.Warning;case 2:case l.RuleSeverity.error:return a.DiagnosticSeverity.Error;case l.RuleSeverity.info:return a.DiagnosticSeverity.Information;default:return a.DiagnosticSeverity.Error}}e.computeKey=function(e){const t=e.range;let n;if(e.message){const t=r.createHash("md5");t.update(e.message),n=t.digest("base64")}return`[${t.start.line},${t.start.character},${t.end.line},${t.end.character}]-${e.code}-${n??""}`},e.create=function(e,i,o){const r=i.message,s="number"!=typeof i.line||Number.isNaN(i.line)?0:Math.max(0,i.line-1),c="number"!=typeof i.column||Number.isNaN(i.column)?0:Math.max(0,i.column-1);let u="number"!=typeof i.endLine||Number.isNaN(i.endLine)?s:Math.max(0,i.endLine-1),l="number"!=typeof i.endColumn||Number.isNaN(i.endColumn)?c:Math.max(0,i.endColumn-1);e.problems.shortenToSingleLine&&u!==s&&(u=s,l=o.getText({start:{line:s,character:0},end:{line:s,character:a.uinteger.MAX_VALUE}}).length);const d=w.getOverride(i.ruleId,e.rulesCustomizations),f={message:r,severity:(h=i.severity,g=d,n(t(h,g))),source:"eslint",range:{start:{line:s,character:c},end:{line:u,character:l}}};var h,g;if(i.ruleId){const e=y.getUrl(i.ruleId);f.code=i.ruleId,void 0!==e&&(f.codeDescription={href:e}),"no-unused-vars"===i.ruleId&&(f.tags=[a.DiagnosticTag.Unnecessary])}return[f,d]}}(T||(T={})),function(e){const t=new Map;e.get=function(e){return t.get(e)},e.set=function(e,n){t.set(e,n)},e.remove=function(e){return t.delete(e)},e.record=function(t,n,i){if(!i.ruleId)return;const o=t.uri;let r=e.get(o);void 0===r&&(r=new Map,e.set(o,r)),r.set(T.computeKey(n),{label:`Fix this ${i.ruleId} problem`,documentVersion:t.version,ruleId:i.ruleId,line:i.line,diagnostic:n,edit:i.fix,suggestions:i.suggestions})}}(k||(t.CodeActions=k={})),function(e){let t,n,r,f;const v=function(){const e=new Map,t=/\/@typescript-eslint\/parser\//,n=/\/babel-eslint\/lib\/index.js$/,i=/\/vue-eslint-parser\/index.js$/;return e.set("typescript",[t,n,i]),e.set("typescriptreact",[t,n,i]),e.set("html",[/\/@angular-eslint\/template-parser\//]),e}(),b=function(){const e=new Map;return e.set("typescript",{regExps:[/vue-eslint-parser\/.*\.js$/],parsers:new Set(["@typescript-eslint/parser"]),parserRegExps:[/@typescript-eslint\/parser\/.*\.js$/]}),e}(),R=new Map([["html","html"],["vue","vue"],["markdown","markdown"]]),_=new Set(["javascript","javascriptreact"]),S=[{fileName:"package.json",isRoot:!0},{fileName:".eslintignore",isRoot:!0},{fileName:"eslint.config.js",isRoot:!0},{fileName:".eslintrc",isRoot:!1},{fileName:".eslintrc.json",isRoot:!1},{fileName:".eslintrc.js",isRoot:!1},{fileName:".eslintrc.yaml",isRoot:!1},{fileName:".eslintrc.yml",isRoot:!1}],C=new Map,w=new Map,x=new Map;function q(e,t,n){return D.hasESLintClass(e)&&n?new e.ESLint(t):D.hasCLIEngine(e)?new P(new e.CLIEngine(t)):new e.ESLint(t)}async function E(e,t,n){const r=void 0===n?Object.assign(Object.create(null),t.options):Object.assign(Object.create(null),t.options,n),s=process.cwd();try{if(t.workingDirectory){const e=function(e){const t=(0,h.normalizeDriveLetter)(e);return 0===t.length?t:t[t.length-1]===o.sep?t.substring(0,t.length-1):t}(t.workingDirectory.directory);r.cwd=e,!0!==t.workingDirectory["!cwd"]&&i.existsSync(e)&&process.chdir(e)}const n=q(t.library,r,t.useESLintClass);return await e(n)}finally{s!==process.cwd()&&process.chdir(s)}}function M(e,t){if(void 0===e)return;const n=c.URI.parse(e.uri);if("file"===n.scheme)return r(n);if(void 0!==t.workspaceFolder){const n=g.default.getExtension(e.languageId),i=r(t.workspaceFolder.uri);if(void 0!==i&&void 0!==n)return o.join(i,`test.${n}`)}}e.initialize=function(e,i,o,s){t=e,n=i,r=o,f=s},e.removeSettings=function(e){return w.delete(e)},e.clearSettings=function(){w.clear()},e.unregisterAsFormatter=function(e){const t=x.get(e.uri);void 0!==t&&(t.then((e=>e.dispose())),x.delete(e.uri))},e.clearFormatters=function(){for(const e of x.values())e.then((e=>e.dispose()));x.clear()},e.resolveSettings=function(n){const s=n.uri;let d=w.get(s);return d||(d=t.workspace.getConfiguration({scopeUri:s,section:""}).then((d=>{const g=Object.assign({},d,{silent:!1,library:void 0,resolvedGlobalPackageManagerPath:void 0},{workingDirectory:void 0});if(g.validate===l.Validate.off)return g;g.resolvedGlobalPackageManagerPath=A.get(g.packageManager);const p=r(n),y=void 0!==g.workspaceFolder?r(g.workspaceFolder.uri):void 0,S=void 0!==d.workingDirectory,w=d.workingDirectory??{mode:l.ModeEnum.location};if(l.ModeItem.is(w)){let e;w.mode===l.ModeEnum.location?void 0!==y?e=y:void 0===p||(0,h.isUNC)(p)||(e=o.dirname(p)):w.mode===l.ModeEnum.auto&&(void 0!==y?e=j(y,p):void 0===p||(0,h.isUNC)(p)||(e=o.dirname(p))),void 0!==e&&i.existsSync(e)&&(g.workingDirectory={directory:e})}else g.workingDirectory=w;let T,k,P;null!==g.nodePath&&(k=g.nodePath,o.isAbsolute(k)||void 0===y||(k=o.join(y,k))),S||void 0===p||(P=o.dirname(p)),void 0!==P||void 0===g.workingDirectory||g.workingDirectory["!cwd"]||(P=g.workingDirectory.directory);const q=g.experimental.useFlatConfig?"eslint/use-at-your-own-risk":"eslint";return T=void 0!==k?a.Files.resolve(q,k,k,O).then(void 0,(()=>a.Files.resolve(q,g.resolvedGlobalPackageManagerPath,P,O))):a.Files.resolve(q,g.resolvedGlobalPackageManagerPath,P,O),g.silent=g.validate===l.Validate.probe,T.then((async i=>{let o=C.get(i);if(void 0===o)if(g.experimental.useFlatConfig){const e=f(i);void 0===e?(g.validate=l.Validate.off,g.silent||t.console.error(`Failed to load eslint library from ${i}. If you are using ESLint v8.21 or earlier, try upgrading it. For newer versions, try disabling the 'eslint.experimental.useFlatConfig' setting. See the output panel for more information.`)):void 0===e.FlatESLint?(g.validate=l.Validate.off,t.console.error(`The eslint library loaded from ${i} doesn't export a FlatESLint class.`)):(t.console.info(`ESLint library loaded from: ${i}`),o={ESLint:e.FlatESLint,isFlatConfig:!0,CLIEngine:void 0},g.library=o,C.set(i,o))}else o=f(i),void 0===o?(g.validate=l.Validate.off,g.silent||t.console.error(`Failed to load eslint library from ${i}. See output panel for more information.`)):void 0===o.CLIEngine&&void 0===o.ESLint?(g.validate=l.Validate.off,t.console.error(`The eslint library loaded from ${i} doesn't export neither a CLIEngine nor an ESLint class. You need at least eslint@1.0.0`)):(t.console.info(`ESLint library loaded from: ${i}`),g.library=o,C.set(i,o));else g.library=o;if(g.validate===l.Validate.probe&&m.hasLibrary(g)){g.validate=l.Validate.off;let i=e.getFilePath(n,g);if(void 0!==i){const o=v.get(n.languageId),r=R.get(n.languageId),a=b.get(n.languageId);if(_.has(n.languageId))g.validate=l.Validate.on;else if(void 0!==o||void 0!==r||void 0!==a){const n=await e.withClass((async e=>{try{return await e.calculateConfigForFile(i)}catch(e){try{t.sendNotification(u.StatusNotification.type,{uri:s,state:u.Status.error}),t.console.error(`Calculating config file for ${s}) failed.\n${e instanceof Error?e.stack:""}`)}catch{}return}}),g);if(void 0!==n)if(D.isFlatConfig(g.library))g.validate=l.Validate.on;else{const e=null!==n.parser?(0,h.normalizePath)(n.parser):void 0;if(void 0!==e){if(void 0!==o)for(const t of o)if(t.test(e)){g.validate=l.Validate.on;break}if(g.validate!==l.Validate.on&&void 0!==a&&"string"==typeof n.parserOptions?.parser){const t=(0,h.normalizePath)(n.parserOptions.parser);for(const i of a.regExps)if(i.test(e)&&(a.parsers.has(n.parserOptions.parser)||void 0!==a.parserRegExps&&a.parserRegExps.some((e=>e.test(t))))){g.validate=l.Validate.on;break}}}if(g.validate!==l.Validate.on&&Array.isArray(n.plugins)&&n.plugins.length>0&&void 0!==r)for(const e of n.plugins)if(e===r){g.validate=l.Validate.on;break}}}}if(g.validate===l.Validate.off){const e={textDocument:{uri:n.uri}};t.sendRequest(u.ProbeFailedRequest.type,e)}}if(g.validate===l.Validate.on&&(g.silent=!1,g.format&&m.hasLibrary(g))){const n=c.URI.parse(s),i="file"===n.scheme;let o=i?n.fsPath.replace(/\\/g,"/"):n.fsPath;o=o.replace(/[\[\]\{\}]/g,"?");const u={documentSelector:[{scheme:n.scheme,pattern:o}]};if(i){const n=r(s);await e.withClass((async e=>{await e.isPathIgnored(n)||x.set(s,t.client.register(a.DocumentFormattingRequest.type,u))}),g)}else x.set(s,t.client.register(a.DocumentFormattingRequest.type,u))}return g}),(()=>(g.validate=l.Validate.off,g.silent||t.sendRequest(u.NoESLintLibraryRequest.type,{source:{uri:n.uri}}),g)))})),w.set(s,d),d)},e.newClass=q,e.withClass=E,e.getFilePath=M;const N=new Set(["problem","suggestion","layout","directive"]);function O(e,n){t.tracer.log(e,n)}let A,L;function j(e,t){if(void 0===t||(0,h.isUNC)(t))return e;if(-1!==t.indexOf(`${o.sep}node_modules${o.sep}`))return e;let n=e,r=o.dirname(t);e:for(;void 0!==r&&r.startsWith(e);){for(const{fileName:e,isRoot:t}of S)if(i.existsSync(o.join(r,e))){if(n=r,t)break e;break}const e=o.dirname(r);r=e!==r?e:void 0}return n}e.validate=async function(e,t){const n=Object.assign(Object.create(null),t.options);let i;if(Array.isArray(n.fixTypes)&&n.fixTypes.length>0){i=new Set;for(const e of n.fixTypes)N.has(e)&&i.add(e);0===i.size&&(i=void 0)}const o=e.getText(),r=e.uri,s=M(e,t);return E((async n=>{k.remove(r);const c=await n.lintText(o,{filePath:s,warnIgnored:t.onIgnoredFiles!==l.ESLintSeverity.off});y.capture(n,c);const u=[];if(c&&Array.isArray(c)&&c.length>0){const n=c[0];n.messages&&Array.isArray(n.messages)&&n.messages.forEach((n=>{if(n){const[o,r]=T.create(t,n,e);if(r===l.RuleSeverity.off||t.quiet&&o.severity===a.DiagnosticSeverity.Warning||u.push(o),void 0!==i&&void 0!==n.ruleId&&void 0!==n.fix){const t=y.getType(n.ruleId);void 0!==t&&i.has(t)&&k.record(e,o,n)}else y.isUnusedDisableDirectiveProblem(n)&&(n.ruleId=y.unusedDisableDirectiveId),k.record(e,o,n)}}))}return u}),t)},function(e){const t={yarn:{cache:void 0,get:()=>a.Files.resolveGlobalYarnPath(O)},npm:{cache:void 0,get:()=>a.Files.resolveGlobalNodePath(O)},pnpm:{cache:void 0,get:()=>(0,s.execSync)("pnpm root -g").toString().trim()}};e.get=function(e){const n=t[e];if(n)return void 0===n.cache&&(n.cache=n.get()),n.cache}}(A||(A={})),e.findWorkingDirectory=j,function(e){function i(e,t){let n;return"string"==typeof e.message||e.message instanceof String?(n=e.message,n=n.replace(/\r?\n/g," "),/^CLI: /.test(n)&&(n=n.substr(5))):n=`An unknown error occurred while validating document: ${t.uri}`,n}e.single=[function(e,n,r){if(p.isNoConfigFound(e))return o.has(n.uri)||(t.sendRequest(u.NoConfigRequest.type,{message:i(e,n),document:{uri:n.uri}}).then(void 0,(()=>{})),o.set(n.uri,r)),u.Status.warn},function(e,o,r){if(!e.message)return;function a(a){return s.has(a)||(t.console.error(i(e,o)),n.get(c.URI.file(a).toString())||t.window.showInformationMessage(i(e,o)),s.set(a,r)),u.Status.warn}let l=/Cannot read config file:\s+(.*)\nError:\s+(.*)/.exec(e.message);return l&&3===l.length?a(l[1]):(l=/(.*):\n\s*Configuration for rule \"(.*)\" is /.exec(e.message),l&&3===l.length?a(l[1]):(l=/Cannot find module '([^']*)'\nReferenced from:\s+(.*)/.exec(e.message),l&&3===l.length?a(l[2]):void 0))},function(e,n,i){if(!e.message)return;const o=/Failed to load plugin (.*): Cannot find module (.*)/.exec(e.message);return o&&3===o.length?function(e,o,s){if(!a.has(e)){const c=r(n);a.set(e,i),"plugin-missing"===s.messageTemplate?t.console.error(["",`${s.message.toString()}`,`Happened while validating ${c||n.uri}`,"This can happen for a couple of reasons:","1. The plugin name is spelled incorrectly in an ESLint configuration file (e.g. .eslintrc).",`2. If ESLint is installed globally, then make sure ${o} is installed globally as well.`,`3. If ESLint is installed locally, then ${o} isn't installed correctly.`,"",`Consider running eslint --debug ${c||n.uri} from a terminal to obtain a trace about the configuration files used.`].join("\n")):t.console.error([`${s.message.toString()}`,`Happened while validating ${c||n.uri}`].join("\n"))}return u.Status.warn}(o[1],o[2],e):void 0},function(e,n){return d.string(e.stack)?(t.console.error("An unexpected error occurred:"),t.console.error(e.stack)):t.console.error(`An unexpected error occurred: ${i(e,n)}.`),u.Status.error}],e.getMessage=i;const o=new Map;e.clearNoConfigReported=function(){o.clear()};const s=new Map;e.getConfigErrorReported=function(e){return s.get(e)},e.removeConfigErrorReported=function(e){return s.delete(e)};const a=new Map;e.clearMissingModuleReported=function(){a.clear()}}(L=e.ErrorHandlers||(e.ErrorHandlers={}))}(x||(t.ESLint=x={}))},2389:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.string=t.nullOrUndefined=t.boolean=void 0;const n=Object.prototype.toString;t.boolean=function(e){return!0===e||!1===e},t.nullOrUndefined=function(e){return null==e},t.string=function(e){return"[object String]"===n.call(e)}},2388:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0});const n=new Map([["javascript",{ext:"js",lineComment:"//",blockComment:["/*","*/"]}],["javascriptreact",{ext:"jsx",lineComment:"//",blockComment:["/*","*/"]}],["typescript",{ext:"ts",lineComment:"//",blockComment:["/*","*/"]}],["typescriptreact",{ext:"tsx",lineComment:"//",blockComment:["/*","*/"]}],["html",{ext:"html",lineComment:"//",blockComment:["\x3c!--","--\x3e"]}],["vue",{ext:"vue",lineComment:"//",blockComment:["\x3c!--","--\x3e"]}],["coffeescript",{ext:"coffee",lineComment:"#",blockComment:["###","###"]}],["yaml",{ext:"yaml",lineComment:"#",blockComment:["#",""]}],["graphql",{ext:"graphql",lineComment:"#",blockComment:["#",""]}]]);var i;!function(e){e.getLineComment=function(e){return n.get(e)?.lineComment??"//"},e.getBlockComment=function(e){return n.get(e)?.blockComment??["/**","*/"]},e.getExtension=function(e){return n.get(e)?.ext}}(i||(i={})),t.default=i},572:(e,t)=>{var n,i;Object.defineProperty(t,"__esModule",{value:!0}),t.LRUCache=t.LinkedMap=t.Touch=void 0,function(e){e.None=0,e.First=1,e.AsOld=e.First,e.Last=2,e.AsNew=e.Last}(i||(t.Touch=i={}));class o{constructor(){this[n]="LinkedMap",this._map=new Map,this._head=void 0,this._tail=void 0,this._size=0,this._state=0}clear(){this._map.clear(),this._head=void 0,this._tail=void 0,this._size=0,this._state++}isEmpty(){return!this._head&&!this._tail}get size(){return this._size}get first(){return this._head?.value}get last(){return this._tail?.value}has(e){return this._map.has(e)}get(e,t=i.None){const n=this._map.get(e);if(n)return t!==i.None&&this.touch(n,t),n.value}set(e,t,n=i.None){let o=this._map.get(e);if(o)o.value=t,n!==i.None&&this.touch(o,n);else{switch(o={key:e,value:t,next:void 0,previous:void 0},n){case i.None:this.addItemLast(o);break;case i.First:this.addItemFirst(o);break;case i.Last:default:this.addItemLast(o)}this._map.set(e,o),this._size++}return this}delete(e){return!!this.remove(e)}remove(e){const t=this._map.get(e);if(t)return this._map.delete(e),this.removeItem(t),this._size--,t.value}shift(){if(!this._head&&!this._tail)return;if(!this._head||!this._tail)throw new Error("Invalid list");const e=this._head;return this._map.delete(e.key),this.removeItem(e),this._size--,e.value}forEach(e,t){const n=this._state;let i=this._head;for(;i;){if(t?e.bind(t)(i.value,i.key,this):e(i.value,i.key,this),this._state!==n)throw new Error("LinkedMap got modified during iteration.");i=i.next}}keys(){const e=this,t=this._state;let n=this._head;const i={[Symbol.iterator]:()=>i,next(){if(e._state!==t)throw new Error("LinkedMap got modified during iteration.");if(n){const e={value:n.key,done:!1};return n=n.next,e}return{value:void 0,done:!0}}};return i}values(){const e=this,t=this._state;let n=this._head;const i={[Symbol.iterator]:()=>i,next(){if(e._state!==t)throw new Error("LinkedMap got modified during iteration.");if(n){const e={value:n.value,done:!1};return n=n.next,e}return{value:void 0,done:!0}}};return i}entries(){const e=this,t=this._state;let n=this._head;const i={[Symbol.iterator]:()=>i,next(){if(e._state!==t)throw new Error("LinkedMap got modified during iteration.");if(n){const e={value:[n.key,n.value],done:!1};return n=n.next,e}return{value:void 0,done:!0}}};return i}[(n=Symbol.toStringTag,Symbol.iterator)](){return this.entries()}trimOld(e){if(e>=this.size)return;if(0===e)return void this.clear();let t=this._head,n=this.size;for(;t&&n>e;)this._map.delete(t.key),t=t.next,n--;this._head=t,this._size=n,t&&(t.previous=void 0),this._state++}addItemFirst(e){if(this._head||this._tail){if(!this._head)throw new Error("Invalid list");e.next=this._head,this._head.previous=e}else this._tail=e;this._head=e,this._state++}addItemLast(e){if(this._head||this._tail){if(!this._tail)throw new Error("Invalid list");e.previous=this._tail,this._tail.next=e}else this._head=e;this._tail=e,this._state++}removeItem(e){if(e===this._head&&e===this._tail)this._head=void 0,this._tail=void 0;else if(e===this._head){if(!e.next)throw new Error("Invalid list");e.next.previous=void 0,this._head=e.next}else if(e===this._tail){if(!e.previous)throw new Error("Invalid list");e.previous.next=void 0,this._tail=e.previous}else{const t=e.next,n=e.previous;if(!t||!n)throw new Error("Invalid list");t.previous=n,n.next=t}e.next=void 0,e.previous=void 0,this._state++}touch(e,t){if(!this._head||!this._tail)throw new Error("Invalid list");if(t===i.First||t===i.Last)if(t===i.First){if(e===this._head)return;const t=e.next,n=e.previous;e===this._tail?(n.next=void 0,this._tail=n):(t.previous=n,n.next=t),e.previous=void 0,e.next=this._head,this._head.previous=e,this._head=e,this._state++}else if(t===i.Last){if(e===this._tail)return;const t=e.next,n=e.previous;e===this._head?(t.previous=void 0,this._head=t):(t.previous=n,n.next=t),e.next=void 0,e.previous=this._tail,this._tail.next=e,this._tail=e,this._state++}}toJSON(){const e=[];return this.forEach(((t,n)=>{e.push([n,t])})),e}fromJSON(e){this.clear();for(const[t,n]of e)this.set(t,n)}}t.LinkedMap=o,t.LRUCache=class extends o{constructor(e,t=1){super(),this._limit=e,this._ratio=Math.min(Math.max(0,t),1)}get limit(){return this._limit}set limit(e){this._limit=e,this.checkTrim()}get ratio(){return this._ratio}set ratio(e){this._ratio=Math.min(Math.max(0,e),1),this.checkTrim()}get(e,t=i.AsNew){return super.get(e,t)}peek(e){return super.get(e,i.None)}set(e,t){return super.set(e,t,i.Last),this.checkTrim(),this}checkTrim(){this.size>this._limit&&this.trimOld(Math.round(this._limit*this._ratio))}}},9675:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.getUri=t.normalizePath=t.getFileSystemPath=t.isUNC=t.normalizeDriveLetter=void 0;const i=n(7147),o=n(6883),r=n(2389);t.normalizeDriveLetter=function(e){return"win32"!==process.platform||e.length<2||":"!==e[1]?e:e[0].toUpperCase()+e.substring(1)},t.isUNC=function(e){if("win32"!==process.platform)return!1;if(!e||e.length<5)return!1;let t=e.charCodeAt(0);if(92!==t)return!1;if(t=e.charCodeAt(1),92!==t)return!1;let n=2;const i=n;for(;n<e.length&&(t=e.charCodeAt(n),92!==t);n++);return i!==n&&(t=e.charCodeAt(n+1),!isNaN(t)&&92!==t)},t.getFileSystemPath=function(e){let t=e.fsPath;if("win32"===process.platform&&t.length>=2&&":"===t[1]&&(t=t[0].toUpperCase()+t.substr(1)),"win32"===process.platform||"darwin"===process.platform)try{const e=i.realpathSync.native(t);e.toLowerCase()===t.toLowerCase()&&(t=e)}catch{}return t},t.normalizePath=function(e){if(void 0!==e)return"win32"===process.platform?e.replace(/\\/g,"/"):e},t.getUri=function(e){return r.string(e)?o.URI.parse(e):e instanceof o.URI?e:o.URI.parse(e.uri)}},2116:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ExitCalled=t.ShowOutputChannel=t.ProbeFailedRequest=t.OpenESLintDocRequest=t.NoESLintLibraryRequest=t.NoConfigRequest=t.StatusNotification=t.Status=void 0;const i=n(273);var o,r,s,a,c,u,l,d;!function(e){e[e.ok=1]="ok",e[e.warn=2]="warn",e[e.error=3]="error"}(o||(t.Status=o={})),function(e){e.method="eslint/status",e.type=new i.NotificationType(e.method)}(r||(t.StatusNotification=r={})),function(e){e.method="eslint/noConfig",e.type=new i.RequestType(e.method)}(s||(t.NoConfigRequest=s={})),function(e){e.method="eslint/noLibrary",e.type=new i.RequestType(e.method)}(a||(t.NoESLintLibraryRequest=a={})),function(e){e.method="eslint/openDoc",e.type=new i.RequestType(e.method)}(c||(t.OpenESLintDocRequest=c={})),function(e){e.method="eslint/probeFailed",e.type=new i.RequestType(e.method)}(u||(t.ProbeFailedRequest=u={})),function(e){e.method="eslint/showOutputChannel",e.type=new i.NotificationType0("eslint/showOutputChannel")}(l||(t.ShowOutputChannel=l={})),function(e){e.method="eslint/exitCalled",e.type=new i.NotificationType(e.method)}(d||(t.ExitCalled=d={}))},7237:(e,t)=>{var n,i,o,r,s,a,c,u,l;Object.defineProperty(t,"__esModule",{value:!0}),t.DirectoryItem=t.ModeItem=t.ModeEnum=t.RuleSeverity=t.ESLintSeverity=t.CodeActionsOnSaveRules=t.CodeActionsOnSaveMode=t.Validate=void 0,function(e){const t=Object.prototype.toString;e.boolean=function(e){return!0===e||!1===e},e.string=function(e){return"[object String]"===t.call(e)}}(n||(n={})),function(e){e.on="on",e.off="off",e.probe="probe"}(i||(t.Validate=i={})),function(e){e.all="all",e.problems="problems"}(o||(t.CodeActionsOnSaveMode=o={})),function(e){e.from=function(t){return null!=t&&n.string(t)&&t.toLowerCase()===e.problems?e.problems:e.all}}(o||(t.CodeActionsOnSaveMode=o={})),function(e){e.from=function(e){if(null!=e&&Array.isArray(e))return e.filter((e=>n.string(e)))}}(r||(t.CodeActionsOnSaveRules=r={})),function(e){e.off="off",e.warn="warn",e.error="error"}(s||(t.ESLintSeverity=s={})),function(e){e.from=function(t){if(null==t)return e.off;switch(t.toLowerCase()){case e.off:return e.off;case e.warn:return e.warn;case e.error:return e.error;default:return e.off}}}(s||(t.ESLintSeverity=s={})),function(e){e.info="info",e.warn="warn",e.error="error",e.off="off",e.default="default",e.downgrade="downgrade",e.upgrade="upgrade"}(a||(t.RuleSeverity=a={})),function(e){e.auto="auto",e.location="location"}(c||(t.ModeEnum=c={})),function(e){e.is=function(t){return t===e.auto||t===e.location}}(c||(t.ModeEnum=c={})),function(e){e.is=function(e){const t=e;return t&&c.is(t.mode)}}(u||(t.ModeItem=u={})),function(e){e.is=function(e){const t=e;return t&&n.string(t.directory)&&(n.boolean(t["!cwd"])||void 0===t["!cwd"])}}(l||(t.DirectoryItem=l={}))},3870:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ProgressType=t.ProgressToken=t.createMessageConnection=t.NullLogger=t.ConnectionOptions=t.ConnectionStrategy=t.AbstractMessageBuffer=t.WriteableStreamMessageWriter=t.AbstractMessageWriter=t.MessageWriter=t.ReadableStreamMessageReader=t.AbstractMessageReader=t.MessageReader=t.SharedArrayReceiverStrategy=t.SharedArraySenderStrategy=t.CancellationToken=t.CancellationTokenSource=t.Emitter=t.Event=t.Disposable=t.LRUCache=t.Touch=t.LinkedMap=t.ParameterStructures=t.NotificationType9=t.NotificationType8=t.NotificationType7=t.NotificationType6=t.NotificationType5=t.NotificationType4=t.NotificationType3=t.NotificationType2=t.NotificationType1=t.NotificationType0=t.NotificationType=t.ErrorCodes=t.ResponseError=t.RequestType9=t.RequestType8=t.RequestType7=t.RequestType6=t.RequestType5=t.RequestType4=t.RequestType3=t.RequestType2=t.RequestType1=t.RequestType0=t.RequestType=t.Message=t.RAL=void 0,t.MessageStrategy=t.CancellationStrategy=t.CancellationSenderStrategy=t.CancellationReceiverStrategy=t.ConnectionError=t.ConnectionErrors=t.LogTraceNotification=t.SetTraceNotification=t.TraceFormat=t.TraceValues=t.Trace=void 0;const i=n(839);Object.defineProperty(t,"Message",{enumerable:!0,get:function(){return i.Message}}),Object.defineProperty(t,"RequestType",{enumerable:!0,get:function(){return i.RequestType}}),Object.defineProperty(t,"RequestType0",{enumerable:!0,get:function(){return i.RequestType0}}),Object.defineProperty(t,"RequestType1",{enumerable:!0,get:function(){return i.RequestType1}}),Object.defineProperty(t,"RequestType2",{enumerable:!0,get:function(){return i.RequestType2}}),Object.defineProperty(t,"RequestType3",{enumerable:!0,get:function(){return i.RequestType3}}),Object.defineProperty(t,"RequestType4",{enumerable:!0,get:function(){return i.RequestType4}}),Object.defineProperty(t,"RequestType5",{enumerable:!0,get:function(){return i.RequestType5}}),Object.defineProperty(t,"RequestType6",{enumerable:!0,get:function(){return i.RequestType6}}),Object.defineProperty(t,"RequestType7",{enumerable:!0,get:function(){return i.RequestType7}}),Object.defineProperty(t,"RequestType8",{enumerable:!0,get:function(){return i.RequestType8}}),Object.defineProperty(t,"RequestType9",{enumerable:!0,get:function(){return i.RequestType9}}),Object.defineProperty(t,"ResponseError",{enumerable:!0,get:function(){return i.ResponseError}}),Object.defineProperty(t,"ErrorCodes",{enumerable:!0,get:function(){return i.ErrorCodes}}),Object.defineProperty(t,"NotificationType",{enumerable:!0,get:function(){return i.NotificationType}}),Object.defineProperty(t,"NotificationType0",{enumerable:!0,get:function(){return i.NotificationType0}}),Object.defineProperty(t,"NotificationType1",{enumerable:!0,get:function(){return i.NotificationType1}}),Object.defineProperty(t,"NotificationType2",{enumerable:!0,get:function(){return i.NotificationType2}}),Object.defineProperty(t,"NotificationType3",{enumerable:!0,get:function(){return i.NotificationType3}}),Object.defineProperty(t,"NotificationType4",{enumerable:!0,get:function(){return i.NotificationType4}}),Object.defineProperty(t,"NotificationType5",{enumerable:!0,get:function(){return i.NotificationType5}}),Object.defineProperty(t,"NotificationType6",{enumerable:!0,get:function(){return i.NotificationType6}}),Object.defineProperty(t,"NotificationType7",{enumerable:!0,get:function(){return i.NotificationType7}}),Object.defineProperty(t,"NotificationType8",{enumerable:!0,get:function(){return i.NotificationType8}}),Object.defineProperty(t,"NotificationType9",{enumerable:!0,get:function(){return i.NotificationType9}}),Object.defineProperty(t,"ParameterStructures",{enumerable:!0,get:function(){return i.ParameterStructures}});const o=n(6184);Object.defineProperty(t,"LinkedMap",{enumerable:!0,get:function(){return o.LinkedMap}}),Object.defineProperty(t,"LRUCache",{enumerable:!0,get:function(){return o.LRUCache}}),Object.defineProperty(t,"Touch",{enumerable:!0,get:function(){return o.Touch}});const r=n(3911);Object.defineProperty(t,"Disposable",{enumerable:!0,get:function(){return r.Disposable}});const s=n(7135);Object.defineProperty(t,"Event",{enumerable:!0,get:function(){return s.Event}}),Object.defineProperty(t,"Emitter",{enumerable:!0,get:function(){return s.Emitter}});const a=n(3881);Object.defineProperty(t,"CancellationTokenSource",{enumerable:!0,get:function(){return a.CancellationTokenSource}}),Object.defineProperty(t,"CancellationToken",{enumerable:!0,get:function(){return a.CancellationToken}});const c=n(8211);Object.defineProperty(t,"SharedArraySenderStrategy",{enumerable:!0,get:function(){return c.SharedArraySenderStrategy}}),Object.defineProperty(t,"SharedArrayReceiverStrategy",{enumerable:!0,get:function(){return c.SharedArrayReceiverStrategy}});const u=n(6525);Object.defineProperty(t,"MessageReader",{enumerable:!0,get:function(){return u.MessageReader}}),Object.defineProperty(t,"AbstractMessageReader",{enumerable:!0,get:function(){return u.AbstractMessageReader}}),Object.defineProperty(t,"ReadableStreamMessageReader",{enumerable:!0,get:function(){return u.ReadableStreamMessageReader}});const l=n(6654);Object.defineProperty(t,"MessageWriter",{enumerable:!0,get:function(){return l.MessageWriter}}),Object.defineProperty(t,"AbstractMessageWriter",{enumerable:!0,get:function(){return l.AbstractMessageWriter}}),Object.defineProperty(t,"WriteableStreamMessageWriter",{enumerable:!0,get:function(){return l.WriteableStreamMessageWriter}});const d=n(5530);Object.defineProperty(t,"AbstractMessageBuffer",{enumerable:!0,get:function(){return d.AbstractMessageBuffer}});const f=n(1343);Object.defineProperty(t,"ConnectionStrategy",{enumerable:!0,get:function(){return f.ConnectionStrategy}}),Object.defineProperty(t,"ConnectionOptions",{enumerable:!0,get:function(){return f.ConnectionOptions}}),Object.defineProperty(t,"NullLogger",{enumerable:!0,get:function(){return f.NullLogger}}),Object.defineProperty(t,"createMessageConnection",{enumerable:!0,get:function(){return f.createMessageConnection}}),Object.defineProperty(t,"ProgressToken",{enumerable:!0,get:function(){return f.ProgressToken}}),Object.defineProperty(t,"ProgressType",{enumerable:!0,get:function(){return f.ProgressType}}),Object.defineProperty(t,"Trace",{enumerable:!0,get:function(){return f.Trace}}),Object.defineProperty(t,"TraceValues",{enumerable:!0,get:function(){return f.TraceValues}}),Object.defineProperty(t,"TraceFormat",{enumerable:!0,get:function(){return f.TraceFormat}}),Object.defineProperty(t,"SetTraceNotification",{enumerable:!0,get:function(){return f.SetTraceNotification}}),Object.defineProperty(t,"LogTraceNotification",{enumerable:!0,get:function(){return f.LogTraceNotification}}),Object.defineProperty(t,"ConnectionErrors",{enumerable:!0,get:function(){return f.ConnectionErrors}}),Object.defineProperty(t,"ConnectionError",{enumerable:!0,get:function(){return f.ConnectionError}}),Object.defineProperty(t,"CancellationReceiverStrategy",{enumerable:!0,get:function(){return f.CancellationReceiverStrategy}}),Object.defineProperty(t,"CancellationSenderStrategy",{enumerable:!0,get:function(){return f.CancellationSenderStrategy}}),Object.defineProperty(t,"CancellationStrategy",{enumerable:!0,get:function(){return f.CancellationStrategy}}),Object.defineProperty(t,"MessageStrategy",{enumerable:!0,get:function(){return f.MessageStrategy}});const h=n(147);t.RAL=h.default},3881:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.CancellationTokenSource=t.CancellationToken=void 0;const i=n(147),o=n(7574),r=n(7135);var s;!function(e){e.None=Object.freeze({isCancellationRequested:!1,onCancellationRequested:r.Event.None}),e.Cancelled=Object.freeze({isCancellationRequested:!0,onCancellationRequested:r.Event.None}),e.is=function(t){const n=t;return n&&(n===e.None||n===e.Cancelled||o.boolean(n.isCancellationRequested)&&!!n.onCancellationRequested)}}(s||(t.CancellationToken=s={}));const a=Object.freeze((function(e,t){const n=(0,i.default)().timer.setTimeout(e.bind(t),0);return{dispose(){n.dispose()}}}));class c{constructor(){this._isCancelled=!1}cancel(){this._isCancelled||(this._isCancelled=!0,this._emitter&&(this._emitter.fire(void 0),this.dispose()))}get isCancellationRequested(){return this._isCancelled}get onCancellationRequested(){return this._isCancelled?a:(this._emitter||(this._emitter=new r.Emitter),this._emitter.event)}dispose(){this._emitter&&(this._emitter.dispose(),this._emitter=void 0)}}t.CancellationTokenSource=class{get token(){return this._token||(this._token=new c),this._token}cancel(){this._token?this._token.cancel():this._token=s.Cancelled}dispose(){this._token?this._token instanceof c&&this._token.dispose():this._token=s.None}}},1343:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.createMessageConnection=t.ConnectionOptions=t.MessageStrategy=t.CancellationStrategy=t.CancellationSenderStrategy=t.CancellationReceiverStrategy=t.RequestCancellationReceiverStrategy=t.IdCancellationReceiverStrategy=t.ConnectionStrategy=t.ConnectionError=t.ConnectionErrors=t.LogTraceNotification=t.SetTraceNotification=t.TraceFormat=t.TraceValues=t.Trace=t.NullLogger=t.ProgressType=t.ProgressToken=void 0;const i=n(147),o=n(7574),r=n(839),s=n(6184),a=n(7135),c=n(3881);var u,l,d,f,h,g,m,p,y,v,b,R,D,_,S,C,w,T,k;!function(e){e.type=new r.NotificationType("$/cancelRequest")}(u||(u={})),function(e){e.is=function(e){return"string"==typeof e||"number"==typeof e}}(l||(t.ProgressToken=l={})),function(e){e.type=new r.NotificationType("$/progress")}(d||(d={})),t.ProgressType=class{constructor(){}},function(e){e.is=function(e){return o.func(e)}}(f||(f={})),t.NullLogger=Object.freeze({error:()=>{},warn:()=>{},info:()=>{},log:()=>{}}),function(e){e[e.Off=0]="Off",e[e.Messages=1]="Messages",e[e.Compact=2]="Compact",e[e.Verbose=3]="Verbose"}(h||(t.Trace=h={})),function(e){e.Off="off",e.Messages="messages",e.Compact="compact",e.Verbose="verbose"}(g||(t.TraceValues=g={})),function(e){e.fromString=function(t){if(!o.string(t))return e.Off;switch(t=t.toLowerCase()){case"off":default:return e.Off;case"messages":return e.Messages;case"compact":return e.Compact;case"verbose":return e.Verbose}},e.toString=function(t){switch(t){case e.Off:return"off";case e.Messages:return"messages";case e.Compact:return"compact";case e.Verbose:return"verbose";default:return"off"}}}(h||(t.Trace=h={})),function(e){e.Text="text",e.JSON="json"}(m||(t.TraceFormat=m={})),function(e){e.fromString=function(t){return o.string(t)&&"json"===(t=t.toLowerCase())?e.JSON:e.Text}}(m||(t.TraceFormat=m={})),function(e){e.type=new r.NotificationType("$/setTrace")}(p||(t.SetTraceNotification=p={})),function(e){e.type=new r.NotificationType("$/logTrace")}(y||(t.LogTraceNotification=y={})),function(e){e[e.Closed=1]="Closed",e[e.Disposed=2]="Disposed",e[e.AlreadyListening=3]="AlreadyListening"}(v||(t.ConnectionErrors=v={}));class x extends Error{constructor(e,t){super(t),this.code=e,Object.setPrototypeOf(this,x.prototype)}}t.ConnectionError=x,function(e){e.is=function(e){const t=e;return t&&o.func(t.cancelUndispatched)}}(b||(t.ConnectionStrategy=b={})),function(e){e.is=function(e){const t=e;return t&&(void 0===t.kind||"id"===t.kind)&&o.func(t.createCancellationTokenSource)&&(void 0===t.dispose||o.func(t.dispose))}}(R||(t.IdCancellationReceiverStrategy=R={})),function(e){e.is=function(e){const t=e;return t&&"request"===t.kind&&o.func(t.createCancellationTokenSource)&&(void 0===t.dispose||o.func(t.dispose))}}(D||(t.RequestCancellationReceiverStrategy=D={})),function(e){e.Message=Object.freeze({createCancellationTokenSource:e=>new c.CancellationTokenSource}),e.is=function(e){return R.is(e)||D.is(e)}}(_||(t.CancellationReceiverStrategy=_={})),function(e){e.Message=Object.freeze({sendCancellation:(e,t)=>e.sendNotification(u.type,{id:t}),cleanup(e){}}),e.is=function(e){const t=e;return t&&o.func(t.sendCancellation)&&o.func(t.cleanup)}}(S||(t.CancellationSenderStrategy=S={})),function(e){e.Message=Object.freeze({receiver:_.Message,sender:S.Message}),e.is=function(e){const t=e;return t&&_.is(t.receiver)&&S.is(t.sender)}}(C||(t.CancellationStrategy=C={})),function(e){e.is=function(e){const t=e;return t&&o.func(t.handleMessage)}}(w||(t.MessageStrategy=w={})),function(e){e.is=function(e){const t=e;return t&&(C.is(t.cancellationStrategy)||b.is(t.connectionStrategy)||w.is(t.messageStrategy))}}(T||(t.ConnectionOptions=T={})),function(e){e[e.New=1]="New",e[e.Listening=2]="Listening",e[e.Closed=3]="Closed",e[e.Disposed=4]="Disposed"}(k||(k={})),t.createMessageConnection=function(e,n,g,b){const D=void 0!==g?g:t.NullLogger;let _=0,S=0,T=0;const P="2.0";let q;const E=new Map;let M;const N=new Map,O=new Map;let A,L,j=new s.LinkedMap,I=new Map,F=new Set,W=new Map,$=h.Off,H=m.Text,U=k.New;const z=new a.Emitter,V=new a.Emitter,B=new a.Emitter,K=new a.Emitter,J=new a.Emitter,G=b&&b.cancellationStrategy?b.cancellationStrategy:C.Message;function X(e){if(null===e)throw new Error("Can't send requests with id null since the response can't be correlated.");return"req-"+e.toString()}function Q(e){}function Y(){return U===k.Listening}function Z(){return U===k.Closed}function ee(){return U===k.Disposed}function te(){U!==k.New&&U!==k.Listening||(U=k.Closed,V.fire(void 0))}function ne(){A||0===j.size||(A=(0,i.default)().timer.setImmediate((()=>{A=void 0,function(){if(0===j.size)return;const e=j.shift();try{const t=b?.messageStrategy;w.is(t)?t.handleMessage(e,ie):ie(e)}finally{ne()}}()})))}function ie(e){r.Message.isRequest(e)?function(e){if(ee())return;function t(t,i,o){const s={jsonrpc:P,id:e.id};t instanceof r.ResponseError?s.error=t.toJson():s.result=void 0===t?null:t,se(s,i,o),n.write(s).catch((()=>D.error("Sending response failed.")))}function i(t,i,o){const r={jsonrpc:P,id:e.id,error:t.toJson()};se(r,i,o),n.write(r).catch((()=>D.error("Sending response failed.")))}!function(e){if($!==h.Off&&L)if(H===m.Text){let t;$!==h.Verbose&&$!==h.Compact||!e.params||(t=`Params: ${re(e.params)}\n\n`),L.log(`Received request '${e.method} - (${e.id})'.`,t)}else ce("receive-request",e)}(e);const s=E.get(e.method);let a,c;s&&(a=s.type,c=s.handler);const u=Date.now();if(c||q){const s=e.id??String(Date.now()),l=R.is(G.receiver)?G.receiver.createCancellationTokenSource(s):G.receiver.createCancellationTokenSource(e);null!==e.id&&F.has(e.id)&&l.cancel(),null!==e.id&&W.set(s,l);try{let d;if(c)if(void 0===e.params){if(void 0!==a&&0!==a.numberOfParams)return void i(new r.ResponseError(r.ErrorCodes.InvalidParams,`Request ${e.method} defines ${a.numberOfParams} params but received none.`),e.method,u);d=c(l.token)}else if(Array.isArray(e.params)){if(void 0!==a&&a.parameterStructures===r.ParameterStructures.byName)return void i(new r.ResponseError(r.ErrorCodes.InvalidParams,`Request ${e.method} defines parameters by name but received parameters by position`),e.method,u);d=c(...e.params,l.token)}else{if(void 0!==a&&a.parameterStructures===r.ParameterStructures.byPosition)return void i(new r.ResponseError(r.ErrorCodes.InvalidParams,`Request ${e.method} defines parameters by position but received parameters by name`),e.method,u);d=c(e.params,l.token)}else q&&(d=q(e.method,e.params,l.token));const f=d;d?f.then?f.then((n=>{W.delete(s),t(n,e.method,u)}),(t=>{W.delete(s),t instanceof r.ResponseError?i(t,e.method,u):t&&o.string(t.message)?i(new r.ResponseError(r.ErrorCodes.InternalError,`Request ${e.method} failed with message: ${t.message}`),e.method,u):i(new r.ResponseError(r.ErrorCodes.InternalError,`Request ${e.method} failed unexpectedly without providing any details.`),e.method,u)})):(W.delete(s),t(d,e.method,u)):(W.delete(s),function(t,i,o){void 0===t&&(t=null);const r={jsonrpc:P,id:e.id,result:t};se(r,i,o),n.write(r).catch((()=>D.error("Sending response failed.")))}(d,e.method,u))}catch(n){W.delete(s),n instanceof r.ResponseError?t(n,e.method,u):n&&o.string(n.message)?i(new r.ResponseError(r.ErrorCodes.InternalError,`Request ${e.method} failed with message: ${n.message}`),e.method,u):i(new r.ResponseError(r.ErrorCodes.InternalError,`Request ${e.method} failed unexpectedly without providing any details.`),e.method,u)}}else i(new r.ResponseError(r.ErrorCodes.MethodNotFound,`Unhandled method ${e.method}`),e.method,u)}(e):r.Message.isNotification(e)?function(e){if(ee())return;let t,n;if(e.method===u.type.method){const t=e.params.id;return F.delete(t),void ae(e)}{const i=N.get(e.method);i&&(n=i.handler,t=i.type)}if(n||M)try{if(ae(e),n)if(void 0===e.params)void 0!==t&&0!==t.numberOfParams&&t.parameterStructures!==r.ParameterStructures.byName&&D.error(`Notification ${e.method} defines ${t.numberOfParams} params but received none.`),n();else if(Array.isArray(e.params)){const i=e.params;e.method===d.type.method&&2===i.length&&l.is(i[0])?n({token:i[0],value:i[1]}):(void 0!==t&&(t.parameterStructures===r.ParameterStructures.byName&&D.error(`Notification ${e.method} defines parameters by name but received parameters by position`),t.numberOfParams!==e.params.length&&D.error(`Notification ${e.method} defines ${t.numberOfParams} params but received ${i.length} arguments`)),n(...i))}else void 0!==t&&t.parameterStructures===r.ParameterStructures.byPosition&&D.error(`Notification ${e.method} defines parameters by position but received parameters by name`),n(e.params);else M&&M(e.method,e.params)}catch(t){t.message?D.error(`Notification handler '${e.method}' failed with message: ${t.message}`):D.error(`Notification handler '${e.method}' failed unexpectedly.`)}else B.fire(e)}(e):r.Message.isResponse(e)?function(e){if(!ee())if(null===e.id)e.error?D.error(`Received response message without id: Error is: \n${JSON.stringify(e.error,void 0,4)}`):D.error("Received response message without id. No further error information provided.");else{const t=e.id,n=I.get(t);if(function(e,t){if($!==h.Off&&L)if(H===m.Text){let n;if($!==h.Verbose&&$!==h.Compact||(e.error&&e.error.data?n=`Error data: ${re(e.error.data)}\n\n`:e.result?n=`Result: ${re(e.result)}\n\n`:void 0===e.error&&(n="No result returned.\n\n")),t){const i=e.error?` Request failed: ${e.error.message} (${e.error.code}).`:"";L.log(`Received response '${t.method} - (${e.id})' in ${Date.now()-t.timerStart}ms.${i}`,n)}else L.log(`Received response ${e.id} without active response promise.`,n)}else ce("receive-response",e)}(e,n),void 0!==n){I.delete(t);try{if(e.error){const t=e.error;n.reject(new r.ResponseError(t.code,t.message,t.data))}else{if(void 0===e.result)throw new Error("Should never happen.");n.resolve(e.result)}}catch(e){e.message?D.error(`Response handler '${n.method}' failed with message: ${e.message}`):D.error(`Response handler '${n.method}' failed unexpectedly.`)}}}}(e):function(e){if(!e)return void D.error("Received empty message.");D.error(`Received message which is neither a response nor a notification message:\n${JSON.stringify(e,null,4)}`);const t=e;if(o.string(t.id)||o.number(t.id)){const e=t.id,n=I.get(e);n&&n.reject(new Error("The received response has neither a result nor an error property."))}}(e)}e.onClose(te),e.onError((function(e){z.fire([e,void 0,void 0])})),n.onClose(te),n.onError((function(e){z.fire(e)}));const oe=e=>{try{if(r.Message.isNotification(e)&&e.method===u.type.method){const t=e.params.id,i=X(t),o=j.get(i);if(r.Message.isRequest(o)){const r=b?.connectionStrategy,s=r&&r.cancelUndispatched?r.cancelUndispatched(o,Q):void 0;if(s&&(void 0!==s.error||void 0!==s.result))return j.delete(i),W.delete(t),s.id=o.id,se(s,e.method,Date.now()),void n.write(s).catch((()=>D.error("Sending response for canceled message failed.")))}const s=W.get(t);if(void 0!==s)return s.cancel(),void ae(e);F.add(t)}!function(e,t){var n;r.Message.isRequest(t)?e.set(X(t.id),t):r.Message.isResponse(t)?e.set(null===(n=t.id)?"res-unknown-"+(++T).toString():"res-"+n.toString(),t):e.set("not-"+(++S).toString(),t)}(j,e)}finally{ne()}};function re(e){if(null!=e)switch($){case h.Verbose:return JSON.stringify(e,null,4);case h.Compact:return JSON.stringify(e);default:return}}function se(e,t,n){if($!==h.Off&&L)if(H===m.Text){let i;$!==h.Verbose&&$!==h.Compact||(e.error&&e.error.data?i=`Error data: ${re(e.error.data)}\n\n`:e.result?i=`Result: ${re(e.result)}\n\n`:void 0===e.error&&(i="No result returned.\n\n")),L.log(`Sending response '${t} - (${e.id})'. Processing request took ${Date.now()-n}ms`,i)}else ce("send-response",e)}function ae(e){if($!==h.Off&&L&&e.method!==y.type.method)if(H===m.Text){let t;$!==h.Verbose&&$!==h.Compact||(t=e.params?`Params: ${re(e.params)}\n\n`:"No parameters provided.\n\n"),L.log(`Received notification '${e.method}'.`,t)}else ce("receive-notification",e)}function ce(e,t){if(!L||$===h.Off)return;const n={isLSPMessage:!0,type:e,message:t,timestamp:Date.now()};L.log(n)}function ue(){if(Z())throw new x(v.Closed,"Connection is closed.");if(ee())throw new x(v.Disposed,"Connection is disposed.")}function le(e){return void 0===e?null:e}function de(e){return null===e?void 0:e}function fe(e){return null!=e&&!Array.isArray(e)&&"object"==typeof e}function he(e,t){switch(e){case r.ParameterStructures.auto:return fe(t)?de(t):[le(t)];case r.ParameterStructures.byName:if(!fe(t))throw new Error("Received parameters by name but param is not an object literal.");return de(t);case r.ParameterStructures.byPosition:return[le(t)];default:throw new Error(`Unknown parameter structure ${e.toString()}`)}}function ge(e,t){let n;const i=e.numberOfParams;switch(i){case 0:n=void 0;break;case 1:n=he(e.parameterStructures,t[0]);break;default:n=[];for(let e=0;e<t.length&&e<i;e++)n.push(le(t[e]));if(t.length<i)for(let e=t.length;e<i;e++)n.push(null)}return n}const me={sendNotification:(e,...t)=>{let i,s;if(ue(),o.string(e)){i=e;const n=t[0];let o=0,a=r.ParameterStructures.auto;r.ParameterStructures.is(n)&&(o=1,a=n);let c=t.length;const u=c-o;switch(u){case 0:s=void 0;break;case 1:s=he(a,t[o]);break;default:if(a===r.ParameterStructures.byName)throw new Error(`Received ${u} parameters for 'by Name' notification parameter structure.`);s=t.slice(o,c).map((e=>le(e)))}}else{const n=t;i=e.method,s=ge(e,n)}const a={jsonrpc:P,method:i,params:s};return function(e){if($!==h.Off&&L)if(H===m.Text){let t;$!==h.Verbose&&$!==h.Compact||(t=e.params?`Params: ${re(e.params)}\n\n`:"No parameters provided.\n\n"),L.log(`Sending notification '${e.method}'.`,t)}else ce("send-notification",e)}(a),n.write(a).catch((e=>{throw D.error("Sending notification failed."),e}))},onNotification:(e,t)=>{let n;return ue(),o.func(e)?M=e:t&&(o.string(e)?(n=e,N.set(e,{type:void 0,handler:t})):(n=e.method,N.set(e.method,{type:e,handler:t}))),{dispose:()=>{void 0!==n?N.delete(n):M=void 0}}},onProgress:(e,t,n)=>{if(O.has(t))throw new Error(`Progress handler for token ${t} already registered`);return O.set(t,n),{dispose:()=>{O.delete(t)}}},sendProgress:(e,t,n)=>me.sendNotification(d.type,{token:t,value:n}),onUnhandledProgress:K.event,sendRequest:(e,...t)=>{let i,s,a;if(ue(),function(){if(!Y())throw new Error("Call listen() first.")}(),o.string(e)){i=e;const n=t[0],o=t[t.length-1];let u=0,l=r.ParameterStructures.auto;r.ParameterStructures.is(n)&&(u=1,l=n);let d=t.length;c.CancellationToken.is(o)&&(d-=1,a=o);const f=d-u;switch(f){case 0:s=void 0;break;case 1:s=he(l,t[u]);break;default:if(l===r.ParameterStructures.byName)throw new Error(`Received ${f} parameters for 'by Name' request parameter structure.`);s=t.slice(u,d).map((e=>le(e)))}}else{const n=t;i=e.method,s=ge(e,n);const o=e.numberOfParams;a=c.CancellationToken.is(n[o])?n[o]:void 0}const u=_++;let l;a&&(l=a.onCancellationRequested((()=>{const e=G.sender.sendCancellation(me,u);return void 0===e?(D.log(`Received no promise from cancellation strategy when cancelling id ${u}`),Promise.resolve()):e.catch((()=>{D.log(`Sending cancellation messages for id ${u} failed`)}))})));const d={jsonrpc:P,id:u,method:i,params:s};return function(e){if($!==h.Off&&L)if(H===m.Text){let t;$!==h.Verbose&&$!==h.Compact||!e.params||(t=`Params: ${re(e.params)}\n\n`),L.log(`Sending request '${e.method} - (${e.id})'.`,t)}else ce("send-request",e)}(d),"function"==typeof G.sender.enableCancellation&&G.sender.enableCancellation(d),new Promise((async(e,t)=>{const o={method:i,timerStart:Date.now(),resolve:t=>{e(t),G.sender.cleanup(u),l?.dispose()},reject:e=>{t(e),G.sender.cleanup(u),l?.dispose()}};try{await n.write(d),I.set(u,o)}catch(e){throw D.error("Sending request failed."),o.reject(new r.ResponseError(r.ErrorCodes.MessageWriteError,e.message?e.message:"Unknown reason")),e}}))},onRequest:(e,t)=>{ue();let n=null;return f.is(e)?(n=void 0,q=e):o.string(e)?(n=null,void 0!==t&&(n=e,E.set(e,{handler:t,type:void 0}))):void 0!==t&&(n=e.method,E.set(e.method,{type:e,handler:t})),{dispose:()=>{null!==n&&(void 0!==n?E.delete(n):q=void 0)}}},hasPendingResponse:()=>I.size>0,trace:async(e,t,n)=>{let i=!1,r=m.Text;void 0!==n&&(o.boolean(n)?i=n:(i=n.sendNotification||!1,r=n.traceFormat||m.Text)),$=e,H=r,L=$===h.Off?void 0:t,!i||Z()||ee()||await me.sendNotification(p.type,{value:h.toString(e)})},onError:z.event,onClose:V.event,onUnhandledNotification:B.event,onDispose:J.event,end:()=>{n.end()},dispose:()=>{if(ee())return;U=k.Disposed,J.fire(void 0);const t=new r.ResponseError(r.ErrorCodes.PendingResponseRejected,"Pending response rejected since connection got disposed");for(const e of I.values())e.reject(t);I=new Map,W=new Map,F=new Set,j=new s.LinkedMap,o.func(n.dispose)&&n.dispose(),o.func(e.dispose)&&e.dispose()},listen:()=>{ue(),function(){if(Y())throw new x(v.AlreadyListening,"Connection is already listening")}(),U=k.Listening,e.listen(oe)},inspect:()=>{(0,i.default)().console.log("inspect")}};return me.onNotification(y.type,(e=>{if($===h.Off||!L)return;const t=$===h.Verbose||$===h.Compact;L.log(e.message,t?e.verbose:void 0)})),me.onNotification(d.type,(e=>{const t=O.get(e.token);t?t(e.value):K.fire(e)})),me}},3911:(e,t)=>{var n;Object.defineProperty(t,"__esModule",{value:!0}),t.Disposable=void 0,function(e){e.create=function(e){return{dispose:e}}}(n||(t.Disposable=n={}))},7135:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.Emitter=t.Event=void 0;const i=n(147);var o;!function(e){const t={dispose(){}};e.None=function(){return t}}(o||(t.Event=o={}));class r{add(e,t=null,n){this._callbacks||(this._callbacks=[],this._contexts=[]),this._callbacks.push(e),this._contexts.push(t),Array.isArray(n)&&n.push({dispose:()=>this.remove(e,t)})}remove(e,t=null){if(!this._callbacks)return;let n=!1;for(let i=0,o=this._callbacks.length;i<o;i++)if(this._callbacks[i]===e){if(this._contexts[i]===t)return this._callbacks.splice(i,1),void this._contexts.splice(i,1);n=!0}if(n)throw new Error("When adding a listener with a context, you should remove it with the same context")}invoke(...e){if(!this._callbacks)return[];const t=[],n=this._callbacks.slice(0),o=this._contexts.slice(0);for(let r=0,s=n.length;r<s;r++)try{t.push(n[r].apply(o[r],e))}catch(e){(0,i.default)().console.error(e)}return t}isEmpty(){return!this._callbacks||0===this._callbacks.length}dispose(){this._callbacks=void 0,this._contexts=void 0}}class s{constructor(e){this._options=e}get event(){return this._event||(this._event=(e,t,n)=>{this._callbacks||(this._callbacks=new r),this._options&&this._options.onFirstListenerAdd&&this._callbacks.isEmpty()&&this._options.onFirstListenerAdd(this),this._callbacks.add(e,t);const i={dispose:()=>{this._callbacks&&(this._callbacks.remove(e,t),i.dispose=s._noop,this._options&&this._options.onLastListenerRemove&&this._callbacks.isEmpty()&&this._options.onLastListenerRemove(this))}};return Array.isArray(n)&&n.push(i),i}),this._event}fire(e){this._callbacks&&this._callbacks.invoke.call(this._callbacks,e)}dispose(){this._callbacks&&(this._callbacks.dispose(),this._callbacks=void 0)}}t.Emitter=s,s._noop=function(){}},7574:(e,t)=>{function n(e){return"string"==typeof e||e instanceof String}function i(e){return Array.isArray(e)}Object.defineProperty(t,"__esModule",{value:!0}),t.stringArray=t.array=t.func=t.error=t.number=t.string=t.boolean=void 0,t.boolean=function(e){return!0===e||!1===e},t.string=n,t.number=function(e){return"number"==typeof e||e instanceof Number},t.error=function(e){return e instanceof Error},t.func=function(e){return"function"==typeof e},t.array=i,t.stringArray=function(e){return i(e)&&e.every((e=>n(e)))}},6184:(e,t)=>{var n,i;Object.defineProperty(t,"__esModule",{value:!0}),t.LRUCache=t.LinkedMap=t.Touch=void 0,function(e){e.None=0,e.First=1,e.AsOld=e.First,e.Last=2,e.AsNew=e.Last}(i||(t.Touch=i={}));class o{constructor(){this[n]="LinkedMap",this._map=new Map,this._head=void 0,this._tail=void 0,this._size=0,this._state=0}clear(){this._map.clear(),this._head=void 0,this._tail=void 0,this._size=0,this._state++}isEmpty(){return!this._head&&!this._tail}get size(){return this._size}get first(){return this._head?.value}get last(){return this._tail?.value}has(e){return this._map.has(e)}get(e,t=i.None){const n=this._map.get(e);if(n)return t!==i.None&&this.touch(n,t),n.value}set(e,t,n=i.None){let o=this._map.get(e);if(o)o.value=t,n!==i.None&&this.touch(o,n);else{switch(o={key:e,value:t,next:void 0,previous:void 0},n){case i.None:this.addItemLast(o);break;case i.First:this.addItemFirst(o);break;case i.Last:default:this.addItemLast(o)}this._map.set(e,o),this._size++}return this}delete(e){return!!this.remove(e)}remove(e){const t=this._map.get(e);if(t)return this._map.delete(e),this.removeItem(t),this._size--,t.value}shift(){if(!this._head&&!this._tail)return;if(!this._head||!this._tail)throw new Error("Invalid list");const e=this._head;return this._map.delete(e.key),this.removeItem(e),this._size--,e.value}forEach(e,t){const n=this._state;let i=this._head;for(;i;){if(t?e.bind(t)(i.value,i.key,this):e(i.value,i.key,this),this._state!==n)throw new Error("LinkedMap got modified during iteration.");i=i.next}}keys(){const e=this._state;let t=this._head;const n={[Symbol.iterator]:()=>n,next:()=>{if(this._state!==e)throw new Error("LinkedMap got modified during iteration.");if(t){const e={value:t.key,done:!1};return t=t.next,e}return{value:void 0,done:!0}}};return n}values(){const e=this._state;let t=this._head;const n={[Symbol.iterator]:()=>n,next:()=>{if(this._state!==e)throw new Error("LinkedMap got modified during iteration.");if(t){const e={value:t.value,done:!1};return t=t.next,e}return{value:void 0,done:!0}}};return n}entries(){const e=this._state;let t=this._head;const n={[Symbol.iterator]:()=>n,next:()=>{if(this._state!==e)throw new Error("LinkedMap got modified during iteration.");if(t){const e={value:[t.key,t.value],done:!1};return t=t.next,e}return{value:void 0,done:!0}}};return n}[(n=Symbol.toStringTag,Symbol.iterator)](){return this.entries()}trimOld(e){if(e>=this.size)return;if(0===e)return void this.clear();let t=this._head,n=this.size;for(;t&&n>e;)this._map.delete(t.key),t=t.next,n--;this._head=t,this._size=n,t&&(t.previous=void 0),this._state++}addItemFirst(e){if(this._head||this._tail){if(!this._head)throw new Error("Invalid list");e.next=this._head,this._head.previous=e}else this._tail=e;this._head=e,this._state++}addItemLast(e){if(this._head||this._tail){if(!this._tail)throw new Error("Invalid list");e.previous=this._tail,this._tail.next=e}else this._head=e;this._tail=e,this._state++}removeItem(e){if(e===this._head&&e===this._tail)this._head=void 0,this._tail=void 0;else if(e===this._head){if(!e.next)throw new Error("Invalid list");e.next.previous=void 0,this._head=e.next}else if(e===this._tail){if(!e.previous)throw new Error("Invalid list");e.previous.next=void 0,this._tail=e.previous}else{const t=e.next,n=e.previous;if(!t||!n)throw new Error("Invalid list");t.previous=n,n.next=t}e.next=void 0,e.previous=void 0,this._state++}touch(e,t){if(!this._head||!this._tail)throw new Error("Invalid list");if(t===i.First||t===i.Last)if(t===i.First){if(e===this._head)return;const t=e.next,n=e.previous;e===this._tail?(n.next=void 0,this._tail=n):(t.previous=n,n.next=t),e.previous=void 0,e.next=this._head,this._head.previous=e,this._head=e,this._state++}else if(t===i.Last){if(e===this._tail)return;const t=e.next,n=e.previous;e===this._head?(t.previous=void 0,this._head=t):(t.previous=n,n.next=t),e.next=void 0,e.previous=this._tail,this._tail.next=e,this._tail=e,this._state++}}toJSON(){const e=[];return this.forEach(((t,n)=>{e.push([n,t])})),e}fromJSON(e){this.clear();for(const[t,n]of e)this.set(t,n)}}t.LinkedMap=o,t.LRUCache=class extends o{constructor(e,t=1){super(),this._limit=e,this._ratio=Math.min(Math.max(0,t),1)}get limit(){return this._limit}set limit(e){this._limit=e,this.checkTrim()}get ratio(){return this._ratio}set ratio(e){this._ratio=Math.min(Math.max(0,e),1),this.checkTrim()}get(e,t=i.AsNew){return super.get(e,t)}peek(e){return super.get(e,i.None)}set(e,t){return super.set(e,t,i.Last),this.checkTrim(),this}checkTrim(){this.size>this._limit&&this.trimOld(Math.round(this._limit*this._ratio))}}},5530:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.AbstractMessageBuffer=void 0,t.AbstractMessageBuffer=class{constructor(e="utf-8"){this._encoding=e,this._chunks=[],this._totalLength=0}get encoding(){return this._encoding}append(e){const t="string"==typeof e?this.fromString(e,this._encoding):e;this._chunks.push(t),this._totalLength+=t.byteLength}tryReadHeaders(e=!1){if(0===this._chunks.length)return;let t=0,n=0,i=0,o=0;e:for(;n<this._chunks.length;){const e=this._chunks[n];for(i=0;i<e.length;){switch(e[i]){case 13:switch(t){case 0:t=1;break;case 2:t=3;break;default:t=0}break;case 10:switch(t){case 1:t=2;break;case 3:t=4,i++;break e;default:t=0}break;default:t=0}i++}o+=e.byteLength,n++}if(4!==t)return;const r=this._read(o+i),s=new Map,a=this.toString(r,"ascii").split("\r\n");if(a.length<2)return s;for(let t=0;t<a.length-2;t++){const n=a[t],i=n.indexOf(":");if(-1===i)throw new Error(`Message header must separate key and value using ':'\n${n}`);const o=n.substr(0,i),r=n.substr(i+1).trim();s.set(e?o.toLowerCase():o,r)}return s}tryReadBody(e){if(!(this._totalLength<e))return this._read(e)}get numberOfBytes(){return this._totalLength}_read(e){if(0===e)return this.emptyBuffer();if(e>this._totalLength)throw new Error("Cannot read so many bytes!");if(this._chunks[0].byteLength===e){const t=this._chunks[0];return this._chunks.shift(),this._totalLength-=e,this.asNative(t)}if(this._chunks[0].byteLength>e){const t=this._chunks[0],n=this.asNative(t,e);return this._chunks[0]=t.slice(e),this._totalLength-=e,n}const t=this.allocNative(e);let n=0;for(;e>0;){const i=this._chunks[0];if(i.byteLength>e){const o=i.slice(0,e);t.set(o,n),n+=e,this._chunks[0]=i.slice(e),this._totalLength-=e,e-=e}else t.set(i,n),n+=i.byteLength,this._chunks.shift(),this._totalLength-=i.byteLength,e-=i.byteLength}return t}}},6525:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ReadableStreamMessageReader=t.AbstractMessageReader=t.MessageReader=void 0;const i=n(147),o=n(7574),r=n(7135),s=n(142);var a,c;!function(e){e.is=function(e){let t=e;return t&&o.func(t.listen)&&o.func(t.dispose)&&o.func(t.onError)&&o.func(t.onClose)&&o.func(t.onPartialMessage)}}(a||(t.MessageReader=a={}));class u{constructor(){this.errorEmitter=new r.Emitter,this.closeEmitter=new r.Emitter,this.partialMessageEmitter=new r.Emitter}dispose(){this.errorEmitter.dispose(),this.closeEmitter.dispose()}get onError(){return this.errorEmitter.event}fireError(e){this.errorEmitter.fire(this.asError(e))}get onClose(){return this.closeEmitter.event}fireClose(){this.closeEmitter.fire(void 0)}get onPartialMessage(){return this.partialMessageEmitter.event}firePartialMessage(e){this.partialMessageEmitter.fire(e)}asError(e){return e instanceof Error?e:new Error(`Reader received error. Reason: ${o.string(e.message)?e.message:"unknown"}`)}}t.AbstractMessageReader=u,function(e){e.fromOptions=function(e){let t,n;const o=new Map;let r;const s=new Map;if(void 0===e||"string"==typeof e)t=e??"utf-8";else{if(t=e.charset??"utf-8",void 0!==e.contentDecoder&&(n=e.contentDecoder,o.set(n.name,n)),void 0!==e.contentDecoders)for(const t of e.contentDecoders)o.set(t.name,t);if(void 0!==e.contentTypeDecoder&&(r=e.contentTypeDecoder,s.set(r.name,r)),void 0!==e.contentTypeDecoders)for(const t of e.contentTypeDecoders)s.set(t.name,t)}return void 0===r&&(r=(0,i.default)().applicationJson.decoder,s.set(r.name,r)),{charset:t,contentDecoder:n,contentDecoders:o,contentTypeDecoder:r,contentTypeDecoders:s}}}(c||(c={})),t.ReadableStreamMessageReader=class extends u{constructor(e,t){super(),this.readable=e,this.options=c.fromOptions(t),this.buffer=(0,i.default)().messageBuffer.create(this.options.charset),this._partialMessageTimeout=1e4,this.nextMessageLength=-1,this.messageToken=0,this.readSemaphore=new s.Semaphore(1)}set partialMessageTimeout(e){this._partialMessageTimeout=e}get partialMessageTimeout(){return this._partialMessageTimeout}listen(e){this.nextMessageLength=-1,this.messageToken=0,this.partialMessageTimer=void 0,this.callback=e;const t=this.readable.onData((e=>{this.onData(e)}));return this.readable.onError((e=>this.fireError(e))),this.readable.onClose((()=>this.fireClose())),t}onData(e){try{for(this.buffer.append(e);;){if(-1===this.nextMessageLength){const e=this.buffer.tryReadHeaders(!0);if(!e)return;const t=e.get("content-length");if(!t)return void this.fireError(new Error(`Header must provide a Content-Length property.\n${JSON.stringify(Object.fromEntries(e))}`));const n=parseInt(t);if(isNaN(n))return void this.fireError(new Error(`Content-Length value must be a number. Got ${t}`));this.nextMessageLength=n}const e=this.buffer.tryReadBody(this.nextMessageLength);if(void 0===e)return void this.setPartialMessageTimer();this.clearPartialMessageTimer(),this.nextMessageLength=-1,this.readSemaphore.lock((async()=>{const t=void 0!==this.options.contentDecoder?await this.options.contentDecoder.decode(e):e,n=await this.options.contentTypeDecoder.decode(t,this.options);this.callback(n)})).catch((e=>{this.fireError(e)}))}}catch(e){this.fireError(e)}}clearPartialMessageTimer(){this.partialMessageTimer&&(this.partialMessageTimer.dispose(),this.partialMessageTimer=void 0)}setPartialMessageTimer(){this.clearPartialMessageTimer(),this._partialMessageTimeout<=0||(this.partialMessageTimer=(0,i.default)().timer.setTimeout(((e,t)=>{this.partialMessageTimer=void 0,e===this.messageToken&&(this.firePartialMessage({messageToken:e,waitingTime:t}),this.setPartialMessageTimer())}),this._partialMessageTimeout,this.messageToken,this._partialMessageTimeout))}}},6654:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.WriteableStreamMessageWriter=t.AbstractMessageWriter=t.MessageWriter=void 0;const i=n(147),o=n(7574),r=n(142),s=n(7135);var a,c;!function(e){e.is=function(e){let t=e;return t&&o.func(t.dispose)&&o.func(t.onClose)&&o.func(t.onError)&&o.func(t.write)}}(a||(t.MessageWriter=a={}));class u{constructor(){this.errorEmitter=new s.Emitter,this.closeEmitter=new s.Emitter}dispose(){this.errorEmitter.dispose(),this.closeEmitter.dispose()}get onError(){return this.errorEmitter.event}fireError(e,t,n){this.errorEmitter.fire([this.asError(e),t,n])}get onClose(){return this.closeEmitter.event}fireClose(){this.closeEmitter.fire(void 0)}asError(e){return e instanceof Error?e:new Error(`Writer received error. Reason: ${o.string(e.message)?e.message:"unknown"}`)}}t.AbstractMessageWriter=u,function(e){e.fromOptions=function(e){return void 0===e||"string"==typeof e?{charset:e??"utf-8",contentTypeEncoder:(0,i.default)().applicationJson.encoder}:{charset:e.charset??"utf-8",contentEncoder:e.contentEncoder,contentTypeEncoder:e.contentTypeEncoder??(0,i.default)().applicationJson.encoder}}}(c||(c={})),t.WriteableStreamMessageWriter=class extends u{constructor(e,t){super(),this.writable=e,this.options=c.fromOptions(t),this.errorCount=0,this.writeSemaphore=new r.Semaphore(1),this.writable.onError((e=>this.fireError(e))),this.writable.onClose((()=>this.fireClose()))}async write(e){return this.writeSemaphore.lock((async()=>this.options.contentTypeEncoder.encode(e,this.options).then((e=>void 0!==this.options.contentEncoder?this.options.contentEncoder.encode(e):e)).then((t=>{const n=[];return n.push("Content-Length: ",t.byteLength.toString(),"\r\n"),n.push("\r\n"),this.doWrite(e,n,t)}),(e=>{throw this.fireError(e),e}))))}async doWrite(e,t,n){try{return await this.writable.write(t.join(""),"ascii"),this.writable.write(n)}catch(t){return this.handleError(t,e),Promise.reject(t)}}handleError(e,t){this.errorCount++,this.fireError(e,t,this.errorCount)}end(){this.writable.end()}}},839:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.Message=t.NotificationType9=t.NotificationType8=t.NotificationType7=t.NotificationType6=t.NotificationType5=t.NotificationType4=t.NotificationType3=t.NotificationType2=t.NotificationType1=t.NotificationType0=t.NotificationType=t.RequestType9=t.RequestType8=t.RequestType7=t.RequestType6=t.RequestType5=t.RequestType4=t.RequestType3=t.RequestType2=t.RequestType1=t.RequestType=t.RequestType0=t.AbstractMessageSignature=t.ParameterStructures=t.ResponseError=t.ErrorCodes=void 0;const i=n(7574);var o,r;!function(e){e.ParseError=-32700,e.InvalidRequest=-32600,e.MethodNotFound=-32601,e.InvalidParams=-32602,e.InternalError=-32603,e.jsonrpcReservedErrorRangeStart=-32099,e.serverErrorStart=-32099,e.MessageWriteError=-32099,e.MessageReadError=-32098,e.PendingResponseRejected=-32097,e.ConnectionInactive=-32096,e.ServerNotInitialized=-32002,e.UnknownErrorCode=-32001,e.jsonrpcReservedErrorRangeEnd=-32e3,e.serverErrorEnd=-32e3}(o||(t.ErrorCodes=o={}));class s extends Error{constructor(e,t,n){super(t),this.code=i.number(e)?e:o.UnknownErrorCode,this.data=n,Object.setPrototypeOf(this,s.prototype)}toJson(){const e={code:this.code,message:this.message};return void 0!==this.data&&(e.data=this.data),e}}t.ResponseError=s;class a{constructor(e){this.kind=e}static is(e){return e===a.auto||e===a.byName||e===a.byPosition}toString(){return this.kind}}t.ParameterStructures=a,a.auto=new a("auto"),a.byPosition=new a("byPosition"),a.byName=new a("byName");class c{constructor(e,t){this.method=e,this.numberOfParams=t}get parameterStructures(){return a.auto}}t.AbstractMessageSignature=c,t.RequestType0=class extends c{constructor(e){super(e,0)}},t.RequestType=class extends c{constructor(e,t=a.auto){super(e,1),this._parameterStructures=t}get parameterStructures(){return this._parameterStructures}},t.RequestType1=class extends c{constructor(e,t=a.auto){super(e,1),this._parameterStructures=t}get parameterStructures(){return this._parameterStructures}},t.RequestType2=class extends c{constructor(e){super(e,2)}},t.RequestType3=class extends c{constructor(e){super(e,3)}},t.RequestType4=class extends c{constructor(e){super(e,4)}},t.RequestType5=class extends c{constructor(e){super(e,5)}},t.RequestType6=class extends c{constructor(e){super(e,6)}},t.RequestType7=class extends c{constructor(e){super(e,7)}},t.RequestType8=class extends c{constructor(e){super(e,8)}},t.RequestType9=class extends c{constructor(e){super(e,9)}},t.NotificationType=class extends c{constructor(e,t=a.auto){super(e,1),this._parameterStructures=t}get parameterStructures(){return this._parameterStructures}},t.NotificationType0=class extends c{constructor(e){super(e,0)}},t.NotificationType1=class extends c{constructor(e,t=a.auto){super(e,1),this._parameterStructures=t}get parameterStructures(){return this._parameterStructures}},t.NotificationType2=class extends c{constructor(e){super(e,2)}},t.NotificationType3=class extends c{constructor(e){super(e,3)}},t.NotificationType4=class extends c{constructor(e){super(e,4)}},t.NotificationType5=class extends c{constructor(e){super(e,5)}},t.NotificationType6=class extends c{constructor(e){super(e,6)}},t.NotificationType7=class extends c{constructor(e){super(e,7)}},t.NotificationType8=class extends c{constructor(e){super(e,8)}},t.NotificationType9=class extends c{constructor(e){super(e,9)}},function(e){e.isRequest=function(e){const t=e;return t&&i.string(t.method)&&(i.string(t.id)||i.number(t.id))},e.isNotification=function(e){const t=e;return t&&i.string(t.method)&&void 0===e.id},e.isResponse=function(e){const t=e;return t&&(void 0!==t.result||!!t.error)&&(i.string(t.id)||i.number(t.id)||null===t.id)}}(r||(t.Message=r={}))},147:(e,t)=>{let n;function i(){if(void 0===n)throw new Error("No runtime abstraction layer installed");return n}Object.defineProperty(t,"__esModule",{value:!0}),function(e){e.install=function(e){if(void 0===e)throw new Error("No runtime abstraction layer provided");n=e}}(i||(i={})),t.default=i},142:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.Semaphore=void 0;const i=n(147);t.Semaphore=class{constructor(e=1){if(e<=0)throw new Error("Capacity must be greater than 0");this._capacity=e,this._active=0,this._waiting=[]}lock(e){return new Promise(((t,n)=>{this._waiting.push({thunk:e,resolve:t,reject:n}),this.runNext()}))}get active(){return this._active}runNext(){0!==this._waiting.length&&this._active!==this._capacity&&(0,i.default)().timer.setImmediate((()=>this.doRunNext()))}doRunNext(){if(0===this._waiting.length||this._active===this._capacity)return;const e=this._waiting.shift();if(this._active++,this._active>this._capacity)throw new Error("To many thunks active");try{const t=e.thunk();t instanceof Promise?t.then((t=>{this._active--,e.resolve(t),this.runNext()}),(t=>{this._active--,e.reject(t),this.runNext()})):(this._active--,e.resolve(t),this.runNext())}catch(t){this._active--,e.reject(t),this.runNext()}}}},8211:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.SharedArrayReceiverStrategy=t.SharedArraySenderStrategy=void 0;const i=n(3881);var o;!function(e){e.Continue=0,e.Cancelled=1}(o||(o={})),t.SharedArraySenderStrategy=class{constructor(){this.buffers=new Map}enableCancellation(e){if(null===e.id)return;const t=new SharedArrayBuffer(4);new Int32Array(t,0,1)[0]=o.Continue,this.buffers.set(e.id,t),e.$cancellationData=t}async sendCancellation(e,t){const n=this.buffers.get(t);if(void 0===n)return;const i=new Int32Array(n,0,1);Atomics.store(i,0,o.Cancelled)}cleanup(e){this.buffers.delete(e)}dispose(){this.buffers.clear()}};class r{constructor(e){this.data=new Int32Array(e,0,1)}get isCancellationRequested(){return Atomics.load(this.data,0)===o.Cancelled}get onCancellationRequested(){throw new Error("Cancellation over SharedArrayBuffer doesn't support cancellation events")}}class s{constructor(e){this.token=new r(e)}cancel(){}dispose(){}}t.SharedArrayReceiverStrategy=class{constructor(){this.kind="request"}createCancellationTokenSource(e){const t=e.$cancellationData;return void 0===t?new i.CancellationTokenSource:new s(t)}}},4389:function(e,t,n){var i=this&&this.__createBinding||(Object.create?function(e,t,n,i){void 0===i&&(i=n);var o=Object.getOwnPropertyDescriptor(t,n);o&&!("get"in o?!t.__esModule:o.writable||o.configurable)||(o={enumerable:!0,get:function(){return t[n]}}),Object.defineProperty(e,i,o)}:function(e,t,n,i){void 0===i&&(i=n),e[i]=t[n]}),o=this&&this.__exportStar||function(e,t){for(var n in e)"default"===n||Object.prototype.hasOwnProperty.call(t,n)||i(t,e,n)};Object.defineProperty(t,"__esModule",{value:!0}),t.createMessageConnection=t.createServerSocketTransport=t.createClientSocketTransport=t.createServerPipeTransport=t.createClientPipeTransport=t.generateRandomPipeName=t.StreamMessageWriter=t.StreamMessageReader=t.SocketMessageWriter=t.SocketMessageReader=t.PortMessageWriter=t.PortMessageReader=t.IPCMessageWriter=t.IPCMessageReader=void 0;const r=n(3034);r.default.install();const s=n(1017),a=n(2037),c=n(6113),u=n(1808),l=n(3870);o(n(3870),t);class d extends l.AbstractMessageReader{constructor(e){super(),this.process=e;let t=this.process;t.on("error",(e=>this.fireError(e))),t.on("close",(()=>this.fireClose()))}listen(e){return this.process.on("message",e),l.Disposable.create((()=>this.process.off("message",e)))}}t.IPCMessageReader=d;class f extends l.AbstractMessageWriter{constructor(e){super(),this.process=e,this.errorCount=0;const t=this.process;t.on("error",(e=>this.fireError(e))),t.on("close",(()=>this.fireClose))}write(e){try{return"function"==typeof this.process.send&&this.process.send(e,void 0,void 0,(t=>{t?(this.errorCount++,this.handleError(t,e)):this.errorCount=0})),Promise.resolve()}catch(t){return this.handleError(t,e),Promise.reject(t)}}handleError(e,t){this.errorCount++,this.fireError(e,t,this.errorCount)}end(){}}t.IPCMessageWriter=f;class h extends l.AbstractMessageReader{constructor(e){super(),this.onData=new l.Emitter,e.on("close",(()=>this.fireClose)),e.on("error",(e=>this.fireError(e))),e.on("message",(e=>{this.onData.fire(e)}))}listen(e){return this.onData.event(e)}}t.PortMessageReader=h;class g extends l.AbstractMessageWriter{constructor(e){super(),this.port=e,this.errorCount=0,e.on("close",(()=>this.fireClose())),e.on("error",(e=>this.fireError(e)))}write(e){try{return this.port.postMessage(e),Promise.resolve()}catch(t){return this.handleError(t,e),Promise.reject(t)}}handleError(e,t){this.errorCount++,this.fireError(e,t,this.errorCount)}end(){}}t.PortMessageWriter=g;class m extends l.ReadableStreamMessageReader{constructor(e,t="utf-8"){super((0,r.default)().stream.asReadableStream(e),t)}}t.SocketMessageReader=m;class p extends l.WriteableStreamMessageWriter{constructor(e,t){super((0,r.default)().stream.asWritableStream(e),t),this.socket=e}dispose(){super.dispose(),this.socket.destroy()}}t.SocketMessageWriter=p;class y extends l.ReadableStreamMessageReader{constructor(e,t){super((0,r.default)().stream.asReadableStream(e),t)}}t.StreamMessageReader=y;class v extends l.WriteableStreamMessageWriter{constructor(e,t){super((0,r.default)().stream.asWritableStream(e),t)}}t.StreamMessageWriter=v;const b=process.env.XDG_RUNTIME_DIR,R=new Map([["linux",107],["darwin",103]]);t.generateRandomPipeName=function(){const e=(0,c.randomBytes)(21).toString("hex");if("win32"===process.platform)return`\\\\.\\pipe\\vscode-jsonrpc-${e}-sock`;let t;t=b?s.join(b,`vscode-ipc-${e}.sock`):s.join(a.tmpdir(),`vscode-${e}.sock`);const n=R.get(process.platform);return void 0!==n&&t.length>n&&(0,r.default)().console.warn(`WARNING: IPC handle "${t}" is longer than ${n} characters.`),t},t.createClientPipeTransport=function(e,t="utf-8"){let n;const i=new Promise(((e,t)=>{n=e}));return new Promise(((o,r)=>{let s=(0,u.createServer)((e=>{s.close(),n([new m(e,t),new p(e,t)])}));s.on("error",r),s.listen(e,(()=>{s.removeListener("error",r),o({onConnected:()=>i})}))}))},t.createServerPipeTransport=function(e,t="utf-8"){const n=(0,u.createConnection)(e);return[new m(n,t),new p(n,t)]},t.createClientSocketTransport=function(e,t="utf-8"){let n;const i=new Promise(((e,t)=>{n=e}));return new Promise(((o,r)=>{const s=(0,u.createServer)((e=>{s.close(),n([new m(e,t),new p(e,t)])}));s.on("error",r),s.listen(e,"127.0.0.1",(()=>{s.removeListener("error",r),o({onConnected:()=>i})}))}))},t.createServerSocketTransport=function(e,t="utf-8"){const n=(0,u.createConnection)(e,"127.0.0.1");return[new m(n,t),new p(n,t)]},t.createMessageConnection=function(e,t,n,i){n||(n=l.NullLogger);const o=function(e){const t=e;return void 0!==t.read&&void 0!==t.addListener}(e)?new y(e):e,r=function(e){const t=e;return void 0!==t.write&&void 0!==t.addListener}(t)?new v(t):t;return l.ConnectionStrategy.is(i)&&(i={connectionStrategy:i}),(0,l.createMessageConnection)(o,r,n,i)}},3034:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0});const i=n(3837),o=n(3870);class r extends o.AbstractMessageBuffer{constructor(e="utf-8"){super(e)}emptyBuffer(){return r.emptyBuffer}fromString(e,t){return Buffer.from(e,t)}toString(e,t){return e instanceof Buffer?e.toString(t):new i.TextDecoder(t).decode(e)}asNative(e,t){return void 0===t?e instanceof Buffer?e:Buffer.from(e):e instanceof Buffer?e.slice(0,t):Buffer.from(e,0,t)}allocNative(e){return Buffer.allocUnsafe(e)}}r.emptyBuffer=Buffer.allocUnsafe(0);class s{constructor(e){this.stream=e}onClose(e){return this.stream.on("close",e),o.Disposable.create((()=>this.stream.off("close",e)))}onError(e){return this.stream.on("error",e),o.Disposable.create((()=>this.stream.off("error",e)))}onEnd(e){return this.stream.on("end",e),o.Disposable.create((()=>this.stream.off("end",e)))}onData(e){return this.stream.on("data",e),o.Disposable.create((()=>this.stream.off("data",e)))}}class a{constructor(e){this.stream=e}onClose(e){return this.stream.on("close",e),o.Disposable.create((()=>this.stream.off("close",e)))}onError(e){return this.stream.on("error",e),o.Disposable.create((()=>this.stream.off("error",e)))}onEnd(e){return this.stream.on("end",e),o.Disposable.create((()=>this.stream.off("end",e)))}write(e,t){return new Promise(((n,i)=>{const o=e=>{null==e?n():i(e)};"string"==typeof e?this.stream.write(e,t,o):this.stream.write(e,o)}))}end(){this.stream.end()}}const c=Object.freeze({messageBuffer:Object.freeze({create:e=>new r(e)}),applicationJson:Object.freeze({encoder:Object.freeze({name:"application/json",encode:(e,t)=>{try{return Promise.resolve(Buffer.from(JSON.stringify(e,void 0,0),t.charset))}catch(e){return Promise.reject(e)}}}),decoder:Object.freeze({name:"application/json",decode:(e,t)=>{try{return e instanceof Buffer?Promise.resolve(JSON.parse(e.toString(t.charset))):Promise.resolve(JSON.parse(new i.TextDecoder(t.charset).decode(e)))}catch(e){return Promise.reject(e)}}})}),stream:Object.freeze({asReadableStream:e=>new s(e),asWritableStream:e=>new a(e)}),console,timer:Object.freeze({setTimeout(e,t,...n){const i=setTimeout(e,t,...n);return{dispose:()=>clearTimeout(i)}},setImmediate(e,...t){const n=setImmediate(e,...t);return{dispose:()=>clearImmediate(n)}},setInterval(e,t,...n){const i=setInterval(e,t,...n);return{dispose:()=>clearInterval(i)}}})});function u(){return c}!function(e){e.install=function(){o.RAL.install(c)}}(u||(u={})),t.default=u},5028:(e,t,n)=>{e.exports=n(4389)},1661:function(e,t,n){var i=this&&this.__createBinding||(Object.create?function(e,t,n,i){void 0===i&&(i=n);var o=Object.getOwnPropertyDescriptor(t,n);o&&!("get"in o?!t.__esModule:o.writable||o.configurable)||(o={enumerable:!0,get:function(){return t[n]}}),Object.defineProperty(e,i,o)}:function(e,t,n,i){void 0===i&&(i=n),e[i]=t[n]}),o=this&&this.__exportStar||function(e,t){for(var n in e)"default"===n||Object.prototype.hasOwnProperty.call(t,n)||i(t,e,n)};Object.defineProperty(t,"__esModule",{value:!0}),t.LSPErrorCodes=t.createProtocolConnection=void 0,o(n(4389),t),o(n(2118),t),o(n(6140),t),o(n(542),t);var r,s=n(3767);Object.defineProperty(t,"createProtocolConnection",{enumerable:!0,get:function(){return s.createProtocolConnection}}),function(e){e.lspReservedErrorRangeStart=-32899,e.RequestFailed=-32803,e.ServerCancelled=-32802,e.ContentModified=-32801,e.RequestCancelled=-32800,e.lspReservedErrorRangeEnd=-32800}(r||(t.LSPErrorCodes=r={}))},3767:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.createProtocolConnection=void 0;const i=n(4389);t.createProtocolConnection=function(e,t,n,o){return i.ConnectionStrategy.is(o)&&(o={connectionStrategy:o}),(0,i.createMessageConnection)(e,t,n,o)}},6140:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ProtocolNotificationType=t.ProtocolNotificationType0=t.ProtocolRequestType=t.ProtocolRequestType0=t.RegistrationType=t.MessageDirection=void 0;const i=n(4389);var o;!function(e){e.clientToServer="clientToServer",e.serverToClient="serverToClient",e.both="both"}(o||(t.MessageDirection=o={})),t.RegistrationType=class{constructor(e){this.method=e}};class r extends i.RequestType0{constructor(e){super(e)}}t.ProtocolRequestType0=r;class s extends i.RequestType{constructor(e){super(e,i.ParameterStructures.byName)}}t.ProtocolRequestType=s;class a extends i.NotificationType0{constructor(e){super(e)}}t.ProtocolNotificationType0=a;class c extends i.NotificationType{constructor(e){super(e,i.ParameterStructures.byName)}}t.ProtocolNotificationType=c},2918:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.CallHierarchyOutgoingCallsRequest=t.CallHierarchyIncomingCallsRequest=t.CallHierarchyPrepareRequest=void 0;const i=n(6140);var o,r,s;!function(e){e.method="textDocument/prepareCallHierarchy",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.CallHierarchyPrepareRequest=o={})),function(e){e.method="callHierarchy/incomingCalls",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(r||(t.CallHierarchyIncomingCallsRequest=r={})),function(e){e.method="callHierarchy/outgoingCalls",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(s||(t.CallHierarchyOutgoingCallsRequest=s={}))},3390:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ColorPresentationRequest=t.DocumentColorRequest=void 0;const i=n(6140);var o,r;!function(e){e.method="textDocument/documentColor",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.DocumentColorRequest=o={})),function(e){e.method="textDocument/colorPresentation",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(r||(t.ColorPresentationRequest=r={}))},5934:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ConfigurationRequest=void 0;const i=n(6140);var o;!function(e){e.method="workspace/configuration",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType(e.method)}(o||(t.ConfigurationRequest=o={}))},764:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.DeclarationRequest=void 0;const i=n(6140);var o;!function(e){e.method="textDocument/declaration",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.DeclarationRequest=o={}))},9824:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.DiagnosticRefreshRequest=t.WorkspaceDiagnosticRequest=t.DocumentDiagnosticRequest=t.DocumentDiagnosticReportKind=t.DiagnosticServerCancellationData=void 0;const i=n(4389),o=n(9533),r=n(6140);var s,a,c,u,l;!function(e){e.is=function(e){const t=e;return t&&o.boolean(t.retriggerRequest)}}(s||(t.DiagnosticServerCancellationData=s={})),function(e){e.Full="full",e.Unchanged="unchanged"}(a||(t.DocumentDiagnosticReportKind=a={})),function(e){e.method="textDocument/diagnostic",e.messageDirection=r.MessageDirection.clientToServer,e.type=new r.ProtocolRequestType(e.method),e.partialResult=new i.ProgressType}(c||(t.DocumentDiagnosticRequest=c={})),function(e){e.method="workspace/diagnostic",e.messageDirection=r.MessageDirection.clientToServer,e.type=new r.ProtocolRequestType(e.method),e.partialResult=new i.ProgressType}(u||(t.WorkspaceDiagnosticRequest=u={})),function(e){e.method="workspace/diagnostic/refresh",e.messageDirection=r.MessageDirection.serverToClient,e.type=new r.ProtocolRequestType0(e.method)}(l||(t.DiagnosticRefreshRequest=l={}))},7846:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.WillDeleteFilesRequest=t.DidDeleteFilesNotification=t.DidRenameFilesNotification=t.WillRenameFilesRequest=t.DidCreateFilesNotification=t.WillCreateFilesRequest=t.FileOperationPatternKind=void 0;const i=n(6140);var o,r,s,a,c,u,l;!function(e){e.file="file",e.folder="folder"}(o||(t.FileOperationPatternKind=o={})),function(e){e.method="workspace/willCreateFiles",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(r||(t.WillCreateFilesRequest=r={})),function(e){e.method="workspace/didCreateFiles",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(s||(t.DidCreateFilesNotification=s={})),function(e){e.method="workspace/willRenameFiles",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(a||(t.WillRenameFilesRequest=a={})),function(e){e.method="workspace/didRenameFiles",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(c||(t.DidRenameFilesNotification=c={})),function(e){e.method="workspace/didDeleteFiles",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(u||(t.DidDeleteFilesNotification=u={})),function(e){e.method="workspace/willDeleteFiles",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(l||(t.WillDeleteFilesRequest=l={}))},3394:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.FoldingRangeRefreshRequest=t.FoldingRangeRequest=void 0;const i=n(6140);var o,r;!function(e){e.method="textDocument/foldingRange",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.FoldingRangeRequest=o={})),function(e){e.method="workspace/foldingRange/refresh",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType0(e.method)}(r||(t.FoldingRangeRefreshRequest=r={}))},2122:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ImplementationRequest=void 0;const i=n(6140);var o;!function(e){e.method="textDocument/implementation",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.ImplementationRequest=o={}))},9999:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.InlayHintRefreshRequest=t.InlayHintResolveRequest=t.InlayHintRequest=void 0;const i=n(6140);var o,r,s;!function(e){e.method="textDocument/inlayHint",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.InlayHintRequest=o={})),function(e){e.method="inlayHint/resolve",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(r||(t.InlayHintResolveRequest=r={})),function(e){e.method="workspace/inlayHint/refresh",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType0(e.method)}(s||(t.InlayHintRefreshRequest=s={}))},7081:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.InlineCompletionRequest=void 0;const i=n(6140);var o;!function(e){e.method="textDocument/inlineCompletion",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.InlineCompletionRequest=o={}))},5246:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.InlineValueRefreshRequest=t.InlineValueRequest=void 0;const i=n(6140);var o,r;!function(e){e.method="textDocument/inlineValue",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.InlineValueRequest=o={})),function(e){e.method="workspace/inlineValue/refresh",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType0(e.method)}(r||(t.InlineValueRefreshRequest=r={}))},542:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.WorkspaceSymbolRequest=t.CodeActionResolveRequest=t.CodeActionRequest=t.DocumentSymbolRequest=t.DocumentHighlightRequest=t.ReferencesRequest=t.DefinitionRequest=t.SignatureHelpRequest=t.SignatureHelpTriggerKind=t.HoverRequest=t.CompletionResolveRequest=t.CompletionRequest=t.CompletionTriggerKind=t.PublishDiagnosticsNotification=t.WatchKind=t.RelativePattern=t.FileChangeType=t.DidChangeWatchedFilesNotification=t.WillSaveTextDocumentWaitUntilRequest=t.WillSaveTextDocumentNotification=t.TextDocumentSaveReason=t.DidSaveTextDocumentNotification=t.DidCloseTextDocumentNotification=t.DidChangeTextDocumentNotification=t.TextDocumentContentChangeEvent=t.DidOpenTextDocumentNotification=t.TextDocumentSyncKind=t.TelemetryEventNotification=t.LogMessageNotification=t.ShowMessageRequest=t.ShowMessageNotification=t.MessageType=t.DidChangeConfigurationNotification=t.ExitNotification=t.ShutdownRequest=t.InitializedNotification=t.InitializeErrorCodes=t.InitializeRequest=t.WorkDoneProgressOptions=t.TextDocumentRegistrationOptions=t.StaticRegistrationOptions=t.PositionEncodingKind=t.FailureHandlingKind=t.ResourceOperationKind=t.UnregistrationRequest=t.RegistrationRequest=t.DocumentSelector=t.NotebookCellTextDocumentFilter=t.NotebookDocumentFilter=t.TextDocumentFilter=void 0,t.MonikerRequest=t.MonikerKind=t.UniquenessLevel=t.WillDeleteFilesRequest=t.DidDeleteFilesNotification=t.WillRenameFilesRequest=t.DidRenameFilesNotification=t.WillCreateFilesRequest=t.DidCreateFilesNotification=t.FileOperationPatternKind=t.LinkedEditingRangeRequest=t.ShowDocumentRequest=t.SemanticTokensRegistrationType=t.SemanticTokensRefreshRequest=t.SemanticTokensRangeRequest=t.SemanticTokensDeltaRequest=t.SemanticTokensRequest=t.TokenFormat=t.CallHierarchyPrepareRequest=t.CallHierarchyOutgoingCallsRequest=t.CallHierarchyIncomingCallsRequest=t.WorkDoneProgressCancelNotification=t.WorkDoneProgressCreateRequest=t.WorkDoneProgress=t.SelectionRangeRequest=t.DeclarationRequest=t.FoldingRangeRefreshRequest=t.FoldingRangeRequest=t.ColorPresentationRequest=t.DocumentColorRequest=t.ConfigurationRequest=t.DidChangeWorkspaceFoldersNotification=t.WorkspaceFoldersRequest=t.TypeDefinitionRequest=t.ImplementationRequest=t.ApplyWorkspaceEditRequest=t.ExecuteCommandRequest=t.PrepareRenameRequest=t.RenameRequest=t.PrepareSupportDefaultBehavior=t.DocumentOnTypeFormattingRequest=t.DocumentRangesFormattingRequest=t.DocumentRangeFormattingRequest=t.DocumentFormattingRequest=t.DocumentLinkResolveRequest=t.DocumentLinkRequest=t.CodeLensRefreshRequest=t.CodeLensResolveRequest=t.CodeLensRequest=t.WorkspaceSymbolResolveRequest=void 0,t.InlineCompletionRequest=t.DidCloseNotebookDocumentNotification=t.DidSaveNotebookDocumentNotification=t.DidChangeNotebookDocumentNotification=t.NotebookCellArrayChange=t.DidOpenNotebookDocumentNotification=t.NotebookDocumentSyncRegistrationType=t.NotebookDocument=t.NotebookCell=t.ExecutionSummary=t.NotebookCellKind=t.DiagnosticRefreshRequest=t.WorkspaceDiagnosticRequest=t.DocumentDiagnosticRequest=t.DocumentDiagnosticReportKind=t.DiagnosticServerCancellationData=t.InlayHintRefreshRequest=t.InlayHintResolveRequest=t.InlayHintRequest=t.InlineValueRefreshRequest=t.InlineValueRequest=t.TypeHierarchySupertypesRequest=t.TypeHierarchySubtypesRequest=t.TypeHierarchyPrepareRequest=void 0;const i=n(6140),o=n(2118),r=n(9533),s=n(2122);Object.defineProperty(t,"ImplementationRequest",{enumerable:!0,get:function(){return s.ImplementationRequest}});const a=n(1589);Object.defineProperty(t,"TypeDefinitionRequest",{enumerable:!0,get:function(){return a.TypeDefinitionRequest}});const c=n(8744);Object.defineProperty(t,"WorkspaceFoldersRequest",{enumerable:!0,get:function(){return c.WorkspaceFoldersRequest}}),Object.defineProperty(t,"DidChangeWorkspaceFoldersNotification",{enumerable:!0,get:function(){return c.DidChangeWorkspaceFoldersNotification}});const u=n(5934);Object.defineProperty(t,"ConfigurationRequest",{enumerable:!0,get:function(){return u.ConfigurationRequest}});const l=n(3390);Object.defineProperty(t,"DocumentColorRequest",{enumerable:!0,get:function(){return l.DocumentColorRequest}}),Object.defineProperty(t,"ColorPresentationRequest",{enumerable:!0,get:function(){return l.ColorPresentationRequest}});const d=n(3394);Object.defineProperty(t,"FoldingRangeRequest",{enumerable:!0,get:function(){return d.FoldingRangeRequest}}),Object.defineProperty(t,"FoldingRangeRefreshRequest",{enumerable:!0,get:function(){return d.FoldingRangeRefreshRequest}});const f=n(764);Object.defineProperty(t,"DeclarationRequest",{enumerable:!0,get:function(){return f.DeclarationRequest}});const h=n(5206);Object.defineProperty(t,"SelectionRangeRequest",{enumerable:!0,get:function(){return h.SelectionRangeRequest}});const g=n(1862);Object.defineProperty(t,"WorkDoneProgress",{enumerable:!0,get:function(){return g.WorkDoneProgress}}),Object.defineProperty(t,"WorkDoneProgressCreateRequest",{enumerable:!0,get:function(){return g.WorkDoneProgressCreateRequest}}),Object.defineProperty(t,"WorkDoneProgressCancelNotification",{enumerable:!0,get:function(){return g.WorkDoneProgressCancelNotification}});const m=n(2918);Object.defineProperty(t,"CallHierarchyIncomingCallsRequest",{enumerable:!0,get:function(){return m.CallHierarchyIncomingCallsRequest}}),Object.defineProperty(t,"CallHierarchyOutgoingCallsRequest",{enumerable:!0,get:function(){return m.CallHierarchyOutgoingCallsRequest}}),Object.defineProperty(t,"CallHierarchyPrepareRequest",{enumerable:!0,get:function(){return m.CallHierarchyPrepareRequest}});const p=n(9434);Object.defineProperty(t,"TokenFormat",{enumerable:!0,get:function(){return p.TokenFormat}}),Object.defineProperty(t,"SemanticTokensRequest",{enumerable:!0,get:function(){return p.SemanticTokensRequest}}),Object.defineProperty(t,"SemanticTokensDeltaRequest",{enumerable:!0,get:function(){return p.SemanticTokensDeltaRequest}}),Object.defineProperty(t,"SemanticTokensRangeRequest",{enumerable:!0,get:function(){return p.SemanticTokensRangeRequest}}),Object.defineProperty(t,"SemanticTokensRefreshRequest",{enumerable:!0,get:function(){return p.SemanticTokensRefreshRequest}}),Object.defineProperty(t,"SemanticTokensRegistrationType",{enumerable:!0,get:function(){return p.SemanticTokensRegistrationType}});const y=n(5726);Object.defineProperty(t,"ShowDocumentRequest",{enumerable:!0,get:function(){return y.ShowDocumentRequest}});const v=n(6305);Object.defineProperty(t,"LinkedEditingRangeRequest",{enumerable:!0,get:function(){return v.LinkedEditingRangeRequest}});const b=n(7846);Object.defineProperty(t,"FileOperationPatternKind",{enumerable:!0,get:function(){return b.FileOperationPatternKind}}),Object.defineProperty(t,"DidCreateFilesNotification",{enumerable:!0,get:function(){return b.DidCreateFilesNotification}}),Object.defineProperty(t,"WillCreateFilesRequest",{enumerable:!0,get:function(){return b.WillCreateFilesRequest}}),Object.defineProperty(t,"DidRenameFilesNotification",{enumerable:!0,get:function(){return b.DidRenameFilesNotification}}),Object.defineProperty(t,"WillRenameFilesRequest",{enumerable:!0,get:function(){return b.WillRenameFilesRequest}}),Object.defineProperty(t,"DidDeleteFilesNotification",{enumerable:!0,get:function(){return b.DidDeleteFilesNotification}}),Object.defineProperty(t,"WillDeleteFilesRequest",{enumerable:!0,get:function(){return b.WillDeleteFilesRequest}});const R=n(3443);Object.defineProperty(t,"UniquenessLevel",{enumerable:!0,get:function(){return R.UniquenessLevel}}),Object.defineProperty(t,"MonikerKind",{enumerable:!0,get:function(){return R.MonikerKind}}),Object.defineProperty(t,"MonikerRequest",{enumerable:!0,get:function(){return R.MonikerRequest}});const D=n(3693);Object.defineProperty(t,"TypeHierarchyPrepareRequest",{enumerable:!0,get:function(){return D.TypeHierarchyPrepareRequest}}),Object.defineProperty(t,"TypeHierarchySubtypesRequest",{enumerable:!0,get:function(){return D.TypeHierarchySubtypesRequest}}),Object.defineProperty(t,"TypeHierarchySupertypesRequest",{enumerable:!0,get:function(){return D.TypeHierarchySupertypesRequest}});const _=n(5246);Object.defineProperty(t,"InlineValueRequest",{enumerable:!0,get:function(){return _.InlineValueRequest}}),Object.defineProperty(t,"InlineValueRefreshRequest",{enumerable:!0,get:function(){return _.InlineValueRefreshRequest}});const S=n(9999);Object.defineProperty(t,"InlayHintRequest",{enumerable:!0,get:function(){return S.InlayHintRequest}}),Object.defineProperty(t,"InlayHintResolveRequest",{enumerable:!0,get:function(){return S.InlayHintResolveRequest}}),Object.defineProperty(t,"InlayHintRefreshRequest",{enumerable:!0,get:function(){return S.InlayHintRefreshRequest}});const C=n(9824);Object.defineProperty(t,"DiagnosticServerCancellationData",{enumerable:!0,get:function(){return C.DiagnosticServerCancellationData}}),Object.defineProperty(t,"DocumentDiagnosticReportKind",{enumerable:!0,get:function(){return C.DocumentDiagnosticReportKind}}),Object.defineProperty(t,"DocumentDiagnosticRequest",{enumerable:!0,get:function(){return C.DocumentDiagnosticRequest}}),Object.defineProperty(t,"WorkspaceDiagnosticRequest",{enumerable:!0,get:function(){return C.WorkspaceDiagnosticRequest}}),Object.defineProperty(t,"DiagnosticRefreshRequest",{enumerable:!0,get:function(){return C.DiagnosticRefreshRequest}});const w=n(7169);Object.defineProperty(t,"NotebookCellKind",{enumerable:!0,get:function(){return w.NotebookCellKind}}),Object.defineProperty(t,"ExecutionSummary",{enumerable:!0,get:function(){return w.ExecutionSummary}}),Object.defineProperty(t,"NotebookCell",{enumerable:!0,get:function(){return w.NotebookCell}}),Object.defineProperty(t,"NotebookDocument",{enumerable:!0,get:function(){return w.NotebookDocument}}),Object.defineProperty(t,"NotebookDocumentSyncRegistrationType",{enumerable:!0,get:function(){return w.NotebookDocumentSyncRegistrationType}}),Object.defineProperty(t,"DidOpenNotebookDocumentNotification",{enumerable:!0,get:function(){return w.DidOpenNotebookDocumentNotification}}),Object.defineProperty(t,"NotebookCellArrayChange",{enumerable:!0,get:function(){return w.NotebookCellArrayChange}}),Object.defineProperty(t,"DidChangeNotebookDocumentNotification",{enumerable:!0,get:function(){return w.DidChangeNotebookDocumentNotification}}),Object.defineProperty(t,"DidSaveNotebookDocumentNotification",{enumerable:!0,get:function(){return w.DidSaveNotebookDocumentNotification}}),Object.defineProperty(t,"DidCloseNotebookDocumentNotification",{enumerable:!0,get:function(){return w.DidCloseNotebookDocumentNotification}});const T=n(7081);var k,x,P,q,E,M,N,O,A,L,j,I,F,W,$,H,U,z,V,B,K,J,G,X,Q,Y,Z,ee,te,ne,ie,oe,re,se,ae,ce,ue,le,de,fe,he,ge,me,pe,ye,ve,be,Re,De,_e,Se,Ce,we,Te,ke,xe,Pe,qe,Ee,Me,Ne,Oe,Ae,Le,je;Object.defineProperty(t,"InlineCompletionRequest",{enumerable:!0,get:function(){return T.InlineCompletionRequest}}),function(e){e.is=function(e){const t=e;return r.string(t)||r.string(t.language)||r.string(t.scheme)||r.string(t.pattern)}}(k||(t.TextDocumentFilter=k={})),function(e){e.is=function(e){const t=e;return r.objectLiteral(t)&&(r.string(t.notebookType)||r.string(t.scheme)||r.string(t.pattern))}}(x||(t.NotebookDocumentFilter=x={})),function(e){e.is=function(e){const t=e;return r.objectLiteral(t)&&(r.string(t.notebook)||x.is(t.notebook))&&(void 0===t.language||r.string(t.language))}}(P||(t.NotebookCellTextDocumentFilter=P={})),function(e){e.is=function(e){if(!Array.isArray(e))return!1;for(let t of e)if(!r.string(t)&&!k.is(t)&&!P.is(t))return!1;return!0}}(q||(t.DocumentSelector=q={})),function(e){e.method="client/registerCapability",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType(e.method)}(E||(t.RegistrationRequest=E={})),function(e){e.method="client/unregisterCapability",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType(e.method)}(M||(t.UnregistrationRequest=M={})),function(e){e.Create="create",e.Rename="rename",e.Delete="delete"}(N||(t.ResourceOperationKind=N={})),function(e){e.Abort="abort",e.Transactional="transactional",e.TextOnlyTransactional="textOnlyTransactional",e.Undo="undo"}(O||(t.FailureHandlingKind=O={})),function(e){e.UTF8="utf-8",e.UTF16="utf-16",e.UTF32="utf-32"}(A||(t.PositionEncodingKind=A={})),function(e){e.hasId=function(e){const t=e;return t&&r.string(t.id)&&t.id.length>0}}(L||(t.StaticRegistrationOptions=L={})),function(e){e.is=function(e){const t=e;return t&&(null===t.documentSelector||q.is(t.documentSelector))}}(j||(t.TextDocumentRegistrationOptions=j={})),function(e){e.is=function(e){const t=e;return r.objectLiteral(t)&&(void 0===t.workDoneProgress||r.boolean(t.workDoneProgress))},e.hasWorkDoneProgress=function(e){const t=e;return t&&r.boolean(t.workDoneProgress)}}(I||(t.WorkDoneProgressOptions=I={})),function(e){e.method="initialize",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(F||(t.InitializeRequest=F={})),function(e){e.unknownProtocolVersion=1}(W||(t.InitializeErrorCodes=W={})),function(e){e.method="initialized",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}($||(t.InitializedNotification=$={})),function(e){e.method="shutdown",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType0(e.method)}(H||(t.ShutdownRequest=H={})),function(e){e.method="exit",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType0(e.method)}(U||(t.ExitNotification=U={})),function(e){e.method="workspace/didChangeConfiguration",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(z||(t.DidChangeConfigurationNotification=z={})),function(e){e.Error=1,e.Warning=2,e.Info=3,e.Log=4,e.Debug=5}(V||(t.MessageType=V={})),function(e){e.method="window/showMessage",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolNotificationType(e.method)}(B||(t.ShowMessageNotification=B={})),function(e){e.method="window/showMessageRequest",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType(e.method)}(K||(t.ShowMessageRequest=K={})),function(e){e.method="window/logMessage",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolNotificationType(e.method)}(J||(t.LogMessageNotification=J={})),function(e){e.method="telemetry/event",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolNotificationType(e.method)}(G||(t.TelemetryEventNotification=G={})),function(e){e.None=0,e.Full=1,e.Incremental=2}(X||(t.TextDocumentSyncKind=X={})),function(e){e.method="textDocument/didOpen",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(Q||(t.DidOpenTextDocumentNotification=Q={})),function(e){e.isIncremental=function(e){let t=e;return null!=t&&"string"==typeof t.text&&void 0!==t.range&&(void 0===t.rangeLength||"number"==typeof t.rangeLength)},e.isFull=function(e){let t=e;return null!=t&&"string"==typeof t.text&&void 0===t.range&&void 0===t.rangeLength}}(Y||(t.TextDocumentContentChangeEvent=Y={})),function(e){e.method="textDocument/didChange",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(Z||(t.DidChangeTextDocumentNotification=Z={})),function(e){e.method="textDocument/didClose",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(ee||(t.DidCloseTextDocumentNotification=ee={})),function(e){e.method="textDocument/didSave",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(te||(t.DidSaveTextDocumentNotification=te={})),function(e){e.Manual=1,e.AfterDelay=2,e.FocusOut=3}(ne||(t.TextDocumentSaveReason=ne={})),function(e){e.method="textDocument/willSave",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(ie||(t.WillSaveTextDocumentNotification=ie={})),function(e){e.method="textDocument/willSaveWaitUntil",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(oe||(t.WillSaveTextDocumentWaitUntilRequest=oe={})),function(e){e.method="workspace/didChangeWatchedFiles",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(re||(t.DidChangeWatchedFilesNotification=re={})),function(e){e.Created=1,e.Changed=2,e.Deleted=3}(se||(t.FileChangeType=se={})),function(e){e.is=function(e){const t=e;return r.objectLiteral(t)&&(o.URI.is(t.baseUri)||o.WorkspaceFolder.is(t.baseUri))&&r.string(t.pattern)}}(ae||(t.RelativePattern=ae={})),function(e){e.Create=1,e.Change=2,e.Delete=4}(ce||(t.WatchKind=ce={})),function(e){e.method="textDocument/publishDiagnostics",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolNotificationType(e.method)}(ue||(t.PublishDiagnosticsNotification=ue={})),function(e){e.Invoked=1,e.TriggerCharacter=2,e.TriggerForIncompleteCompletions=3}(le||(t.CompletionTriggerKind=le={})),function(e){e.method="textDocument/completion",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(de||(t.CompletionRequest=de={})),function(e){e.method="completionItem/resolve",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(fe||(t.CompletionResolveRequest=fe={})),function(e){e.method="textDocument/hover",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(he||(t.HoverRequest=he={})),function(e){e.Invoked=1,e.TriggerCharacter=2,e.ContentChange=3}(ge||(t.SignatureHelpTriggerKind=ge={})),function(e){e.method="textDocument/signatureHelp",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(me||(t.SignatureHelpRequest=me={})),function(e){e.method="textDocument/definition",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(pe||(t.DefinitionRequest=pe={})),function(e){e.method="textDocument/references",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(ye||(t.ReferencesRequest=ye={})),function(e){e.method="textDocument/documentHighlight",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(ve||(t.DocumentHighlightRequest=ve={})),function(e){e.method="textDocument/documentSymbol",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(be||(t.DocumentSymbolRequest=be={})),function(e){e.method="textDocument/codeAction",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Re||(t.CodeActionRequest=Re={})),function(e){e.method="codeAction/resolve",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(De||(t.CodeActionResolveRequest=De={})),function(e){e.method="workspace/symbol",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(_e||(t.WorkspaceSymbolRequest=_e={})),function(e){e.method="workspaceSymbol/resolve",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Se||(t.WorkspaceSymbolResolveRequest=Se={})),function(e){e.method="textDocument/codeLens",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Ce||(t.CodeLensRequest=Ce={})),function(e){e.method="codeLens/resolve",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(we||(t.CodeLensResolveRequest=we={})),function(e){e.method="workspace/codeLens/refresh",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType0(e.method)}(Te||(t.CodeLensRefreshRequest=Te={})),function(e){e.method="textDocument/documentLink",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(ke||(t.DocumentLinkRequest=ke={})),function(e){e.method="documentLink/resolve",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(xe||(t.DocumentLinkResolveRequest=xe={})),function(e){e.method="textDocument/formatting",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Pe||(t.DocumentFormattingRequest=Pe={})),function(e){e.method="textDocument/rangeFormatting",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(qe||(t.DocumentRangeFormattingRequest=qe={})),function(e){e.method="textDocument/rangesFormatting",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Ee||(t.DocumentRangesFormattingRequest=Ee={})),function(e){e.method="textDocument/onTypeFormatting",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Me||(t.DocumentOnTypeFormattingRequest=Me={})),function(e){e.Identifier=1}(Ne||(t.PrepareSupportDefaultBehavior=Ne={})),function(e){e.method="textDocument/rename",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Oe||(t.RenameRequest=Oe={})),function(e){e.method="textDocument/prepareRename",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Ae||(t.PrepareRenameRequest=Ae={})),function(e){e.method="workspace/executeCommand",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(Le||(t.ExecuteCommandRequest=Le={})),function(e){e.method="workspace/applyEdit",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType("workspace/applyEdit")}(je||(t.ApplyWorkspaceEditRequest=je={}))},6305:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.LinkedEditingRangeRequest=void 0;const i=n(6140);var o;!function(e){e.method="textDocument/linkedEditingRange",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.LinkedEditingRangeRequest=o={}))},3443:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.MonikerRequest=t.MonikerKind=t.UniquenessLevel=void 0;const i=n(6140);var o,r,s;!function(e){e.document="document",e.project="project",e.group="group",e.scheme="scheme",e.global="global"}(o||(t.UniquenessLevel=o={})),function(e){e.$import="import",e.$export="export",e.local="local"}(r||(t.MonikerKind=r={})),function(e){e.method="textDocument/moniker",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(s||(t.MonikerRequest=s={}))},7169:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.DidCloseNotebookDocumentNotification=t.DidSaveNotebookDocumentNotification=t.DidChangeNotebookDocumentNotification=t.NotebookCellArrayChange=t.DidOpenNotebookDocumentNotification=t.NotebookDocumentSyncRegistrationType=t.NotebookDocument=t.NotebookCell=t.ExecutionSummary=t.NotebookCellKind=void 0;const i=n(2118),o=n(9533),r=n(6140);var s,a,c,u,l,d,f,h,g,m;!function(e){e.Markup=1,e.Code=2,e.is=function(e){return 1===e||2===e}}(s||(t.NotebookCellKind=s={})),function(e){e.create=function(e,t){const n={executionOrder:e};return!0!==t&&!1!==t||(n.success=t),n},e.is=function(e){const t=e;return o.objectLiteral(t)&&i.uinteger.is(t.executionOrder)&&(void 0===t.success||o.boolean(t.success))},e.equals=function(e,t){return e===t||null!=e&&null!=t&&e.executionOrder===t.executionOrder&&e.success===t.success}}(a||(t.ExecutionSummary=a={})),function(e){function t(e,n){if(e===n)return!0;if(null==e||null==n)return!1;if(typeof e!=typeof n)return!1;if("object"!=typeof e)return!1;const i=Array.isArray(e),r=Array.isArray(n);if(i!==r)return!1;if(i&&r){if(e.length!==n.length)return!1;for(let i=0;i<e.length;i++)if(!t(e[i],n[i]))return!1}if(o.objectLiteral(e)&&o.objectLiteral(n)){const i=Object.keys(e),o=Object.keys(n);if(i.length!==o.length)return!1;if(i.sort(),o.sort(),!t(i,o))return!1;for(let o=0;o<i.length;o++){const r=i[o];if(!t(e[r],n[r]))return!1}}return!0}e.create=function(e,t){return{kind:e,document:t}},e.is=function(e){const t=e;return o.objectLiteral(t)&&s.is(t.kind)&&i.DocumentUri.is(t.document)&&(void 0===t.metadata||o.objectLiteral(t.metadata))},e.diff=function(e,n){const i=new Set;return e.document!==n.document&&i.add("document"),e.kind!==n.kind&&i.add("kind"),e.executionSummary!==n.executionSummary&&i.add("executionSummary"),void 0===e.metadata&&void 0===n.metadata||t(e.metadata,n.metadata)||i.add("metadata"),void 0===e.executionSummary&&void 0===n.executionSummary||a.equals(e.executionSummary,n.executionSummary)||i.add("executionSummary"),i}}(c||(t.NotebookCell=c={})),function(e){e.create=function(e,t,n,i){return{uri:e,notebookType:t,version:n,cells:i}},e.is=function(e){const t=e;return o.objectLiteral(t)&&o.string(t.uri)&&i.integer.is(t.version)&&o.typedArray(t.cells,c.is)}}(u||(t.NotebookDocument=u={})),function(e){e.method="notebookDocument/sync",e.messageDirection=r.MessageDirection.clientToServer,e.type=new r.RegistrationType(e.method)}(l||(t.NotebookDocumentSyncRegistrationType=l={})),function(e){e.method="notebookDocument/didOpen",e.messageDirection=r.MessageDirection.clientToServer,e.type=new r.ProtocolNotificationType(e.method),e.registrationMethod=l.method}(d||(t.DidOpenNotebookDocumentNotification=d={})),function(e){e.is=function(e){const t=e;return o.objectLiteral(t)&&i.uinteger.is(t.start)&&i.uinteger.is(t.deleteCount)&&(void 0===t.cells||o.typedArray(t.cells,c.is))},e.create=function(e,t,n){const i={start:e,deleteCount:t};return void 0!==n&&(i.cells=n),i}}(f||(t.NotebookCellArrayChange=f={})),function(e){e.method="notebookDocument/didChange",e.messageDirection=r.MessageDirection.clientToServer,e.type=new r.ProtocolNotificationType(e.method),e.registrationMethod=l.method}(h||(t.DidChangeNotebookDocumentNotification=h={})),function(e){e.method="notebookDocument/didSave",e.messageDirection=r.MessageDirection.clientToServer,e.type=new r.ProtocolNotificationType(e.method),e.registrationMethod=l.method}(g||(t.DidSaveNotebookDocumentNotification=g={})),function(e){e.method="notebookDocument/didClose",e.messageDirection=r.MessageDirection.clientToServer,e.type=new r.ProtocolNotificationType(e.method),e.registrationMethod=l.method}(m||(t.DidCloseNotebookDocumentNotification=m={}))},1862:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.WorkDoneProgressCancelNotification=t.WorkDoneProgressCreateRequest=t.WorkDoneProgress=void 0;const i=n(4389),o=n(6140);var r,s,a;!function(e){e.type=new i.ProgressType,e.is=function(t){return t===e.type}}(r||(t.WorkDoneProgress=r={})),function(e){e.method="window/workDoneProgress/create",e.messageDirection=o.MessageDirection.serverToClient,e.type=new o.ProtocolRequestType(e.method)}(s||(t.WorkDoneProgressCreateRequest=s={})),function(e){e.method="window/workDoneProgress/cancel",e.messageDirection=o.MessageDirection.clientToServer,e.type=new o.ProtocolNotificationType(e.method)}(a||(t.WorkDoneProgressCancelNotification=a={}))},5206:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.SelectionRangeRequest=void 0;const i=n(6140);var o;!function(e){e.method="textDocument/selectionRange",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.SelectionRangeRequest=o={}))},9434:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.SemanticTokensRefreshRequest=t.SemanticTokensRangeRequest=t.SemanticTokensDeltaRequest=t.SemanticTokensRequest=t.SemanticTokensRegistrationType=t.TokenFormat=void 0;const i=n(6140);var o,r,s,a,c,u;!function(e){e.Relative="relative"}(o||(t.TokenFormat=o={})),function(e){e.method="textDocument/semanticTokens",e.type=new i.RegistrationType(e.method)}(r||(t.SemanticTokensRegistrationType=r={})),function(e){e.method="textDocument/semanticTokens/full",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method),e.registrationMethod=r.method}(s||(t.SemanticTokensRequest=s={})),function(e){e.method="textDocument/semanticTokens/full/delta",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method),e.registrationMethod=r.method}(a||(t.SemanticTokensDeltaRequest=a={})),function(e){e.method="textDocument/semanticTokens/range",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method),e.registrationMethod=r.method}(c||(t.SemanticTokensRangeRequest=c={})),function(e){e.method="workspace/semanticTokens/refresh",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType0(e.method)}(u||(t.SemanticTokensRefreshRequest=u={}))},5726:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ShowDocumentRequest=void 0;const i=n(6140);var o;!function(e){e.method="window/showDocument",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType(e.method)}(o||(t.ShowDocumentRequest=o={}))},1589:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.TypeDefinitionRequest=void 0;const i=n(6140);var o;!function(e){e.method="textDocument/typeDefinition",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.TypeDefinitionRequest=o={}))},3693:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.TypeHierarchySubtypesRequest=t.TypeHierarchySupertypesRequest=t.TypeHierarchyPrepareRequest=void 0;const i=n(6140);var o,r,s;!function(e){e.method="textDocument/prepareTypeHierarchy",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(o||(t.TypeHierarchyPrepareRequest=o={})),function(e){e.method="typeHierarchy/supertypes",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(r||(t.TypeHierarchySupertypesRequest=r={})),function(e){e.method="typeHierarchy/subtypes",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolRequestType(e.method)}(s||(t.TypeHierarchySubtypesRequest=s={}))},8744:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.DidChangeWorkspaceFoldersNotification=t.WorkspaceFoldersRequest=void 0;const i=n(6140);var o,r;!function(e){e.method="workspace/workspaceFolders",e.messageDirection=i.MessageDirection.serverToClient,e.type=new i.ProtocolRequestType0(e.method)}(o||(t.WorkspaceFoldersRequest=o={})),function(e){e.method="workspace/didChangeWorkspaceFolders",e.messageDirection=i.MessageDirection.clientToServer,e.type=new i.ProtocolNotificationType(e.method)}(r||(t.DidChangeWorkspaceFoldersNotification=r={}))},9533:(e,t)=>{function n(e){return"string"==typeof e||e instanceof String}function i(e){return Array.isArray(e)}Object.defineProperty(t,"__esModule",{value:!0}),t.objectLiteral=t.typedArray=t.stringArray=t.array=t.func=t.error=t.number=t.string=t.boolean=void 0,t.boolean=function(e){return!0===e||!1===e},t.string=n,t.number=function(e){return"number"==typeof e||e instanceof Number},t.error=function(e){return e instanceof Error},t.func=function(e){return"function"==typeof e},t.array=i,t.stringArray=function(e){return i(e)&&e.every((e=>n(e)))},t.typedArray=function(e,t){return Array.isArray(e)&&e.every(t)},t.objectLiteral=function(e){return null!==e&&"object"==typeof e}},273:function(e,t,n){var i=this&&this.__createBinding||(Object.create?function(e,t,n,i){void 0===i&&(i=n);var o=Object.getOwnPropertyDescriptor(t,n);o&&!("get"in o?!t.__esModule:o.writable||o.configurable)||(o={enumerable:!0,get:function(){return t[n]}}),Object.defineProperty(e,i,o)}:function(e,t,n,i){void 0===i&&(i=n),e[i]=t[n]}),o=this&&this.__exportStar||function(e,t){for(var n in e)"default"===n||Object.prototype.hasOwnProperty.call(t,n)||i(t,e,n)};Object.defineProperty(t,"__esModule",{value:!0}),t.createProtocolConnection=void 0;const r=n(5028);o(n(5028),t),o(n(1661),t),t.createProtocolConnection=function(e,t,n,i){return(0,r.createMessageConnection)(e,t,n,i)}},6560:(e,t,n)=>{e.exports=n(273)},6265:function(e,t,n){var i=this&&this.__createBinding||(Object.create?function(e,t,n,i){void 0===i&&(i=n);var o=Object.getOwnPropertyDescriptor(t,n);o&&!("get"in o?!t.__esModule:o.writable||o.configurable)||(o={enumerable:!0,get:function(){return t[n]}}),Object.defineProperty(e,i,o)}:function(e,t,n,i){void 0===i&&(i=n),e[i]=t[n]}),o=this&&this.__exportStar||function(e,t){for(var n in e)"default"===n||Object.prototype.hasOwnProperty.call(t,n)||i(t,e,n)};Object.defineProperty(t,"__esModule",{value:!0}),t.ProposedFeatures=t.NotebookDocuments=t.TextDocuments=t.SemanticTokensBuilder=void 0;const r=n(9817);Object.defineProperty(t,"SemanticTokensBuilder",{enumerable:!0,get:function(){return r.SemanticTokensBuilder}});const s=n(9229);o(n(273),t);const a=n(8382);Object.defineProperty(t,"TextDocuments",{enumerable:!0,get:function(){return a.TextDocuments}});const c=n(9748);var u;Object.defineProperty(t,"NotebookDocuments",{enumerable:!0,get:function(){return c.NotebookDocuments}}),o(n(9891),t),function(e){e.all={__brand:"features",languages:s.InlineCompletionFeature}}(u||(t.ProposedFeatures=u={}))},7985:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.CallHierarchyFeature=void 0;const i=n(273);t.CallHierarchyFeature=e=>class extends e{get callHierarchy(){return{onPrepare:e=>this.connection.onRequest(i.CallHierarchyPrepareRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t),void 0))),onIncomingCalls:e=>{const t=i.CallHierarchyIncomingCallsRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))},onOutgoingCalls:e=>{const t=i.CallHierarchyOutgoingCallsRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))}}}}},2507:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ConfigurationFeature=void 0;const i=n(273),o=n(289);t.ConfigurationFeature=e=>class extends e{getConfiguration(e){return e?o.string(e)?this._getConfiguration({section:e}):this._getConfiguration(e):this._getConfiguration({})}_getConfiguration(e){let t={items:Array.isArray(e)?e:[e]};return this.connection.sendRequest(i.ConfigurationRequest.type,t).then((t=>Array.isArray(t)?Array.isArray(e)?t:t[0]:Array.isArray(e)?[]:null))}}},6634:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.DiagnosticFeature=void 0;const i=n(273);t.DiagnosticFeature=e=>class extends e{get diagnostics(){return{refresh:()=>this.connection.sendRequest(i.DiagnosticRefreshRequest.type),on:e=>this.connection.onRequest(i.DocumentDiagnosticRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t),this.attachPartialResultProgress(i.DocumentDiagnosticRequest.partialResult,t)))),onWorkspace:e=>this.connection.onRequest(i.WorkspaceDiagnosticRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t),this.attachPartialResultProgress(i.WorkspaceDiagnosticRequest.partialResult,t))))}}}},828:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.FileOperationsFeature=void 0;const i=n(273);t.FileOperationsFeature=e=>class extends e{onDidCreateFiles(e){return this.connection.onNotification(i.DidCreateFilesNotification.type,(t=>{e(t)}))}onDidRenameFiles(e){return this.connection.onNotification(i.DidRenameFilesNotification.type,(t=>{e(t)}))}onDidDeleteFiles(e){return this.connection.onNotification(i.DidDeleteFilesNotification.type,(t=>{e(t)}))}onWillCreateFiles(e){return this.connection.onRequest(i.WillCreateFilesRequest.type,((t,n)=>e(t,n)))}onWillRenameFiles(e){return this.connection.onRequest(i.WillRenameFilesRequest.type,((t,n)=>e(t,n)))}onWillDeleteFiles(e){return this.connection.onRequest(i.WillDeleteFilesRequest.type,((t,n)=>e(t,n)))}}},7040:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.FoldingRangeFeature=void 0;const i=n(273);t.FoldingRangeFeature=e=>class extends e{get foldingRange(){return{refresh:()=>this.connection.sendRequest(i.FoldingRangeRefreshRequest.type),on:e=>{const t=i.FoldingRangeRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))}}}}},6507:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.InlayHintFeature=void 0;const i=n(273);t.InlayHintFeature=e=>class extends e{get inlayHint(){return{refresh:()=>this.connection.sendRequest(i.InlayHintRefreshRequest.type),on:e=>this.connection.onRequest(i.InlayHintRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t)))),resolve:e=>this.connection.onRequest(i.InlayHintResolveRequest.type,((t,n)=>e(t,n)))}}}},9229:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.InlineCompletionFeature=void 0;const i=n(273);t.InlineCompletionFeature=e=>class extends e{get inlineCompletion(){return{on:e=>this.connection.onRequest(i.InlineCompletionRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t))))}}}},8970:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.InlineValueFeature=void 0;const i=n(273);t.InlineValueFeature=e=>class extends e{get inlineValue(){return{refresh:()=>this.connection.sendRequest(i.InlineValueRefreshRequest.type),on:e=>this.connection.onRequest(i.InlineValueRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t))))}}}},2776:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.LinkedEditingRangeFeature=void 0;const i=n(273);t.LinkedEditingRangeFeature=e=>class extends e{onLinkedEditingRange(e){return this.connection.onRequest(i.LinkedEditingRangeRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t),void 0)))}}},8120:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.MonikerFeature=void 0;const i=n(273);t.MonikerFeature=e=>class extends e{get moniker(){return{on:e=>{const t=i.MonikerRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))}}}}},9748:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.NotebookDocuments=t.NotebookSyncFeature=void 0;const i=n(273),o=n(8382);t.NotebookSyncFeature=e=>class extends e{get synchronization(){return{onDidOpenNotebookDocument:e=>this.connection.onNotification(i.DidOpenNotebookDocumentNotification.type,(t=>{e(t)})),onDidChangeNotebookDocument:e=>this.connection.onNotification(i.DidChangeNotebookDocumentNotification.type,(t=>{e(t)})),onDidSaveNotebookDocument:e=>this.connection.onNotification(i.DidSaveNotebookDocumentNotification.type,(t=>{e(t)})),onDidCloseNotebookDocument:e=>this.connection.onNotification(i.DidCloseNotebookDocumentNotification.type,(t=>{e(t)}))}}};class r{onDidOpenTextDocument(e){return this.openHandler=e,i.Disposable.create((()=>{this.openHandler=void 0}))}openTextDocument(e){this.openHandler&&this.openHandler(e)}onDidChangeTextDocument(e){return this.changeHandler=e,i.Disposable.create((()=>{this.changeHandler=e}))}changeTextDocument(e){this.changeHandler&&this.changeHandler(e)}onDidCloseTextDocument(e){return this.closeHandler=e,i.Disposable.create((()=>{this.closeHandler=void 0}))}closeTextDocument(e){this.closeHandler&&this.closeHandler(e)}onWillSaveTextDocument(){return r.NULL_DISPOSE}onWillSaveTextDocumentWaitUntil(){return r.NULL_DISPOSE}onDidSaveTextDocument(){return r.NULL_DISPOSE}}r.NULL_DISPOSE=Object.freeze({dispose:()=>{}}),t.NotebookDocuments=class{constructor(e){e instanceof o.TextDocuments?this._cellTextDocuments=e:this._cellTextDocuments=new o.TextDocuments(e),this.notebookDocuments=new Map,this.notebookCellMap=new Map,this._onDidOpen=new i.Emitter,this._onDidChange=new i.Emitter,this._onDidSave=new i.Emitter,this._onDidClose=new i.Emitter}get cellTextDocuments(){return this._cellTextDocuments}getCellTextDocument(e){return this._cellTextDocuments.get(e.document)}getNotebookDocument(e){return this.notebookDocuments.get(e)}getNotebookCell(e){const t=this.notebookCellMap.get(e);return t&&t[0]}findNotebookDocumentForCell(e){const t="string"==typeof e?e:e.document,n=this.notebookCellMap.get(t);return n&&n[1]}get onDidOpen(){return this._onDidOpen.event}get onDidSave(){return this._onDidSave.event}get onDidChange(){return this._onDidChange.event}get onDidClose(){return this._onDidClose.event}listen(e){const t=new r,n=[];return n.push(this.cellTextDocuments.listen(t)),n.push(e.notebooks.synchronization.onDidOpenNotebookDocument((e=>{this.notebookDocuments.set(e.notebookDocument.uri,e.notebookDocument);for(const n of e.cellTextDocuments)t.openTextDocument({textDocument:n});this.updateCellMap(e.notebookDocument),this._onDidOpen.fire(e.notebookDocument)}))),n.push(e.notebooks.synchronization.onDidChangeNotebookDocument((e=>{const n=this.notebookDocuments.get(e.notebookDocument.uri);if(void 0===n)return;n.version=e.notebookDocument.version;const i=n.metadata;let o=!1;const r=e.change;void 0!==r.metadata&&(o=!0,n.metadata=r.metadata);const s=[],a=[],c=[],u=[];if(void 0!==r.cells){const e=r.cells;if(void 0!==e.structure){const i=e.structure.array;if(n.cells.splice(i.start,i.deleteCount,...void 0!==i.cells?i.cells:[]),void 0!==e.structure.didOpen)for(const n of e.structure.didOpen)t.openTextDocument({textDocument:n}),s.push(n.uri);if(e.structure.didClose)for(const n of e.structure.didClose)t.closeTextDocument({textDocument:n}),a.push(n.uri)}if(void 0!==e.data){const t=new Map(e.data.map((e=>[e.document,e])));for(let e=0;e<=n.cells.length;e++){const i=t.get(n.cells[e].document);if(void 0!==i){const o=n.cells.splice(e,1,i);if(c.push({old:o[0],new:i}),t.delete(i.document),0===t.size)break}}}if(void 0!==e.textContent)for(const n of e.textContent)t.changeTextDocument({textDocument:n.document,contentChanges:n.changes}),u.push(n.document.uri)}this.updateCellMap(n);const l={notebookDocument:n};o&&(l.metadata={old:i,new:n.metadata});const d=[];for(const e of s)d.push(this.getNotebookCell(e));const f=[];for(const e of a)f.push(this.getNotebookCell(e));const h=[];for(const e of u)h.push(this.getNotebookCell(e));(d.length>0||f.length>0||c.length>0||h.length>0)&&(l.cells={added:d,removed:f,changed:{data:c,textContent:h}}),void 0===l.metadata&&void 0===l.cells||this._onDidChange.fire(l)}))),n.push(e.notebooks.synchronization.onDidSaveNotebookDocument((e=>{const t=this.notebookDocuments.get(e.notebookDocument.uri);void 0!==t&&this._onDidSave.fire(t)}))),n.push(e.notebooks.synchronization.onDidCloseNotebookDocument((e=>{const n=this.notebookDocuments.get(e.notebookDocument.uri);if(void 0!==n){this._onDidClose.fire(n);for(const n of e.cellTextDocuments)t.closeTextDocument({textDocument:n});this.notebookDocuments.delete(e.notebookDocument.uri);for(const e of n.cells)this.notebookCellMap.delete(e.document)}}))),i.Disposable.create((()=>{n.forEach((e=>e.dispose()))}))}updateCellMap(e){for(const t of e.cells)this.notebookCellMap.set(t.document,[t,e])}}},2731:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.attachPartialResult=t.ProgressFeature=t.attachWorkDone=void 0;const i=n(273),o=n(7560);class r{constructor(e,t){this._connection=e,this._token=t,r.Instances.set(this._token,this)}begin(e,t,n,o){let r={kind:"begin",title:e,percentage:t,message:n,cancellable:o};this._connection.sendProgress(i.WorkDoneProgress.type,this._token,r)}report(e,t){let n={kind:"report"};"number"==typeof e?(n.percentage=e,void 0!==t&&(n.message=t)):n.message=e,this._connection.sendProgress(i.WorkDoneProgress.type,this._token,n)}done(){r.Instances.delete(this._token),this._connection.sendProgress(i.WorkDoneProgress.type,this._token,{kind:"end"})}}r.Instances=new Map;class s extends r{constructor(e,t){super(e,t),this._source=new i.CancellationTokenSource}get token(){return this._source.token}done(){this._source.dispose(),super.done()}cancel(){this._source.cancel()}}class a{constructor(){}begin(){}report(){}done(){}}class c extends a{constructor(){super(),this._source=new i.CancellationTokenSource}get token(){return this._source.token}done(){this._source.dispose()}cancel(){this._source.cancel()}}var u;t.attachWorkDone=function(e,t){if(void 0===t||void 0===t.workDoneToken)return new a;const n=t.workDoneToken;return delete t.workDoneToken,new r(e,n)},t.ProgressFeature=e=>class extends e{constructor(){super(),this._progressSupported=!1}initialize(e){super.initialize(e),!0===e?.window?.workDoneProgress&&(this._progressSupported=!0,this.connection.onNotification(i.WorkDoneProgressCancelNotification.type,(e=>{let t=r.Instances.get(e.token);(t instanceof s||t instanceof c)&&t.cancel()})))}attachWorkDoneProgress(e){return void 0===e?new a:new r(this.connection,e)}createWorkDoneProgress(){if(this._progressSupported){const e=(0,o.generateUuid)();return this.connection.sendRequest(i.WorkDoneProgressCreateRequest.type,{token:e}).then((()=>new s(this.connection,e)))}return Promise.resolve(new c)}},function(e){e.type=new i.ProgressType}(u||(u={}));class l{constructor(e,t){this._connection=e,this._token=t}report(e){this._connection.sendProgress(u.type,this._token,e)}}t.attachPartialResult=function(e,t){if(void 0===t||void 0===t.partialResultToken)return;const n=t.partialResultToken;return delete t.partialResultToken,new l(e,n)}},9817:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.SemanticTokensBuilder=t.SemanticTokensDiff=t.SemanticTokensFeature=void 0;const i=n(273);t.SemanticTokensFeature=e=>class extends e{get semanticTokens(){return{refresh:()=>this.connection.sendRequest(i.SemanticTokensRefreshRequest.type),on:e=>{const t=i.SemanticTokensRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))},onDelta:e=>{const t=i.SemanticTokensDeltaRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))},onRange:e=>{const t=i.SemanticTokensRangeRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))}}}};class o{constructor(e,t){this.originalSequence=e,this.modifiedSequence=t}computeDiff(){const e=this.originalSequence.length,t=this.modifiedSequence.length;let n=0;for(;n<t&&n<e&&this.originalSequence[n]===this.modifiedSequence[n];)n++;if(n<t&&n<e){let i=e-1,o=t-1;for(;i>=n&&o>=n&&this.originalSequence[i]===this.modifiedSequence[o];)i--,o--;(i<n||o<n)&&(i++,o++);const r=i-n+1,s=this.modifiedSequence.slice(n,o+1);return 1===s.length&&s[0]===this.originalSequence[i]?[{start:n,deleteCount:r-1}]:[{start:n,deleteCount:r,data:s}]}return n<t?[{start:n,deleteCount:0,data:this.modifiedSequence.slice(n)}]:n<e?[{start:n,deleteCount:e-n}]:[]}}t.SemanticTokensDiff=o,t.SemanticTokensBuilder=class{constructor(){this._prevData=void 0,this.initialize()}initialize(){this._id=Date.now(),this._prevLine=0,this._prevChar=0,this._data=[],this._dataLen=0}push(e,t,n,i,o){let r=e,s=t;this._dataLen>0&&(r-=this._prevLine,0===r&&(s-=this._prevChar)),this._data[this._dataLen++]=r,this._data[this._dataLen++]=s,this._data[this._dataLen++]=n,this._data[this._dataLen++]=i,this._data[this._dataLen++]=o,this._prevLine=e,this._prevChar=t}get id(){return this._id.toString()}previousResult(e){this.id===e&&(this._prevData=this._data),this.initialize()}build(){return this._prevData=void 0,{resultId:this.id,data:this._data}}canBuildEdits(){return void 0!==this._prevData}buildEdits(){return void 0!==this._prevData?{resultId:this.id,edits:new o(this._prevData,this._data).computeDiff()}:this.build()}}},9891:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.createConnection=t.combineFeatures=t.combineNotebooksFeatures=t.combineLanguagesFeatures=t.combineWorkspaceFeatures=t.combineWindowFeatures=t.combineClientFeatures=t.combineTracerFeatures=t.combineTelemetryFeatures=t.combineConsoleFeatures=t._NotebooksImpl=t._LanguagesImpl=t.BulkUnregistration=t.BulkRegistration=t.ErrorMessageTracker=void 0;const i=n(273),o=n(289),r=n(7560),s=n(2731),a=n(2507),c=n(1836),u=n(7985),l=n(9817),d=n(5421),f=n(828),h=n(2776),g=n(4606),m=n(8970),p=n(7040),y=n(6507),v=n(6634),b=n(9748),R=n(8120);function D(e){if(null!==e)return e}t.ErrorMessageTracker=class{constructor(){this._messages=Object.create(null)}add(e){let t=this._messages[e];t||(t=0),t++,this._messages[e]=t}sendErrors(e){Object.keys(this._messages).forEach((t=>{e.window.showErrorMessage(t)}))}};class _{constructor(){}rawAttach(e){this._rawConnection=e}attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}fillServerCapabilities(e){}initialize(e){}error(e){this.send(i.MessageType.Error,e)}warn(e){this.send(i.MessageType.Warning,e)}info(e){this.send(i.MessageType.Info,e)}log(e){this.send(i.MessageType.Log,e)}debug(e){this.send(i.MessageType.Debug,e)}send(e,t){this._rawConnection&&this._rawConnection.sendNotification(i.LogMessageNotification.type,{type:e,message:t}).catch((()=>{(0,i.RAL)().console.error("Sending log message failed")}))}}const S=(0,d.ShowDocumentFeature)((0,s.ProgressFeature)(class{constructor(){}attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}initialize(e){}fillServerCapabilities(e){}showErrorMessage(e,...t){let n={type:i.MessageType.Error,message:e,actions:t};return this.connection.sendRequest(i.ShowMessageRequest.type,n).then(D)}showWarningMessage(e,...t){let n={type:i.MessageType.Warning,message:e,actions:t};return this.connection.sendRequest(i.ShowMessageRequest.type,n).then(D)}showInformationMessage(e,...t){let n={type:i.MessageType.Info,message:e,actions:t};return this.connection.sendRequest(i.ShowMessageRequest.type,n).then(D)}}));var C,w;!function(e){e.create=function(){return new T}}(C||(t.BulkRegistration=C={}));class T{constructor(){this._registrations=[],this._registered=new Set}add(e,t){const n=o.string(e)?e:e.method;if(this._registered.has(n))throw new Error(`${n} is already added to this registration`);const i=r.generateUuid();this._registrations.push({id:i,method:n,registerOptions:t||{}}),this._registered.add(n)}asRegistrationParams(){return{registrations:this._registrations}}}!function(e){e.create=function(){return new k(void 0,[])}}(w||(t.BulkUnregistration=w={}));class k{constructor(e,t){this._connection=e,this._unregistrations=new Map,t.forEach((e=>{this._unregistrations.set(e.method,e)}))}get isAttached(){return!!this._connection}attach(e){this._connection=e}add(e){this._unregistrations.set(e.method,e)}dispose(){let e=[];for(let t of this._unregistrations.values())e.push(t);let t={unregisterations:e};this._connection.sendRequest(i.UnregistrationRequest.type,t).catch((()=>{this._connection.console.info("Bulk unregistration failed.")}))}disposeSingle(e){const t=o.string(e)?e:e.method,n=this._unregistrations.get(t);if(!n)return!1;let r={unregisterations:[n]};return this._connection.sendRequest(i.UnregistrationRequest.type,r).then((()=>{this._unregistrations.delete(t)}),(e=>{this._connection.console.info(`Un-registering request handler for ${n.id} failed.`)})),!0}}class x{attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}initialize(e){}fillServerCapabilities(e){}register(e,t,n){return e instanceof T?this.registerMany(e):e instanceof k?this.registerSingle1(e,t,n):this.registerSingle2(e,t)}registerSingle1(e,t,n){const s=o.string(t)?t:t.method,a=r.generateUuid();let c={registrations:[{id:a,method:s,registerOptions:n||{}}]};return e.isAttached||e.attach(this.connection),this.connection.sendRequest(i.RegistrationRequest.type,c).then((t=>(e.add({id:a,method:s}),e)),(e=>(this.connection.console.info(`Registering request handler for ${s} failed.`),Promise.reject(e))))}registerSingle2(e,t){const n=o.string(e)?e:e.method,s=r.generateUuid();let a={registrations:[{id:s,method:n,registerOptions:t||{}}]};return this.connection.sendRequest(i.RegistrationRequest.type,a).then((e=>i.Disposable.create((()=>{this.unregisterSingle(s,n).catch((()=>{this.connection.console.info(`Un-registering capability with id ${s} failed.`)}))}))),(e=>(this.connection.console.info(`Registering request handler for ${n} failed.`),Promise.reject(e))))}unregisterSingle(e,t){let n={unregisterations:[{id:e,method:t}]};return this.connection.sendRequest(i.UnregistrationRequest.type,n).catch((()=>{this.connection.console.info(`Un-registering request handler for ${e} failed.`)}))}registerMany(e){let t=e.asRegistrationParams();return this.connection.sendRequest(i.RegistrationRequest.type,t).then((()=>new k(this._connection,t.registrations.map((e=>({id:e.id,method:e.method}))))),(e=>(this.connection.console.info("Bulk registration failed."),Promise.reject(e))))}}const P=(0,f.FileOperationsFeature)((0,c.WorkspaceFoldersFeature)((0,a.ConfigurationFeature)(class{constructor(){}attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}initialize(e){}fillServerCapabilities(e){}applyEdit(e){let t=(n=e)&&n.edit?e:{edit:e};var n;return this.connection.sendRequest(i.ApplyWorkspaceEditRequest.type,t)}})));class q{constructor(){this._trace=i.Trace.Off}attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}initialize(e){}fillServerCapabilities(e){}set trace(e){this._trace=e}log(e,t){this._trace!==i.Trace.Off&&this.connection.sendNotification(i.LogTraceNotification.type,{message:e,verbose:this._trace===i.Trace.Verbose?t:void 0}).catch((()=>{}))}}class E{constructor(){}attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}initialize(e){}fillServerCapabilities(e){}logEvent(e){this.connection.sendNotification(i.TelemetryEventNotification.type,e).catch((()=>{this.connection.console.log("Sending TelemetryEventNotification failed")}))}}class M{constructor(){}attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}initialize(e){}fillServerCapabilities(e){}attachWorkDoneProgress(e){return(0,s.attachWorkDone)(this.connection,e)}attachPartialResultProgress(e,t){return(0,s.attachPartialResult)(this.connection,t)}}t._LanguagesImpl=M;const N=(0,p.FoldingRangeFeature)((0,R.MonikerFeature)((0,v.DiagnosticFeature)((0,y.InlayHintFeature)((0,m.InlineValueFeature)((0,g.TypeHierarchyFeature)((0,h.LinkedEditingRangeFeature)((0,l.SemanticTokensFeature)((0,u.CallHierarchyFeature)(M)))))))));class O{constructor(){}attach(e){this._connection=e}get connection(){if(!this._connection)throw new Error("Remote is not attached to a connection yet.");return this._connection}initialize(e){}fillServerCapabilities(e){}attachWorkDoneProgress(e){return(0,s.attachWorkDone)(this.connection,e)}attachPartialResultProgress(e,t){return(0,s.attachPartialResult)(this.connection,t)}}t._NotebooksImpl=O;const A=(0,b.NotebookSyncFeature)(O);function L(e,t){return function(n){return t(e(n))}}function j(e,t){return function(n){return t(e(n))}}function I(e,t){return function(n){return t(e(n))}}function F(e,t){return function(n){return t(e(n))}}function W(e,t){return function(n){return t(e(n))}}function $(e,t){return function(n){return t(e(n))}}function H(e,t){return function(n){return t(e(n))}}function U(e,t){return function(n){return t(e(n))}}t.combineConsoleFeatures=L,t.combineTelemetryFeatures=j,t.combineTracerFeatures=I,t.combineClientFeatures=F,t.combineWindowFeatures=W,t.combineWorkspaceFeatures=$,t.combineLanguagesFeatures=H,t.combineNotebooksFeatures=U,t.combineFeatures=function(e,t){function n(e,t,n){return e&&t?n(e,t):e||t}return{__brand:"features",console:n(e.console,t.console,L),tracer:n(e.tracer,t.tracer,I),telemetry:n(e.telemetry,t.telemetry,j),client:n(e.client,t.client,F),window:n(e.window,t.window,W),workspace:n(e.workspace,t.workspace,$),languages:n(e.languages,t.languages,H),notebooks:n(e.notebooks,t.notebooks,U)}},t.createConnection=function(e,t,n){const r=n&&n.console?new(n.console(_)):new _,a=e(r);r.rawAttach(a);const c=n&&n.tracer?new(n.tracer(q)):new q,u=n&&n.telemetry?new(n.telemetry(E)):new E,l=n&&n.client?new(n.client(x)):new x,d=n&&n.window?new(n.window(S)):new S,f=n&&n.workspace?new(n.workspace(P)):new P,h=n&&n.languages?new(n.languages(N)):new N,g=n&&n.notebooks?new(n.notebooks(A)):new A,m=[r,c,u,l,d,f,h,g];let p,y,v,b={listen:()=>a.listen(),sendRequest:(e,...t)=>a.sendRequest(o.string(e)?e:e.method,...t),onRequest:(e,t)=>a.onRequest(e,t),sendNotification:(e,t)=>{const n=o.string(e)?e:e.method;return a.sendNotification(n,t)},onNotification:(e,t)=>a.onNotification(e,t),onProgress:a.onProgress,sendProgress:a.sendProgress,onInitialize:e=>(y=e,{dispose:()=>{y=void 0}}),onInitialized:e=>a.onNotification(i.InitializedNotification.type,e),onShutdown:e=>(p=e,{dispose:()=>{p=void 0}}),onExit:e=>(v=e,{dispose:()=>{v=void 0}}),get console(){return r},get telemetry(){return u},get tracer(){return c},get client(){return l},get window(){return d},get workspace(){return f},get languages(){return h},get notebooks(){return g},onDidChangeConfiguration:e=>a.onNotification(i.DidChangeConfigurationNotification.type,e),onDidChangeWatchedFiles:e=>a.onNotification(i.DidChangeWatchedFilesNotification.type,e),__textDocumentSync:void 0,onDidOpenTextDocument:e=>a.onNotification(i.DidOpenTextDocumentNotification.type,e),onDidChangeTextDocument:e=>a.onNotification(i.DidChangeTextDocumentNotification.type,e),onDidCloseTextDocument:e=>a.onNotification(i.DidCloseTextDocumentNotification.type,e),onWillSaveTextDocument:e=>a.onNotification(i.WillSaveTextDocumentNotification.type,e),onWillSaveTextDocumentWaitUntil:e=>a.onRequest(i.WillSaveTextDocumentWaitUntilRequest.type,e),onDidSaveTextDocument:e=>a.onNotification(i.DidSaveTextDocumentNotification.type,e),sendDiagnostics:e=>a.sendNotification(i.PublishDiagnosticsNotification.type,e),onHover:e=>a.onRequest(i.HoverRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),void 0))),onCompletion:e=>a.onRequest(i.CompletionRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onCompletionResolve:e=>a.onRequest(i.CompletionResolveRequest.type,e),onSignatureHelp:e=>a.onRequest(i.SignatureHelpRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),void 0))),onDeclaration:e=>a.onRequest(i.DeclarationRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onDefinition:e=>a.onRequest(i.DefinitionRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onTypeDefinition:e=>a.onRequest(i.TypeDefinitionRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onImplementation:e=>a.onRequest(i.ImplementationRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onReferences:e=>a.onRequest(i.ReferencesRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onDocumentHighlight:e=>a.onRequest(i.DocumentHighlightRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onDocumentSymbol:e=>a.onRequest(i.DocumentSymbolRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onWorkspaceSymbol:e=>a.onRequest(i.WorkspaceSymbolRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onWorkspaceSymbolResolve:e=>a.onRequest(i.WorkspaceSymbolResolveRequest.type,e),onCodeAction:e=>a.onRequest(i.CodeActionRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onCodeActionResolve:e=>a.onRequest(i.CodeActionResolveRequest.type,((t,n)=>e(t,n))),onCodeLens:e=>a.onRequest(i.CodeLensRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onCodeLensResolve:e=>a.onRequest(i.CodeLensResolveRequest.type,((t,n)=>e(t,n))),onDocumentFormatting:e=>a.onRequest(i.DocumentFormattingRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),void 0))),onDocumentRangeFormatting:e=>a.onRequest(i.DocumentRangeFormattingRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),void 0))),onDocumentOnTypeFormatting:e=>a.onRequest(i.DocumentOnTypeFormattingRequest.type,((t,n)=>e(t,n))),onRenameRequest:e=>a.onRequest(i.RenameRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),void 0))),onPrepareRename:e=>a.onRequest(i.PrepareRenameRequest.type,((t,n)=>e(t,n))),onDocumentLinks:e=>a.onRequest(i.DocumentLinkRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onDocumentLinkResolve:e=>a.onRequest(i.DocumentLinkResolveRequest.type,((t,n)=>e(t,n))),onDocumentColor:e=>a.onRequest(i.DocumentColorRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onColorPresentation:e=>a.onRequest(i.ColorPresentationRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onFoldingRanges:e=>a.onRequest(i.FoldingRangeRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onSelectionRanges:e=>a.onRequest(i.SelectionRangeRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),(0,s.attachPartialResult)(a,t)))),onExecuteCommand:e=>a.onRequest(i.ExecuteCommandRequest.type,((t,n)=>e(t,n,(0,s.attachWorkDone)(a,t),void 0))),dispose:()=>a.dispose()};for(let e of m)e.attach(b);return a.onRequest(i.InitializeRequest.type,(e=>{t.initialize(e),o.string(e.trace)&&(c.trace=i.Trace.fromString(e.trace));for(let t of m)t.initialize(e.capabilities);if(y){let t=y(e,(new i.CancellationTokenSource).token,(0,s.attachWorkDone)(a,e),void 0);return(n=t,n instanceof Promise?n:o.thenable(n)?new Promise(((e,t)=>{n.then((t=>e(t)),(e=>t(e)))})):Promise.resolve(n)).then((e=>{if(e instanceof i.ResponseError)return e;let t=e;t||(t={capabilities:{}});let n=t.capabilities;n||(n={},t.capabilities=n),void 0===n.textDocumentSync||null===n.textDocumentSync?n.textDocumentSync=o.number(b.__textDocumentSync)?b.__textDocumentSync:i.TextDocumentSyncKind.None:o.number(n.textDocumentSync)||o.number(n.textDocumentSync.change)||(n.textDocumentSync.change=o.number(b.__textDocumentSync)?b.__textDocumentSync:i.TextDocumentSyncKind.None);for(let e of m)e.fillServerCapabilities(n);return t}))}{let e={capabilities:{textDocumentSync:i.TextDocumentSyncKind.None}};for(let t of m)t.fillServerCapabilities(e.capabilities);return e}var n})),a.onRequest(i.ShutdownRequest.type,(()=>(t.shutdownReceived=!0,p?p((new i.CancellationTokenSource).token):void 0))),a.onNotification(i.ExitNotification.type,(()=>{try{v&&v()}finally{t.shutdownReceived?t.exit(0):t.exit(1)}})),a.onNotification(i.SetTraceNotification.type,(e=>{c.trace=i.Trace.fromString(e.value)})),b}},5421:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.ShowDocumentFeature=void 0;const i=n(273);t.ShowDocumentFeature=e=>class extends e{showDocument(e){return this.connection.sendRequest(i.ShowDocumentRequest.type,e)}}},8382:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.TextDocuments=void 0;const i=n(273);t.TextDocuments=class{constructor(e){this._configuration=e,this._syncedDocuments=new Map,this._onDidChangeContent=new i.Emitter,this._onDidOpen=new i.Emitter,this._onDidClose=new i.Emitter,this._onDidSave=new i.Emitter,this._onWillSave=new i.Emitter}get onDidOpen(){return this._onDidOpen.event}get onDidChangeContent(){return this._onDidChangeContent.event}get onWillSave(){return this._onWillSave.event}onWillSaveWaitUntil(e){this._willSaveWaitUntil=e}get onDidSave(){return this._onDidSave.event}get onDidClose(){return this._onDidClose.event}get(e){return this._syncedDocuments.get(e)}all(){return Array.from(this._syncedDocuments.values())}keys(){return Array.from(this._syncedDocuments.keys())}listen(e){e.__textDocumentSync=i.TextDocumentSyncKind.Incremental;const t=[];return t.push(e.onDidOpenTextDocument((e=>{const t=e.textDocument,n=this._configuration.create(t.uri,t.languageId,t.version,t.text);this._syncedDocuments.set(t.uri,n);const i=Object.freeze({document:n});this._onDidOpen.fire(i),this._onDidChangeContent.fire(i)}))),t.push(e.onDidChangeTextDocument((e=>{const t=e.textDocument,n=e.contentChanges;if(0===n.length)return;const{version:i}=t;if(null==i)throw new Error(`Received document change event for ${t.uri} without valid version identifier`);let o=this._syncedDocuments.get(t.uri);void 0!==o&&(o=this._configuration.update(o,n,i),this._syncedDocuments.set(t.uri,o),this._onDidChangeContent.fire(Object.freeze({document:o})))}))),t.push(e.onDidCloseTextDocument((e=>{let t=this._syncedDocuments.get(e.textDocument.uri);void 0!==t&&(this._syncedDocuments.delete(e.textDocument.uri),this._onDidClose.fire(Object.freeze({document:t})))}))),t.push(e.onWillSaveTextDocument((e=>{let t=this._syncedDocuments.get(e.textDocument.uri);void 0!==t&&this._onWillSave.fire(Object.freeze({document:t,reason:e.reason}))}))),t.push(e.onWillSaveTextDocumentWaitUntil(((e,t)=>{let n=this._syncedDocuments.get(e.textDocument.uri);return void 0!==n&&this._willSaveWaitUntil?this._willSaveWaitUntil(Object.freeze({document:n,reason:e.reason}),t):[]}))),t.push(e.onDidSaveTextDocument((e=>{let t=this._syncedDocuments.get(e.textDocument.uri);void 0!==t&&this._onDidSave.fire(Object.freeze({document:t}))}))),i.Disposable.create((()=>{t.forEach((e=>e.dispose()))}))}}},4606:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.TypeHierarchyFeature=void 0;const i=n(273);t.TypeHierarchyFeature=e=>class extends e{get typeHierarchy(){return{onPrepare:e=>this.connection.onRequest(i.TypeHierarchyPrepareRequest.type,((t,n)=>e(t,n,this.attachWorkDoneProgress(t),void 0))),onSupertypes:e=>{const t=i.TypeHierarchySupertypesRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))},onSubtypes:e=>{const t=i.TypeHierarchySubtypesRequest.type;return this.connection.onRequest(t,((n,i)=>e(n,i,this.attachWorkDoneProgress(n),this.attachPartialResultProgress(t,n))))}}}}},289:(e,t)=>{function n(e){return"string"==typeof e||e instanceof String}function i(e){return"function"==typeof e}function o(e){return Array.isArray(e)}Object.defineProperty(t,"__esModule",{value:!0}),t.thenable=t.typedArray=t.stringArray=t.array=t.func=t.error=t.number=t.string=t.boolean=void 0,t.boolean=function(e){return!0===e||!1===e},t.string=n,t.number=function(e){return"number"==typeof e||e instanceof Number},t.error=function(e){return e instanceof Error},t.func=i,t.array=o,t.stringArray=function(e){return o(e)&&e.every((e=>n(e)))},t.typedArray=function(e,t){return Array.isArray(e)&&e.every(t)},t.thenable=function(e){return e&&i(e.then)}},7560:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.generateUuid=t.parse=t.isUUID=t.v4=t.empty=void 0;class n{constructor(e){this._value=e}asHex(){return this._value}equals(e){return this.asHex()===e.asHex()}}class i extends n{static _oneOf(e){return e[Math.floor(e.length*Math.random())]}static _randomHex(){return i._oneOf(i._chars)}constructor(){super([i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),"-",i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),"-","4",i._randomHex(),i._randomHex(),i._randomHex(),"-",i._oneOf(i._timeHighBits),i._randomHex(),i._randomHex(),i._randomHex(),"-",i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex(),i._randomHex()].join(""))}}function o(){return new i}i._chars=["0","1","2","3","4","5","6","6","7","8","9","a","b","c","d","e","f"],i._timeHighBits=["8","9","a","b"],t.empty=new n("00000000-0000-0000-0000-000000000000"),t.v4=o;const r=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;function s(e){return r.test(e)}t.isUUID=s,t.parse=function(e){if(!s(e))throw new Error("invalid uuid");return new n(e)},t.generateUuid=function(){return o().asHex()}},1836:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.WorkspaceFoldersFeature=void 0;const i=n(273);t.WorkspaceFoldersFeature=e=>class extends e{constructor(){super(),this._notificationIsAutoRegistered=!1}initialize(e){super.initialize(e);let t=e.workspace;t&&t.workspaceFolders&&(this._onDidChangeWorkspaceFolders=new i.Emitter,this.connection.onNotification(i.DidChangeWorkspaceFoldersNotification.type,(e=>{this._onDidChangeWorkspaceFolders.fire(e.event)})))}fillServerCapabilities(e){super.fillServerCapabilities(e);const t=e.workspace?.workspaceFolders?.changeNotifications;this._notificationIsAutoRegistered=!0===t||"string"==typeof t}getWorkspaceFolders(){return this.connection.sendRequest(i.WorkspaceFoldersRequest.type)}get onDidChangeWorkspaceFolders(){if(!this._onDidChangeWorkspaceFolders)throw new Error("Client doesn't support sending workspace folder change events.");return this._notificationIsAutoRegistered||this._unregistration||(this._unregistration=this.connection.client.register(i.DidChangeWorkspaceFoldersNotification.type)),this._onDidChangeWorkspaceFolders.event}}},7613:(e,t,n)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.resolveModulePath=t.FileSystem=t.resolveGlobalYarnPath=t.resolveGlobalNodePath=t.resolve=t.uriToFilePath=void 0;const i=n(7310),o=n(1017),r=n(7147),s=n(2081);function a(){return"win32"===process.platform}function c(e,t,n,i){const a="NODE_PATH",c=["var p = process;","p.on('message',function(m){","if(m.c==='e'){","p.exit(0);","}","else if(m.c==='rs'){","try{","var r=require.resolve(m.a);","p.send({c:'r',s:true,r:r});","}","catch(err){","p.send({c:'r',s:false});","}","}","});"].join("");return new Promise(((u,l)=>{let d=process.env,f=Object.create(null);Object.keys(d).forEach((e=>f[e]=d[e])),t&&r.existsSync(t)&&(f[a]?f[a]=t+o.delimiter+f[a]:f[a]=t,i&&i(`NODE_PATH value is: ${f[a]}`)),f.ELECTRON_RUN_AS_NODE="1";try{let t=(0,s.fork)("",[],{cwd:n,env:f,execArgv:["-e",c]});if(void 0===t.pid)return void l(new Error(`Starting process to resolve node module  ${e} failed`));t.on("error",(e=>{l(e)})),t.on("message",(n=>{"r"===n.c&&(t.send({c:"e"}),n.s?u(n.r):l(new Error(`Failed to resolve module: ${e}`)))}));let i={c:"rs",a:e};t.send(i)}catch(e){l(e)}}))}function u(e){let t="npm";const n=Object.create(null);Object.keys(process.env).forEach((e=>n[e]=process.env[e])),n.NO_UPDATE_NOTIFIER="true";const i={encoding:"utf8",env:n};a()&&(t="npm.cmd",i.shell=!0);let r=()=>{};try{process.on("SIGPIPE",r);let n=(0,s.spawnSync)(t,["config","get","prefix"],i).stdout;if(!n)return void(e&&e("'npm config get prefix' didn't return a value."));let c=n.trim();return e&&e(`'npm config get prefix' value is: ${c}`),c.length>0?a()?o.join(c,"node_modules"):o.join(c,"lib","node_modules"):void 0}catch(e){return}finally{process.removeListener("SIGPIPE",r)}}var l;t.uriToFilePath=function(e){let t=i.parse(e);if("file:"!==t.protocol||!t.path)return;let n=t.path.split("/");for(var r=0,s=n.length;r<s;r++)n[r]=decodeURIComponent(n[r]);if("win32"===process.platform&&n.length>1){let e=n[0],t=n[1];0===e.length&&t.length>1&&":"===t[1]&&n.shift()}return o.normalize(n.join("/"))},t.resolve=c,t.resolveGlobalNodePath=u,t.resolveGlobalYarnPath=function(e){let t="yarn",n={encoding:"utf8"};a()&&(t="yarn.cmd",n.shell=!0);let i=()=>{};try{process.on("SIGPIPE",i);let r=(0,s.spawnSync)(t,["global","dir","--json"],n),a=r.stdout;if(!a)return void(e&&(e("'yarn global dir' didn't return a value."),r.stderr&&e(r.stderr)));let c=a.trim().split(/\r?\n/);for(let e of c)try{let t=JSON.parse(e);if("log"===t.type)return o.join(t.data,"node_modules")}catch(e){}return}catch(e){return}finally{process.removeListener("SIGPIPE",i)}},function(e){let t;function n(){return void 0!==t||(t=!("win32"===process.platform||r.existsSync(__filename.toUpperCase())&&r.existsSync(__filename.toLowerCase()))),t}e.isCaseSensitive=n,e.isParent=function(e,t){return n()?0===o.normalize(t).indexOf(o.normalize(e)):0===o.normalize(t).toLowerCase().indexOf(o.normalize(e).toLowerCase())}}(l||(t.FileSystem=l={})),t.resolveModulePath=function(e,t,n,i){return n?(o.isAbsolute(n)||(n=o.join(e,n)),c(t,n,n,i).then((e=>l.isParent(n,e)?e:Promise.reject(new Error(`Failed to load ${t} from node path location.`)))).then(void 0,(n=>c(t,u(i),e,i)))):c(t,u(i),e,i)}},5809:function(e,t,n){var i=this&&this.__createBinding||(Object.create?function(e,t,n,i){void 0===i&&(i=n);var o=Object.getOwnPropertyDescriptor(t,n);o&&!("get"in o?!t.__esModule:o.writable||o.configurable)||(o={enumerable:!0,get:function(){return t[n]}}),Object.defineProperty(e,i,o)}:function(e,t,n,i){void 0===i&&(i=n),e[i]=t[n]}),o=this&&this.__exportStar||function(e,t){for(var n in e)"default"===n||Object.prototype.hasOwnProperty.call(t,n)||i(t,e,n)};Object.defineProperty(t,"__esModule",{value:!0}),t.createConnection=t.Files=void 0;const r=n(7261),s=n(289),a=n(9891),c=n(7613),u=n(6560);var l;function d(){0}o(n(6560),t),o(n(6265),t),function(e){e.uriToFilePath=c.uriToFilePath,e.resolveGlobalNodePath=c.resolveGlobalNodePath,e.resolveGlobalYarnPath=c.resolveGlobalYarnPath,e.resolve=c.resolve,e.resolveModulePath=c.resolveModulePath}(l||(t.Files=l={}));let f,h=!1;!function(){const e="--clientProcessId";function t(e){try{let t=parseInt(e);isNaN(t)||(f=setInterval((()=>{try{process.kill(t,0)}catch(e){d(),process.exit(h?0:1)}}),3e3))}catch(e){}}for(let n=2;n<process.argv.length;n++){let i=process.argv[n];if(i===e&&n+1<process.argv.length)return void t(process.argv[n+1]);{let n=i.split("=");n[0]===e&&t(n[1])}}}();const g={initialize:e=>{const t=e.processId;s.number(t)&&void 0===f&&setInterval((()=>{try{process.kill(t,0)}catch(e){process.exit(h?0:1)}}),3e3)},get shutdownReceived(){return h},set shutdownReceived(e){h=e},exit:e=>{d(),process.exit(e)}};t.createConnection=function(e,t,n,i){let o,c,l,f;return void 0!==e&&"features"===e.__brand&&(o=e,e=t,t=n,n=i),u.ConnectionStrategy.is(e)||u.ConnectionOptions.is(e)?f=e:(c=e,l=t,f=n),function(e,t,n,i){let o=!1;if(!e&&!t&&process.argv.length>2){let n,i,r=process.argv.slice(2);for(let s=0;s<r.length;s++){let a=r[s];if("--node-ipc"===a){e=new u.IPCMessageReader(process),t=new u.IPCMessageWriter(process);break}if("--stdio"===a){o=!0,e=process.stdin,t=process.stdout;break}if("--socket"===a){n=parseInt(r[s+1]);break}if("--pipe"===a){i=r[s+1];break}var c=a.split("=");if("--socket"===c[0]){n=parseInt(c[1]);break}if("--pipe"===c[0]){i=c[1];break}}if(n){let i=(0,u.createServerSocketTransport)(n);e=i[0],t=i[1]}else if(i){let n=(0,u.createServerPipeTransport)(i);e=n[0],t=n[1]}}var l="Use arguments of createConnection or set command line parameters: '--node-ipc', '--stdio' or '--socket={number}'";if(!e)throw new Error("Connection input stream is not set. "+l);if(!t)throw new Error("Connection output stream is not set. "+l);if(s.func(e.read)&&s.func(e.on)){let t=e;t.on("end",(()=>{d(),process.exit(h?0:1)})),t.on("close",(()=>{d(),process.exit(h?0:1)}))}return(0,a.createConnection)((i=>{const s=(0,u.createProtocolConnection)(e,t,i,n);return o&&function(e){function t(e){return e.map((e=>"string"==typeof e?e:(0,r.inspect)(e))).join(" ")}const n=new Map;console.assert=function(n,...i){if(!n)if(0===i.length)e.error("Assertion failed");else{const[n,...o]=i;e.error(`Assertion failed: ${n} ${t(o)}`)}},console.count=function(t="default"){const i=String(t);let o=n.get(i)??0;o+=1,n.set(i,o),e.log(`${i}: ${i}`)},console.countReset=function(e){void 0===e?n.clear():n.delete(String(e))},console.debug=function(...n){e.log(t(n))},console.dir=function(t,n){e.log((0,r.inspect)(t,n))},console.log=function(...n){e.log(t(n))},console.error=function(...n){e.error(t(n))},console.trace=function(...n){const i=(new Error).stack.replace(/(.+\n){2}/,"");let o="Trace";0!==n.length&&(o+=`: ${t(n)}`),e.log(`${o}\n${i}`)},console.warn=function(...n){e.warn(t(n))}}(i),s}),g,i)}(c,l,f,o)}},8212:(e,t,n)=>{e.exports=n(5809)},2081:e=>{e.exports=require("child_process")},6113:e=>{e.exports=require("crypto")},7147:e=>{e.exports=require("fs")},1808:e=>{e.exports=require("net")},7261:e=>{e.exports=require("node:util")},2037:e=>{e.exports=require("os")},1017:e=>{e.exports=require("path")},7310:e=>{e.exports=require("url")},3837:e=>{e.exports=require("util")},6960:(e,t,n)=>{n.r(t),n.d(t,{TextDocument:()=>o});class i{constructor(e,t,n,i){this._uri=e,this._languageId=t,this._version=n,this._content=i,this._lineOffsets=void 0}get uri(){return this._uri}get languageId(){return this._languageId}get version(){return this._version}getText(e){if(e){const t=this.offsetAt(e.start),n=this.offsetAt(e.end);return this._content.substring(t,n)}return this._content}update(e,t){for(let t of e)if(i.isIncremental(t)){const e=a(t.range),n=this.offsetAt(e.start),i=this.offsetAt(e.end);this._content=this._content.substring(0,n)+t.text+this._content.substring(i,this._content.length);const o=Math.max(e.start.line,0),r=Math.max(e.end.line,0);let c=this._lineOffsets;const u=s(t.text,!1,n);if(r-o===u.length)for(let e=0,t=u.length;e<t;e++)c[e+o+1]=u[e];else u.length<1e4?c.splice(o+1,r-o,...u):this._lineOffsets=c=c.slice(0,o+1).concat(u,c.slice(r+1));const l=t.text.length-(i-n);if(0!==l)for(let e=o+1+u.length,t=c.length;e<t;e++)c[e]=c[e]+l}else{if(!i.isFull(t))throw new Error("Unknown change event received");this._content=t.text,this._lineOffsets=void 0}this._version=t}getLineOffsets(){return void 0===this._lineOffsets&&(this._lineOffsets=s(this._content,!0)),this._lineOffsets}positionAt(e){e=Math.max(Math.min(e,this._content.length),0);let t=this.getLineOffsets(),n=0,i=t.length;if(0===i)return{line:0,character:e};for(;n<i;){let o=Math.floor((n+i)/2);t[o]>e?i=o:n=o+1}let o=n-1;return{line:o,character:e-t[o]}}offsetAt(e){let t=this.getLineOffsets();if(e.line>=t.length)return this._content.length;if(e.line<0)return 0;let n=t[e.line],i=e.line+1<t.length?t[e.line+1]:this._content.length;return Math.max(Math.min(n+e.character,i),n)}get lineCount(){return this.getLineOffsets().length}static isIncremental(e){let t=e;return null!=t&&"string"==typeof t.text&&void 0!==t.range&&(void 0===t.rangeLength||"number"==typeof t.rangeLength)}static isFull(e){let t=e;return null!=t&&"string"==typeof t.text&&void 0===t.range&&void 0===t.rangeLength}}var o;function r(e,t){if(e.length<=1)return e;const n=e.length/2|0,i=e.slice(0,n),o=e.slice(n);r(i,t),r(o,t);let s=0,a=0,c=0;for(;s<i.length&&a<o.length;){let n=t(i[s],o[a]);e[c++]=n<=0?i[s++]:o[a++]}for(;s<i.length;)e[c++]=i[s++];for(;a<o.length;)e[c++]=o[a++];return e}function s(e,t,n=0){const i=t?[n]:[];for(let t=0;t<e.length;t++){let o=e.charCodeAt(t);13!==o&&10!==o||(13===o&&t+1<e.length&&10===e.charCodeAt(t+1)&&t++,i.push(n+t+1))}return i}function a(e){const t=e.start,n=e.end;return t.line>n.line||t.line===n.line&&t.character>n.character?{start:n,end:t}:e}function c(e){const t=a(e.range);return t!==e.range?{newText:e.newText,range:t}:e}!function(e){e.create=function(e,t,n,o){return new i(e,t,n,o)},e.update=function(e,t,n){if(e instanceof i)return e.update(t,n),e;throw new Error("TextDocument.update: document must be created by TextDocument.create")},e.applyEdits=function(e,t){let n=e.getText(),i=r(t.map(c),((e,t)=>{let n=e.range.start.line-t.range.start.line;return 0===n?e.range.start.character-t.range.start.character:n})),o=0;const s=[];for(const t of i){let i=e.offsetAt(t.range.start);if(i<o)throw new Error("Overlapping edit");i>o&&s.push(n.substring(o,i)),t.newText.length&&s.push(t.newText),o=e.offsetAt(t.range.end)}return s.push(n.substr(o)),s.join("")}}(o||(o={}))},2118:(e,t,n)=>{var i,o,r,s,a,c,u,l,d,f,h,g,m,p,y,v,b,R,D,_,S,C,w,T,k,x,P,q,E,M,N,O,A,L,j,I,F,W,$,H,U,z,V,B,K,J,G,X,Q,Y,Z,ee,te,ne,ie,oe,re,se,ae,ce,ue,le,de,fe,he,ge,me,pe,ye,ve,be,Re,De,_e,Se,Ce,we,Te;n.r(t),n.d(t,{AnnotatedTextEdit:()=>w,ChangeAnnotation:()=>S,ChangeAnnotationIdentifier:()=>C,CodeAction:()=>re,CodeActionContext:()=>oe,CodeActionKind:()=>ne,CodeActionTriggerKind:()=>ie,CodeDescription:()=>b,CodeLens:()=>se,Color:()=>d,ColorInformation:()=>f,ColorPresentation:()=>h,Command:()=>D,CompletionItem:()=>U,CompletionItemKind:()=>j,CompletionItemLabelDetails:()=>H,CompletionItemTag:()=>F,CompletionList:()=>z,CreateFile:()=>k,DeleteFile:()=>P,Diagnostic:()=>R,DiagnosticRelatedInformation:()=>p,DiagnosticSeverity:()=>y,DiagnosticTag:()=>v,DocumentHighlight:()=>X,DocumentHighlightKind:()=>G,DocumentLink:()=>ce,DocumentSymbol:()=>te,DocumentUri:()=>i,EOL:()=>qe,FoldingRange:()=>m,FoldingRangeKind:()=>g,FormattingOptions:()=>ae,Hover:()=>B,InlayHint:()=>be,InlayHintKind:()=>ye,InlayHintLabelPart:()=>ve,InlineCompletionContext:()=>we,InlineCompletionItem:()=>De,InlineCompletionList:()=>_e,InlineCompletionTriggerKind:()=>Se,InlineValueContext:()=>pe,InlineValueEvaluatableExpression:()=>me,InlineValueText:()=>he,InlineValueVariableLookup:()=>ge,InsertReplaceEdit:()=>W,InsertTextFormat:()=>I,InsertTextMode:()=>$,Location:()=>u,LocationLink:()=>l,MarkedString:()=>V,MarkupContent:()=>L,MarkupKind:()=>A,OptionalVersionedTextDocumentIdentifier:()=>N,ParameterInformation:()=>K,Position:()=>a,Range:()=>c,RenameFile:()=>x,SelectedCompletionInfo:()=>Ce,SelectionRange:()=>ue,SemanticTokenModifiers:()=>de,SemanticTokenTypes:()=>le,SemanticTokens:()=>fe,SignatureInformation:()=>J,StringValue:()=>Re,SymbolInformation:()=>Z,SymbolKind:()=>Q,SymbolTag:()=>Y,TextDocument:()=>Ee,TextDocumentEdit:()=>T,TextDocumentIdentifier:()=>E,TextDocumentItem:()=>O,TextEdit:()=>_,URI:()=>o,VersionedTextDocumentIdentifier:()=>M,WorkspaceChange:()=>Pe,WorkspaceEdit:()=>q,WorkspaceFolder:()=>Te,WorkspaceSymbol:()=>ee,integer:()=>r,uinteger:()=>s}),function(e){e.is=function(e){return"string"==typeof e}}(i||(i={})),function(e){e.is=function(e){return"string"==typeof e}}(o||(o={})),function(e){e.MIN_VALUE=-2147483648,e.MAX_VALUE=2147483647,e.is=function(t){return"number"==typeof t&&e.MIN_VALUE<=t&&t<=e.MAX_VALUE}}(r||(r={})),function(e){e.MIN_VALUE=0,e.MAX_VALUE=2147483647,e.is=function(t){return"number"==typeof t&&e.MIN_VALUE<=t&&t<=e.MAX_VALUE}}(s||(s={})),function(e){e.create=function(e,t){return e===Number.MAX_VALUE&&(e=s.MAX_VALUE),t===Number.MAX_VALUE&&(t=s.MAX_VALUE),{line:e,character:t}},e.is=function(e){let t=e;return Me.objectLiteral(t)&&Me.uinteger(t.line)&&Me.uinteger(t.character)}}(a||(a={})),function(e){e.create=function(e,t,n,i){if(Me.uinteger(e)&&Me.uinteger(t)&&Me.uinteger(n)&&Me.uinteger(i))return{start:a.create(e,t),end:a.create(n,i)};if(a.is(e)&&a.is(t))return{start:e,end:t};throw new Error(`Range#create called with invalid arguments[${e}, ${t}, ${n}, ${i}]`)},e.is=function(e){let t=e;return Me.objectLiteral(t)&&a.is(t.start)&&a.is(t.end)}}(c||(c={})),function(e){e.create=function(e,t){return{uri:e,range:t}},e.is=function(e){let t=e;return Me.objectLiteral(t)&&c.is(t.range)&&(Me.string(t.uri)||Me.undefined(t.uri))}}(u||(u={})),function(e){e.create=function(e,t,n,i){return{targetUri:e,targetRange:t,targetSelectionRange:n,originSelectionRange:i}},e.is=function(e){let t=e;return Me.objectLiteral(t)&&c.is(t.targetRange)&&Me.string(t.targetUri)&&c.is(t.targetSelectionRange)&&(c.is(t.originSelectionRange)||Me.undefined(t.originSelectionRange))}}(l||(l={})),function(e){e.create=function(e,t,n,i){return{red:e,green:t,blue:n,alpha:i}},e.is=function(e){const t=e;return Me.objectLiteral(t)&&Me.numberRange(t.red,0,1)&&Me.numberRange(t.green,0,1)&&Me.numberRange(t.blue,0,1)&&Me.numberRange(t.alpha,0,1)}}(d||(d={})),function(e){e.create=function(e,t){return{range:e,color:t}},e.is=function(e){const t=e;return Me.objectLiteral(t)&&c.is(t.range)&&d.is(t.color)}}(f||(f={})),function(e){e.create=function(e,t,n){return{label:e,textEdit:t,additionalTextEdits:n}},e.is=function(e){const t=e;return Me.objectLiteral(t)&&Me.string(t.label)&&(Me.undefined(t.textEdit)||_.is(t))&&(Me.undefined(t.additionalTextEdits)||Me.typedArray(t.additionalTextEdits,_.is))}}(h||(h={})),function(e){e.Comment="comment",e.Imports="imports",e.Region="region"}(g||(g={})),function(e){e.create=function(e,t,n,i,o,r){const s={startLine:e,endLine:t};return Me.defined(n)&&(s.startCharacter=n),Me.defined(i)&&(s.endCharacter=i),Me.defined(o)&&(s.kind=o),Me.defined(r)&&(s.collapsedText=r),s},e.is=function(e){const t=e;return Me.objectLiteral(t)&&Me.uinteger(t.startLine)&&Me.uinteger(t.startLine)&&(Me.undefined(t.startCharacter)||Me.uinteger(t.startCharacter))&&(Me.undefined(t.endCharacter)||Me.uinteger(t.endCharacter))&&(Me.undefined(t.kind)||Me.string(t.kind))}}(m||(m={})),function(e){e.create=function(e,t){return{location:e,message:t}},e.is=function(e){let t=e;return Me.defined(t)&&u.is(t.location)&&Me.string(t.message)}}(p||(p={})),function(e){e.Error=1,e.Warning=2,e.Information=3,e.Hint=4}(y||(y={})),function(e){e.Unnecessary=1,e.Deprecated=2}(v||(v={})),function(e){e.is=function(e){const t=e;return Me.objectLiteral(t)&&Me.string(t.href)}}(b||(b={})),function(e){e.create=function(e,t,n,i,o,r){let s={range:e,message:t};return Me.defined(n)&&(s.severity=n),Me.defined(i)&&(s.code=i),Me.defined(o)&&(s.source=o),Me.defined(r)&&(s.relatedInformation=r),s},e.is=function(e){var t;let n=e;return Me.defined(n)&&c.is(n.range)&&Me.string(n.message)&&(Me.number(n.severity)||Me.undefined(n.severity))&&(Me.integer(n.code)||Me.string(n.code)||Me.undefined(n.code))&&(Me.undefined(n.codeDescription)||Me.string(null===(t=n.codeDescription)||void 0===t?void 0:t.href))&&(Me.string(n.source)||Me.undefined(n.source))&&(Me.undefined(n.relatedInformation)||Me.typedArray(n.relatedInformation,p.is))}}(R||(R={})),function(e){e.create=function(e,t,...n){let i={title:e,command:t};return Me.defined(n)&&n.length>0&&(i.arguments=n),i},e.is=function(e){let t=e;return Me.defined(t)&&Me.string(t.title)&&Me.string(t.command)}}(D||(D={})),function(e){e.replace=function(e,t){return{range:e,newText:t}},e.insert=function(e,t){return{range:{start:e,end:e},newText:t}},e.del=function(e){return{range:e,newText:""}},e.is=function(e){const t=e;return Me.objectLiteral(t)&&Me.string(t.newText)&&c.is(t.range)}}(_||(_={})),function(e){e.create=function(e,t,n){const i={label:e};return void 0!==t&&(i.needsConfirmation=t),void 0!==n&&(i.description=n),i},e.is=function(e){const t=e;return Me.objectLiteral(t)&&Me.string(t.label)&&(Me.boolean(t.needsConfirmation)||void 0===t.needsConfirmation)&&(Me.string(t.description)||void 0===t.description)}}(S||(S={})),function(e){e.is=function(e){const t=e;return Me.string(t)}}(C||(C={})),function(e){e.replace=function(e,t,n){return{range:e,newText:t,annotationId:n}},e.insert=function(e,t,n){return{range:{start:e,end:e},newText:t,annotationId:n}},e.del=function(e,t){return{range:e,newText:"",annotationId:t}},e.is=function(e){const t=e;return _.is(t)&&(S.is(t.annotationId)||C.is(t.annotationId))}}(w||(w={})),function(e){e.create=function(e,t){return{textDocument:e,edits:t}},e.is=function(e){let t=e;return Me.defined(t)&&N.is(t.textDocument)&&Array.isArray(t.edits)}}(T||(T={})),function(e){e.create=function(e,t,n){let i={kind:"create",uri:e};return void 0===t||void 0===t.overwrite&&void 0===t.ignoreIfExists||(i.options=t),void 0!==n&&(i.annotationId=n),i},e.is=function(e){let t=e;return t&&"create"===t.kind&&Me.string(t.uri)&&(void 0===t.options||(void 0===t.options.overwrite||Me.boolean(t.options.overwrite))&&(void 0===t.options.ignoreIfExists||Me.boolean(t.options.ignoreIfExists)))&&(void 0===t.annotationId||C.is(t.annotationId))}}(k||(k={})),function(e){e.create=function(e,t,n,i){let o={kind:"rename",oldUri:e,newUri:t};return void 0===n||void 0===n.overwrite&&void 0===n.ignoreIfExists||(o.options=n),void 0!==i&&(o.annotationId=i),o},e.is=function(e){let t=e;return t&&"rename"===t.kind&&Me.string(t.oldUri)&&Me.string(t.newUri)&&(void 0===t.options||(void 0===t.options.overwrite||Me.boolean(t.options.overwrite))&&(void 0===t.options.ignoreIfExists||Me.boolean(t.options.ignoreIfExists)))&&(void 0===t.annotationId||C.is(t.annotationId))}}(x||(x={})),function(e){e.create=function(e,t,n){let i={kind:"delete",uri:e};return void 0===t||void 0===t.recursive&&void 0===t.ignoreIfNotExists||(i.options=t),void 0!==n&&(i.annotationId=n),i},e.is=function(e){let t=e;return t&&"delete"===t.kind&&Me.string(t.uri)&&(void 0===t.options||(void 0===t.options.recursive||Me.boolean(t.options.recursive))&&(void 0===t.options.ignoreIfNotExists||Me.boolean(t.options.ignoreIfNotExists)))&&(void 0===t.annotationId||C.is(t.annotationId))}}(P||(P={})),function(e){e.is=function(e){let t=e;return t&&(void 0!==t.changes||void 0!==t.documentChanges)&&(void 0===t.documentChanges||t.documentChanges.every((e=>Me.string(e.kind)?k.is(e)||x.is(e)||P.is(e):T.is(e))))}}(q||(q={}));class ke{constructor(e,t){this.edits=e,this.changeAnnotations=t}insert(e,t,n){let i,o;if(void 0===n?i=_.insert(e,t):C.is(n)?(o=n,i=w.insert(e,t,n)):(this.assertChangeAnnotations(this.changeAnnotations),o=this.changeAnnotations.manage(n),i=w.insert(e,t,o)),this.edits.push(i),void 0!==o)return o}replace(e,t,n){let i,o;if(void 0===n?i=_.replace(e,t):C.is(n)?(o=n,i=w.replace(e,t,n)):(this.assertChangeAnnotations(this.changeAnnotations),o=this.changeAnnotations.manage(n),i=w.replace(e,t,o)),this.edits.push(i),void 0!==o)return o}delete(e,t){let n,i;if(void 0===t?n=_.del(e):C.is(t)?(i=t,n=w.del(e,t)):(this.assertChangeAnnotations(this.changeAnnotations),i=this.changeAnnotations.manage(t),n=w.del(e,i)),this.edits.push(n),void 0!==i)return i}add(e){this.edits.push(e)}all(){return this.edits}clear(){this.edits.splice(0,this.edits.length)}assertChangeAnnotations(e){if(void 0===e)throw new Error("Text edit change is not configured to manage change annotations.")}}class xe{constructor(e){this._annotations=void 0===e?Object.create(null):e,this._counter=0,this._size=0}all(){return this._annotations}get size(){return this._size}manage(e,t){let n;if(C.is(e)?n=e:(n=this.nextId(),t=e),void 0!==this._annotations[n])throw new Error(`Id ${n} is already in use.`);if(void 0===t)throw new Error(`No annotation provided for id ${n}`);return this._annotations[n]=t,this._size++,n}nextId(){return this._counter++,this._counter.toString()}}class Pe{constructor(e){this._textEditChanges=Object.create(null),void 0!==e?(this._workspaceEdit=e,e.documentChanges?(this._changeAnnotations=new xe(e.changeAnnotations),e.changeAnnotations=this._changeAnnotations.all(),e.documentChanges.forEach((e=>{if(T.is(e)){const t=new ke(e.edits,this._changeAnnotations);this._textEditChanges[e.textDocument.uri]=t}}))):e.changes&&Object.keys(e.changes).forEach((t=>{const n=new ke(e.changes[t]);this._textEditChanges[t]=n}))):this._workspaceEdit={}}get edit(){return this.initDocumentChanges(),void 0!==this._changeAnnotations&&(0===this._changeAnnotations.size?this._workspaceEdit.changeAnnotations=void 0:this._workspaceEdit.changeAnnotations=this._changeAnnotations.all()),this._workspaceEdit}getTextEditChange(e){if(N.is(e)){if(this.initDocumentChanges(),void 0===this._workspaceEdit.documentChanges)throw new Error("Workspace edit is not configured for document changes.");const t={uri:e.uri,version:e.version};let n=this._textEditChanges[t.uri];if(!n){const e=[],i={textDocument:t,edits:e};this._workspaceEdit.documentChanges.push(i),n=new ke(e,this._changeAnnotations),this._textEditChanges[t.uri]=n}return n}{if(this.initChanges(),void 0===this._workspaceEdit.changes)throw new Error("Workspace edit is not configured for normal text edit changes.");let t=this._textEditChanges[e];if(!t){let n=[];this._workspaceEdit.changes[e]=n,t=new ke(n),this._textEditChanges[e]=t}return t}}initDocumentChanges(){void 0===this._workspaceEdit.documentChanges&&void 0===this._workspaceEdit.changes&&(this._changeAnnotations=new xe,this._workspaceEdit.documentChanges=[],this._workspaceEdit.changeAnnotations=this._changeAnnotations.all())}initChanges(){void 0===this._workspaceEdit.documentChanges&&void 0===this._workspaceEdit.changes&&(this._workspaceEdit.changes=Object.create(null))}createFile(e,t,n){if(this.initDocumentChanges(),void 0===this._workspaceEdit.documentChanges)throw new Error("Workspace edit is not configured for document changes.");let i,o,r;if(S.is(t)||C.is(t)?i=t:n=t,void 0===i?o=k.create(e,n):(r=C.is(i)?i:this._changeAnnotations.manage(i),o=k.create(e,n,r)),this._workspaceEdit.documentChanges.push(o),void 0!==r)return r}renameFile(e,t,n,i){if(this.initDocumentChanges(),void 0===this._workspaceEdit.documentChanges)throw new Error("Workspace edit is not configured for document changes.");let o,r,s;if(S.is(n)||C.is(n)?o=n:i=n,void 0===o?r=x.create(e,t,i):(s=C.is(o)?o:this._changeAnnotations.manage(o),r=x.create(e,t,i,s)),this._workspaceEdit.documentChanges.push(r),void 0!==s)return s}deleteFile(e,t,n){if(this.initDocumentChanges(),void 0===this._workspaceEdit.documentChanges)throw new Error("Workspace edit is not configured for document changes.");let i,o,r;if(S.is(t)||C.is(t)?i=t:n=t,void 0===i?o=P.create(e,n):(r=C.is(i)?i:this._changeAnnotations.manage(i),o=P.create(e,n,r)),this._workspaceEdit.documentChanges.push(o),void 0!==r)return r}}!function(e){e.create=function(e){return{uri:e}},e.is=function(e){let t=e;return Me.defined(t)&&Me.string(t.uri)}}(E||(E={})),function(e){e.create=function(e,t){return{uri:e,version:t}},e.is=function(e){let t=e;return Me.defined(t)&&Me.string(t.uri)&&Me.integer(t.version)}}(M||(M={})),function(e){e.create=function(e,t){return{uri:e,version:t}},e.is=function(e){let t=e;return Me.defined(t)&&Me.string(t.uri)&&(null===t.version||Me.integer(t.version))}}(N||(N={})),function(e){e.create=function(e,t,n,i){return{uri:e,languageId:t,version:n,text:i}},e.is=function(e){let t=e;return Me.defined(t)&&Me.string(t.uri)&&Me.string(t.languageId)&&Me.integer(t.version)&&Me.string(t.text)}}(O||(O={})),function(e){e.PlainText="plaintext",e.Markdown="markdown",e.is=function(t){const n=t;return n===e.PlainText||n===e.Markdown}}(A||(A={})),function(e){e.is=function(e){const t=e;return Me.objectLiteral(e)&&A.is(t.kind)&&Me.string(t.value)}}(L||(L={})),function(e){e.Text=1,e.Method=2,e.Function=3,e.Constructor=4,e.Field=5,e.Variable=6,e.Class=7,e.Interface=8,e.Module=9,e.Property=10,e.Unit=11,e.Value=12,e.Enum=13,e.Keyword=14,e.Snippet=15,e.Color=16,e.File=17,e.Reference=18,e.Folder=19,e.EnumMember=20,e.Constant=21,e.Struct=22,e.Event=23,e.Operator=24,e.TypeParameter=25}(j||(j={})),function(e){e.PlainText=1,e.Snippet=2}(I||(I={})),function(e){e.Deprecated=1}(F||(F={})),function(e){e.create=function(e,t,n){return{newText:e,insert:t,replace:n}},e.is=function(e){const t=e;return t&&Me.string(t.newText)&&c.is(t.insert)&&c.is(t.replace)}}(W||(W={})),function(e){e.asIs=1,e.adjustIndentation=2}($||($={})),function(e){e.is=function(e){const t=e;return t&&(Me.string(t.detail)||void 0===t.detail)&&(Me.string(t.description)||void 0===t.description)}}(H||(H={})),function(e){e.create=function(e){return{label:e}}}(U||(U={})),function(e){e.create=function(e,t){return{items:e||[],isIncomplete:!!t}}}(z||(z={})),function(e){e.fromPlainText=function(e){return e.replace(/[\\`*_{}[\]()#+\-.!]/g,"\\$&")},e.is=function(e){const t=e;return Me.string(t)||Me.objectLiteral(t)&&Me.string(t.language)&&Me.string(t.value)}}(V||(V={})),function(e){e.is=function(e){let t=e;return!!t&&Me.objectLiteral(t)&&(L.is(t.contents)||V.is(t.contents)||Me.typedArray(t.contents,V.is))&&(void 0===e.range||c.is(e.range))}}(B||(B={})),function(e){e.create=function(e,t){return t?{label:e,documentation:t}:{label:e}}}(K||(K={})),function(e){e.create=function(e,t,...n){let i={label:e};return Me.defined(t)&&(i.documentation=t),Me.defined(n)?i.parameters=n:i.parameters=[],i}}(J||(J={})),function(e){e.Text=1,e.Read=2,e.Write=3}(G||(G={})),function(e){e.create=function(e,t){let n={range:e};return Me.number(t)&&(n.kind=t),n}}(X||(X={})),function(e){e.File=1,e.Module=2,e.Namespace=3,e.Package=4,e.Class=5,e.Method=6,e.Property=7,e.Field=8,e.Constructor=9,e.Enum=10,e.Interface=11,e.Function=12,e.Variable=13,e.Constant=14,e.String=15,e.Number=16,e.Boolean=17,e.Array=18,e.Object=19,e.Key=20,e.Null=21,e.EnumMember=22,e.Struct=23,e.Event=24,e.Operator=25,e.TypeParameter=26}(Q||(Q={})),function(e){e.Deprecated=1}(Y||(Y={})),function(e){e.create=function(e,t,n,i,o){let r={name:e,kind:t,location:{uri:i,range:n}};return o&&(r.containerName=o),r}}(Z||(Z={})),function(e){e.create=function(e,t,n,i){return void 0!==i?{name:e,kind:t,location:{uri:n,range:i}}:{name:e,kind:t,location:{uri:n}}}}(ee||(ee={})),function(e){e.create=function(e,t,n,i,o,r){let s={name:e,detail:t,kind:n,range:i,selectionRange:o};return void 0!==r&&(s.children=r),s},e.is=function(e){let t=e;return t&&Me.string(t.name)&&Me.number(t.kind)&&c.is(t.range)&&c.is(t.selectionRange)&&(void 0===t.detail||Me.string(t.detail))&&(void 0===t.deprecated||Me.boolean(t.deprecated))&&(void 0===t.children||Array.isArray(t.children))&&(void 0===t.tags||Array.isArray(t.tags))}}(te||(te={})),function(e){e.Empty="",e.QuickFix="quickfix",e.Refactor="refactor",e.RefactorExtract="refactor.extract",e.RefactorInline="refactor.inline",e.RefactorRewrite="refactor.rewrite",e.Source="source",e.SourceOrganizeImports="source.organizeImports",e.SourceFixAll="source.fixAll"}(ne||(ne={})),function(e){e.Invoked=1,e.Automatic=2}(ie||(ie={})),function(e){e.create=function(e,t,n){let i={diagnostics:e};return null!=t&&(i.only=t),null!=n&&(i.triggerKind=n),i},e.is=function(e){let t=e;return Me.defined(t)&&Me.typedArray(t.diagnostics,R.is)&&(void 0===t.only||Me.typedArray(t.only,Me.string))&&(void 0===t.triggerKind||t.triggerKind===ie.Invoked||t.triggerKind===ie.Automatic)}}(oe||(oe={})),function(e){e.create=function(e,t,n){let i={title:e},o=!0;return"string"==typeof t?(o=!1,i.kind=t):D.is(t)?i.command=t:i.edit=t,o&&void 0!==n&&(i.kind=n),i},e.is=function(e){let t=e;return t&&Me.string(t.title)&&(void 0===t.diagnostics||Me.typedArray(t.diagnostics,R.is))&&(void 0===t.kind||Me.string(t.kind))&&(void 0!==t.edit||void 0!==t.command)&&(void 0===t.command||D.is(t.command))&&(void 0===t.isPreferred||Me.boolean(t.isPreferred))&&(void 0===t.edit||q.is(t.edit))}}(re||(re={})),function(e){e.create=function(e,t){let n={range:e};return Me.defined(t)&&(n.data=t),n},e.is=function(e){let t=e;return Me.defined(t)&&c.is(t.range)&&(Me.undefined(t.command)||D.is(t.command))}}(se||(se={})),function(e){e.create=function(e,t){return{tabSize:e,insertSpaces:t}},e.is=function(e){let t=e;return Me.defined(t)&&Me.uinteger(t.tabSize)&&Me.boolean(t.insertSpaces)}}(ae||(ae={})),function(e){e.create=function(e,t,n){return{range:e,target:t,data:n}},e.is=function(e){let t=e;return Me.defined(t)&&c.is(t.range)&&(Me.undefined(t.target)||Me.string(t.target))}}(ce||(ce={})),function(e){e.create=function(e,t){return{range:e,parent:t}},e.is=function(t){let n=t;return Me.objectLiteral(n)&&c.is(n.range)&&(void 0===n.parent||e.is(n.parent))}}(ue||(ue={})),function(e){e.namespace="namespace",e.type="type",e.class="class",e.enum="enum",e.interface="interface",e.struct="struct",e.typeParameter="typeParameter",e.parameter="parameter",e.variable="variable",e.property="property",e.enumMember="enumMember",e.event="event",e.function="function",e.method="method",e.macro="macro",e.keyword="keyword",e.modifier="modifier",e.comment="comment",e.string="string",e.number="number",e.regexp="regexp",e.operator="operator",e.decorator="decorator"}(le||(le={})),function(e){e.declaration="declaration",e.definition="definition",e.readonly="readonly",e.static="static",e.deprecated="deprecated",e.abstract="abstract",e.async="async",e.modification="modification",e.documentation="documentation",e.defaultLibrary="defaultLibrary"}(de||(de={})),function(e){e.is=function(e){const t=e;return Me.objectLiteral(t)&&(void 0===t.resultId||"string"==typeof t.resultId)&&Array.isArray(t.data)&&(0===t.data.length||"number"==typeof t.data[0])}}(fe||(fe={})),function(e){e.create=function(e,t){return{range:e,text:t}},e.is=function(e){const t=e;return null!=t&&c.is(t.range)&&Me.string(t.text)}}(he||(he={})),function(e){e.create=function(e,t,n){return{range:e,variableName:t,caseSensitiveLookup:n}},e.is=function(e){const t=e;return null!=t&&c.is(t.range)&&Me.boolean(t.caseSensitiveLookup)&&(Me.string(t.variableName)||void 0===t.variableName)}}(ge||(ge={})),function(e){e.create=function(e,t){return{range:e,expression:t}},e.is=function(e){const t=e;return null!=t&&c.is(t.range)&&(Me.string(t.expression)||void 0===t.expression)}}(me||(me={})),function(e){e.create=function(e,t){return{frameId:e,stoppedLocation:t}},e.is=function(e){const t=e;return Me.defined(t)&&c.is(e.stoppedLocation)}}(pe||(pe={})),function(e){e.Type=1,e.Parameter=2,e.is=function(e){return 1===e||2===e}}(ye||(ye={})),function(e){e.create=function(e){return{value:e}},e.is=function(e){const t=e;return Me.objectLiteral(t)&&(void 0===t.tooltip||Me.string(t.tooltip)||L.is(t.tooltip))&&(void 0===t.location||u.is(t.location))&&(void 0===t.command||D.is(t.command))}}(ve||(ve={})),function(e){e.create=function(e,t,n){const i={position:e,label:t};return void 0!==n&&(i.kind=n),i},e.is=function(e){const t=e;return Me.objectLiteral(t)&&a.is(t.position)&&(Me.string(t.label)||Me.typedArray(t.label,ve.is))&&(void 0===t.kind||ye.is(t.kind))&&void 0===t.textEdits||Me.typedArray(t.textEdits,_.is)&&(void 0===t.tooltip||Me.string(t.tooltip)||L.is(t.tooltip))&&(void 0===t.paddingLeft||Me.boolean(t.paddingLeft))&&(void 0===t.paddingRight||Me.boolean(t.paddingRight))}}(be||(be={})),function(e){e.createSnippet=function(e){return{kind:"snippet",value:e}}}(Re||(Re={})),function(e){e.create=function(e,t,n,i){return{insertText:e,filterText:t,range:n,command:i}}}(De||(De={})),function(e){e.create=function(e){return{items:e}}}(_e||(_e={})),function(e){e.Invoked=0,e.Automatic=1}(Se||(Se={})),function(e){e.create=function(e,t){return{range:e,text:t}}}(Ce||(Ce={})),function(e){e.create=function(e,t){return{triggerKind:e,selectedCompletionInfo:t}}}(we||(we={})),function(e){e.is=function(e){const t=e;return Me.objectLiteral(t)&&o.is(t.uri)&&Me.string(t.name)}}(Te||(Te={}));const qe=["\n","\r\n","\r"];var Ee,Me;!function(e){function t(e,n){if(e.length<=1)return e;const i=e.length/2|0,o=e.slice(0,i),r=e.slice(i);t(o,n),t(r,n);let s=0,a=0,c=0;for(;s<o.length&&a<r.length;){let t=n(o[s],r[a]);e[c++]=t<=0?o[s++]:r[a++]}for(;s<o.length;)e[c++]=o[s++];for(;a<r.length;)e[c++]=r[a++];return e}e.create=function(e,t,n,i){return new Ne(e,t,n,i)},e.is=function(e){let t=e;return!!(Me.defined(t)&&Me.string(t.uri)&&(Me.undefined(t.languageId)||Me.string(t.languageId))&&Me.uinteger(t.lineCount)&&Me.func(t.getText)&&Me.func(t.positionAt)&&Me.func(t.offsetAt))},e.applyEdits=function(e,n){let i=e.getText(),o=t(n,((e,t)=>{let n=e.range.start.line-t.range.start.line;return 0===n?e.range.start.character-t.range.start.character:n})),r=i.length;for(let t=o.length-1;t>=0;t--){let n=o[t],s=e.offsetAt(n.range.start),a=e.offsetAt(n.range.end);if(!(a<=r))throw new Error("Overlapping edit");i=i.substring(0,s)+n.newText+i.substring(a,i.length),r=s}return i}}(Ee||(Ee={}));class Ne{constructor(e,t,n,i){this._uri=e,this._languageId=t,this._version=n,this._content=i,this._lineOffsets=void 0}get uri(){return this._uri}get languageId(){return this._languageId}get version(){return this._version}getText(e){if(e){let t=this.offsetAt(e.start),n=this.offsetAt(e.end);return this._content.substring(t,n)}return this._content}update(e,t){this._content=e.text,this._version=t,this._lineOffsets=void 0}getLineOffsets(){if(void 0===this._lineOffsets){let e=[],t=this._content,n=!0;for(let i=0;i<t.length;i++){n&&(e.push(i),n=!1);let o=t.charAt(i);n="\r"===o||"\n"===o,"\r"===o&&i+1<t.length&&"\n"===t.charAt(i+1)&&i++}n&&t.length>0&&e.push(t.length),this._lineOffsets=e}return this._lineOffsets}positionAt(e){e=Math.max(Math.min(e,this._content.length),0);let t=this.getLineOffsets(),n=0,i=t.length;if(0===i)return a.create(0,e);for(;n<i;){let o=Math.floor((n+i)/2);t[o]>e?i=o:n=o+1}let o=n-1;return a.create(o,e-t[o])}offsetAt(e){let t=this.getLineOffsets();if(e.line>=t.length)return this._content.length;if(e.line<0)return 0;let n=t[e.line],i=e.line+1<t.length?t[e.line+1]:this._content.length;return Math.max(Math.min(n+e.character,i),n)}get lineCount(){return this.getLineOffsets().length}}!function(e){const t=Object.prototype.toString;e.defined=function(e){return void 0!==e},e.undefined=function(e){return void 0===e},e.boolean=function(e){return!0===e||!1===e},e.string=function(e){return"[object String]"===t.call(e)},e.number=function(e){return"[object Number]"===t.call(e)},e.numberRange=function(e,n,i){return"[object Number]"===t.call(e)&&n<=e&&e<=i},e.integer=function(e){return"[object Number]"===t.call(e)&&-2147483648<=e&&e<=2147483647},e.uinteger=function(e){return"[object Number]"===t.call(e)&&0<=e&&e<=2147483647},e.func=function(e){return"[object Function]"===t.call(e)},e.objectLiteral=function(e){return null!==e&&"object"==typeof e},e.typedArray=function(e,t){return Array.isArray(e)&&e.every(t)}}(Me||(Me={}))},6883:(e,t,n)=>{var i;n.r(t),n.d(t,{URI:()=>o,Utils:()=>r}),(()=>{var e={470:e=>{function t(e){if("string"!=typeof e)throw new TypeError("Path must be a string. Received "+JSON.stringify(e))}function n(e,t){for(var n,i="",o=0,r=-1,s=0,a=0;a<=e.length;++a){if(a<e.length)n=e.charCodeAt(a);else{if(47===n)break;n=47}if(47===n){if(r===a-1||1===s);else if(r!==a-1&&2===s){if(i.length<2||2!==o||46!==i.charCodeAt(i.length-1)||46!==i.charCodeAt(i.length-2))if(i.length>2){var c=i.lastIndexOf("/");if(c!==i.length-1){-1===c?(i="",o=0):o=(i=i.slice(0,c)).length-1-i.lastIndexOf("/"),r=a,s=0;continue}}else if(2===i.length||1===i.length){i="",o=0,r=a,s=0;continue}t&&(i.length>0?i+="/..":i="..",o=2)}else i.length>0?i+="/"+e.slice(r+1,a):i=e.slice(r+1,a),o=a-r-1;r=a,s=0}else 46===n&&-1!==s?++s:s=-1}return i}var i={resolve:function(){for(var e,i="",o=!1,r=arguments.length-1;r>=-1&&!o;r--){var s;r>=0?s=arguments[r]:(void 0===e&&(e=process.cwd()),s=e),t(s),0!==s.length&&(i=s+"/"+i,o=47===s.charCodeAt(0))}return i=n(i,!o),o?i.length>0?"/"+i:"/":i.length>0?i:"."},normalize:function(e){if(t(e),0===e.length)return".";var i=47===e.charCodeAt(0),o=47===e.charCodeAt(e.length-1);return 0!==(e=n(e,!i)).length||i||(e="."),e.length>0&&o&&(e+="/"),i?"/"+e:e},isAbsolute:function(e){return t(e),e.length>0&&47===e.charCodeAt(0)},join:function(){if(0===arguments.length)return".";for(var e,n=0;n<arguments.length;++n){var o=arguments[n];t(o),o.length>0&&(void 0===e?e=o:e+="/"+o)}return void 0===e?".":i.normalize(e)},relative:function(e,n){if(t(e),t(n),e===n)return"";if((e=i.resolve(e))===(n=i.resolve(n)))return"";for(var o=1;o<e.length&&47===e.charCodeAt(o);++o);for(var r=e.length,s=r-o,a=1;a<n.length&&47===n.charCodeAt(a);++a);for(var c=n.length-a,u=s<c?s:c,l=-1,d=0;d<=u;++d){if(d===u){if(c>u){if(47===n.charCodeAt(a+d))return n.slice(a+d+1);if(0===d)return n.slice(a+d)}else s>u&&(47===e.charCodeAt(o+d)?l=d:0===d&&(l=0));break}var f=e.charCodeAt(o+d);if(f!==n.charCodeAt(a+d))break;47===f&&(l=d)}var h="";for(d=o+l+1;d<=r;++d)d!==r&&47!==e.charCodeAt(d)||(0===h.length?h+="..":h+="/..");return h.length>0?h+n.slice(a+l):(a+=l,47===n.charCodeAt(a)&&++a,n.slice(a))},_makeLong:function(e){return e},dirname:function(e){if(t(e),0===e.length)return".";for(var n=e.charCodeAt(0),i=47===n,o=-1,r=!0,s=e.length-1;s>=1;--s)if(47===(n=e.charCodeAt(s))){if(!r){o=s;break}}else r=!1;return-1===o?i?"/":".":i&&1===o?"//":e.slice(0,o)},basename:function(e,n){if(void 0!==n&&"string"!=typeof n)throw new TypeError('"ext" argument must be a string');t(e);var i,o=0,r=-1,s=!0;if(void 0!==n&&n.length>0&&n.length<=e.length){if(n.length===e.length&&n===e)return"";var a=n.length-1,c=-1;for(i=e.length-1;i>=0;--i){var u=e.charCodeAt(i);if(47===u){if(!s){o=i+1;break}}else-1===c&&(s=!1,c=i+1),a>=0&&(u===n.charCodeAt(a)?-1==--a&&(r=i):(a=-1,r=c))}return o===r?r=c:-1===r&&(r=e.length),e.slice(o,r)}for(i=e.length-1;i>=0;--i)if(47===e.charCodeAt(i)){if(!s){o=i+1;break}}else-1===r&&(s=!1,r=i+1);return-1===r?"":e.slice(o,r)},extname:function(e){t(e);for(var n=-1,i=0,o=-1,r=!0,s=0,a=e.length-1;a>=0;--a){var c=e.charCodeAt(a);if(47!==c)-1===o&&(r=!1,o=a+1),46===c?-1===n?n=a:1!==s&&(s=1):-1!==n&&(s=-1);else if(!r){i=a+1;break}}return-1===n||-1===o||0===s||1===s&&n===o-1&&n===i+1?"":e.slice(n,o)},format:function(e){if(null===e||"object"!=typeof e)throw new TypeError('The "pathObject" argument must be of type Object. Received type '+typeof e);return function(e,t){var n=t.dir||t.root,i=t.base||(t.name||"")+(t.ext||"");return n?n===t.root?n+i:n+"/"+i:i}(0,e)},parse:function(e){t(e);var n={root:"",dir:"",base:"",ext:"",name:""};if(0===e.length)return n;var i,o=e.charCodeAt(0),r=47===o;r?(n.root="/",i=1):i=0;for(var s=-1,a=0,c=-1,u=!0,l=e.length-1,d=0;l>=i;--l)if(47!==(o=e.charCodeAt(l)))-1===c&&(u=!1,c=l+1),46===o?-1===s?s=l:1!==d&&(d=1):-1!==s&&(d=-1);else if(!u){a=l+1;break}return-1===s||-1===c||0===d||1===d&&s===c-1&&s===a+1?-1!==c&&(n.base=n.name=0===a&&r?e.slice(1,c):e.slice(a,c)):(0===a&&r?(n.name=e.slice(1,s),n.base=e.slice(1,c)):(n.name=e.slice(a,s),n.base=e.slice(a,c)),n.ext=e.slice(s,c)),a>0?n.dir=e.slice(0,a-1):r&&(n.dir="/"),n},sep:"/",delimiter:":",win32:null,posix:null};i.posix=i,e.exports=i}},t={};function n(i){var o=t[i];if(void 0!==o)return o.exports;var r=t[i]={exports:{}};return e[i](r,r.exports,n),r.exports}n.d=(e,t)=>{for(var i in t)n.o(t,i)&&!n.o(e,i)&&Object.defineProperty(e,i,{enumerable:!0,get:t[i]})},n.o=(e,t)=>Object.prototype.hasOwnProperty.call(e,t),n.r=e=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})};var o={};(()=>{let e;if(n.r(o),n.d(o,{URI:()=>l,Utils:()=>C}),"object"==typeof process)e="win32"===process.platform;else if("object"==typeof navigator){let t=navigator.userAgent;e=t.indexOf("Windows")>=0}const t=/^\w[\w\d+.-]*$/,i=/^\//,r=/^\/\//;function s(e,n){if(!e.scheme&&n)throw new Error(`[UriError]: Scheme is missing: {scheme: "", authority: "${e.authority}", path: "${e.path}", query: "${e.query}", fragment: "${e.fragment}"}`);if(e.scheme&&!t.test(e.scheme))throw new Error("[UriError]: Scheme contains illegal characters.");if(e.path)if(e.authority){if(!i.test(e.path))throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character')}else if(r.test(e.path))throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")')}const a="",c="/",u=/^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;class l{static isUri(e){return e instanceof l||!!e&&"string"==typeof e.authority&&"string"==typeof e.fragment&&"string"==typeof e.path&&"string"==typeof e.query&&"string"==typeof e.scheme&&"string"==typeof e.fsPath&&"function"==typeof e.with&&"function"==typeof e.toString}scheme;authority;path;query;fragment;constructor(e,t,n,i,o,r=!1){"object"==typeof e?(this.scheme=e.scheme||a,this.authority=e.authority||a,this.path=e.path||a,this.query=e.query||a,this.fragment=e.fragment||a):(this.scheme=function(e,t){return e||t?e:"file"}(e,r),this.authority=t||a,this.path=function(e,t){switch(e){case"https":case"http":case"file":t?t[0]!==c&&(t=c+t):t=c}return t}(this.scheme,n||a),this.query=i||a,this.fragment=o||a,s(this,r))}get fsPath(){return p(this,!1)}with(e){if(!e)return this;let{scheme:t,authority:n,path:i,query:o,fragment:r}=e;return void 0===t?t=this.scheme:null===t&&(t=a),void 0===n?n=this.authority:null===n&&(n=a),void 0===i?i=this.path:null===i&&(i=a),void 0===o?o=this.query:null===o&&(o=a),void 0===r?r=this.fragment:null===r&&(r=a),t===this.scheme&&n===this.authority&&i===this.path&&o===this.query&&r===this.fragment?this:new f(t,n,i,o,r)}static parse(e,t=!1){const n=u.exec(e);return n?new f(n[2]||a,R(n[4]||a),R(n[5]||a),R(n[7]||a),R(n[9]||a),t):new f(a,a,a,a,a)}static file(t){let n=a;if(e&&(t=t.replace(/\\/g,c)),t[0]===c&&t[1]===c){const e=t.indexOf(c,2);-1===e?(n=t.substring(2),t=c):(n=t.substring(2,e),t=t.substring(e)||c)}return new f("file",n,t,a,a)}static from(e){const t=new f(e.scheme,e.authority,e.path,e.query,e.fragment);return s(t,!0),t}toString(e=!1){return y(this,e)}toJSON(){return this}static revive(e){if(e){if(e instanceof l)return e;{const t=new f(e);return t._formatted=e.external,t._fsPath=e._sep===d?e.fsPath:null,t}}return e}}const d=e?1:void 0;class f extends l{_formatted=null;_fsPath=null;get fsPath(){return this._fsPath||(this._fsPath=p(this,!1)),this._fsPath}toString(e=!1){return e?y(this,!0):(this._formatted||(this._formatted=y(this,!1)),this._formatted)}toJSON(){const e={$mid:1};return this._fsPath&&(e.fsPath=this._fsPath,e._sep=d),this._formatted&&(e.external=this._formatted),this.path&&(e.path=this.path),this.scheme&&(e.scheme=this.scheme),this.authority&&(e.authority=this.authority),this.query&&(e.query=this.query),this.fragment&&(e.fragment=this.fragment),e}}const h={58:"%3A",47:"%2F",63:"%3F",35:"%23",91:"%5B",93:"%5D",64:"%40",33:"%21",36:"%24",38:"%26",39:"%27",40:"%28",41:"%29",42:"%2A",43:"%2B",44:"%2C",59:"%3B",61:"%3D",32:"%20"};function g(e,t,n){let i,o=-1;for(let r=0;r<e.length;r++){const s=e.charCodeAt(r);if(s>=97&&s<=122||s>=65&&s<=90||s>=48&&s<=57||45===s||46===s||95===s||126===s||t&&47===s||n&&91===s||n&&93===s||n&&58===s)-1!==o&&(i+=encodeURIComponent(e.substring(o,r)),o=-1),void 0!==i&&(i+=e.charAt(r));else{void 0===i&&(i=e.substr(0,r));const t=h[s];void 0!==t?(-1!==o&&(i+=encodeURIComponent(e.substring(o,r)),o=-1),i+=t):-1===o&&(o=r)}}return-1!==o&&(i+=encodeURIComponent(e.substring(o))),void 0!==i?i:e}function m(e){let t;for(let n=0;n<e.length;n++){const i=e.charCodeAt(n);35===i||63===i?(void 0===t&&(t=e.substr(0,n)),t+=h[i]):void 0!==t&&(t+=e[n])}return void 0!==t?t:e}function p(t,n){let i;return i=t.authority&&t.path.length>1&&"file"===t.scheme?`//${t.authority}${t.path}`:47===t.path.charCodeAt(0)&&(t.path.charCodeAt(1)>=65&&t.path.charCodeAt(1)<=90||t.path.charCodeAt(1)>=97&&t.path.charCodeAt(1)<=122)&&58===t.path.charCodeAt(2)?n?t.path.substr(1):t.path[1].toLowerCase()+t.path.substr(2):t.path,e&&(i=i.replace(/\//g,"\\")),i}function y(e,t){const n=t?m:g;let i="",{scheme:o,authority:r,path:s,query:a,fragment:u}=e;if(o&&(i+=o,i+=":"),(r||"file"===o)&&(i+=c,i+=c),r){let e=r.indexOf("@");if(-1!==e){const t=r.substr(0,e);r=r.substr(e+1),e=t.lastIndexOf(":"),-1===e?i+=n(t,!1,!1):(i+=n(t.substr(0,e),!1,!1),i+=":",i+=n(t.substr(e+1),!1,!0)),i+="@"}r=r.toLowerCase(),e=r.lastIndexOf(":"),-1===e?i+=n(r,!1,!0):(i+=n(r.substr(0,e),!1,!0),i+=r.substr(e))}if(s){if(s.length>=3&&47===s.charCodeAt(0)&&58===s.charCodeAt(2)){const e=s.charCodeAt(1);e>=65&&e<=90&&(s=`/${String.fromCharCode(e+32)}:${s.substr(3)}`)}else if(s.length>=2&&58===s.charCodeAt(1)){const e=s.charCodeAt(0);e>=65&&e<=90&&(s=`${String.fromCharCode(e+32)}:${s.substr(2)}`)}i+=n(s,!0,!1)}return a&&(i+="?",i+=n(a,!1,!1)),u&&(i+="#",i+=t?u:g(u,!1,!1)),i}function v(e){try{return decodeURIComponent(e)}catch{return e.length>3?e.substr(0,3)+v(e.substr(3)):e}}const b=/(%[0-9A-Za-z][0-9A-Za-z])+/g;function R(e){return e.match(b)?e.replace(b,(e=>v(e))):e}var D=n(470);const _=D.posix||D,S="/";var C;!function(e){e.joinPath=function(e,...t){return e.with({path:_.join(e.path,...t)})},e.resolvePath=function(e,...t){let n=e.path,i=!1;n[0]!==S&&(n=S+n,i=!0);let o=_.resolve(n,...t);return i&&o[0]===S&&!e.authority&&(o=o.substring(1)),e.with({path:o})},e.dirname=function(e){if(0===e.path.length||e.path===S)return e;let t=_.dirname(e.path);return 1===t.length&&46===t.charCodeAt(0)&&(t=""),e.with({path:t})},e.basename=function(e){return _.basename(e.path)},e.extname=function(e){return _.extname(e.path)}}(C||(C={}))})(),i=o})();const{URI:o,Utils:r}=i}},t={};function n(i){var o=t[i];if(void 0!==o)return o.exports;var r=t[i]={exports:{}};return e[i].call(r.exports,r,r.exports,n),r.exports}n.d=(e,t)=>{for(var i in t)n.o(t,i)&&!n.o(e,i)&&Object.defineProperty(e,i,{enumerable:!0,get:t[i]})},n.o=(e,t)=>Object.prototype.hasOwnProperty.call(e,t),n.r=e=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})};var i={};(()=>{var e=i;Object.defineProperty(e,"__esModule",{value:!0});const t=n(1017),o=n(2037),r=n(8212),s=n(6960),a=n(6883),c=n(2116),u=n(7237),l=n(7567),d=n(9675),f=n(5232),h=n(2388),g=(0,r.createConnection)(r.ProposedFeatures.all,{cancelUndispatched:e=>{if(r.Message.isRequest(e)&&"textDocument/codeAction"===e.method)return{jsonrpc:e.jsonrpc,id:e.id,result:null}}});let m;const p=new r.TextDocuments(s.TextDocument),y=new r.NotebookDocuments(p),v=process.exit;function b(e){if(!e)return;const n=(0,d.getUri)(e);if("file"===n.scheme)return(0,d.getFileSystemPath)(n);const i=y.findNotebookDocumentForCell(n.toString());if(void 0!==i&&"file"===a.URI.parse(i.uri).scheme){const e=(0,d.getFileSystemPath)(n);if(void 0!==e){const i=p.get(n.toString());if(void 0!==i){const n=h.default.getExtension(i.languageId);if(void 0!==n){const i=t.extname(e);if(0===i.length&&"."===e[0])return`${e}.${n}`;if(i.length>0&&i!==n)return`${e.substring(0,e.length-i.length)}.${n}`}}}}}var R,D,_;process.exit=e=>{const t=new Error("stack");g.sendNotification(c.ExitCalled.type,[e||0,t.stack]),setTimeout((()=>{v(e)}),1e3)},process.on("uncaughtException",(e=>{let t;if(e&&("string"==typeof e.stack?t=e.stack:"string"==typeof e.message?t=e.message:"string"==typeof e&&(t=e),void 0===t||0===t.length))try{t=JSON.stringify(e,void 0,4)}catch(e){}console.error("Uncaught exception received."),t&&console.error(t)})),l.ESLint.initialize(g,p,b,(function(e){const t=require;try{return t(e)}catch(e){e.stack&&g.console.error(e.stack.toString())}})),l.SaveRuleConfigs.inferFilePath=b,function(e){e.is=function(e){const t=e;return t&&void 0!==t.token&&void 0!==t.resolve&&void 0!==t.reject}}(R||(R={})),function(e){e.is=function(e){return e&&"function"==typeof e.then}}(D||(D={})),function(e){e.type=new r.NotificationType("eslint/validate")}(_||(_={}));const S=new class{constructor(e){this.connection=e,this.queue=[],this.requestHandlers=new Map,this.notificationHandlers=new Map}registerRequest(e,t,n){this.connection.onRequest(e,((t,i)=>new Promise(((o,r)=>{this.queue.push({method:e.method,params:t,documentVersion:n?n(t):void 0,resolve:o,reject:r,token:i}),this.trigger()})))),this.requestHandlers.set(e.method,{handler:t,versionProvider:n})}registerNotification(e,t,n){g.onNotification(e,(t=>{this.queue.push({method:e.method,params:t,documentVersion:n?n(t):void 0}),this.trigger()})),this.notificationHandlers.set(e.method,{handler:t,versionProvider:n})}addNotificationMessage(e,t,n){this.queue.push({method:e.method,params:t,documentVersion:n}),this.trigger()}onNotification(e,t,n){this.notificationHandlers.set(e.method,{handler:t,versionProvider:n})}trigger(){this.timer||0===this.queue.length||(this.timer=setImmediate((()=>{this.timer=void 0,this.processQueue(),this.trigger()})))}processQueue(){const e=this.queue.shift();if(e)if(R.is(e)){const t=e;if(t.token.isCancellationRequested)return void t.reject(new r.ResponseError(r.LSPErrorCodes.RequestCancelled,"Request got cancelled"));const n=this.requestHandlers.get(t.method);if(void 0===n)throw new Error("No handler registered");if(n.versionProvider&&void 0!==t.documentVersion&&t.documentVersion!==n.versionProvider(t.params))return void t.reject(new r.ResponseError(r.LSPErrorCodes.RequestCancelled,"Request got cancelled"));const i=n.handler(t.params,t.token);D.is(i)?i.then((e=>{t.resolve(e)}),(e=>{t.reject(e)})):t.resolve(i)}else{const t=e,n=this.notificationHandlers.get(t.method);if(void 0===n)throw new Error("No handler registered");if(n.versionProvider&&void 0!==t.documentVersion&&t.documentVersion!==n.versionProvider(t.params))return;n.handler(t.params)}}}(g);function C(){l.ESLint.clearSettings(),l.RuleSeverities.clear(),l.SaveRuleConfigs.clear(),l.ESLint.clearFormatters();for(const e of p.all())S.addNotificationMessage(_.type,e,e.version)}var w,T;S.onNotification(_.type,(e=>{!async function(e,t=!0){if(!p.get(e.uri))return;const n=await l.ESLint.resolveSettings(e);if(n.validate===u.Validate.on&&l.TextDocumentSettings.hasLibrary(n))try{const i=Date.now(),o=await l.ESLint.validate(e,n);t&&g.sendDiagnostics({uri:e.uri,diagnostics:o});const r=Date.now()-i;g.sendNotification(c.StatusNotification.type,{uri:e.uri,state:c.Status.ok,validationTime:r})}catch(t){if(g.sendDiagnostics({uri:e.uri,diagnostics:[]}),n.silent)g.console.info(l.ESLint.ErrorHandlers.getMessage(t,e)),g.sendNotification(c.StatusNotification.type,{uri:e.uri,state:c.Status.ok});else{let i;for(const o of l.ESLint.ErrorHandlers.single)if(i=o(t,e,n.library),i)break;i=i||c.Status.error,g.sendNotification(c.StatusNotification.type,{uri:e.uri,state:i})}}}(e,!0)}),(e=>e.version)),p.onDidOpen((async e=>{const t=e.document,n=await l.ESLint.resolveSettings(t);n.validate===u.Validate.on&&l.TextDocumentSettings.hasLibrary(n)&&"onSave"===n.run&&S.addNotificationMessage(_.type,t,t.version)})),p.onDidChangeContent((async e=>{const t=e.document,n=t.uri;l.CodeActions.remove(n);const i=await l.ESLint.resolveSettings(t);i.validate===u.Validate.on&&"onType"===i.run&&S.addNotificationMessage(_.type,t,t.version)})),p.onDidSave((async e=>{const t=e.document,n=await l.ESLint.resolveSettings(t);n.validate===u.Validate.on&&"onSave"===n.run&&S.addNotificationMessage(_.type,t,t.version)})),p.onDidClose((async e=>{const t=e.document,n=await l.ESLint.resolveSettings(t),i=t.uri;l.ESLint.removeSettings(i),l.SaveRuleConfigs.remove(i),l.CodeActions.remove(i),l.ESLint.unregisterAsFormatter(t),n.validate===u.Validate.on&&g.sendDiagnostics({uri:i,diagnostics:[]})})),function(e){e.applySingleFix="eslint.applySingleFix",e.applySuggestion="eslint.applySuggestion",e.applySameFixes="eslint.applySameFixes",e.applyAllFixes="eslint.applyAllFixes",e.applyDisableLine="eslint.applyDisableLine",e.applyDisableFile="eslint.applyDisableFile",e.openRuleDoc="eslint.openRuleDoc"}(w||(w={})),g.onInitialize(((e,t,n)=>{n.begin("Initializing ESLint Server");const i=r.TextDocumentSyncKind.Incremental;m=e.capabilities,n.done();const o={textDocumentSync:{openClose:!0,change:i,willSaveWaitUntil:!1,save:{includeText:!1}},workspace:{workspaceFolders:{supported:!0}},executeCommandProvider:{commands:[w.applySingleFix,w.applySuggestion,w.applySameFixes,w.applyAllFixes,w.applyDisableLine,w.applyDisableFile,w.openRuleDoc]}};return void 0!==m.textDocument?.codeAction?.codeActionLiteralSupport?.codeActionKind.valueSet&&(o.codeActionProvider={codeActionKinds:[r.CodeActionKind.QuickFix,`${r.CodeActionKind.SourceFixAll}.eslint`]}),{capabilities:o}})),g.onInitialized((()=>{!0===m.workspace?.didChangeConfiguration?.dynamicRegistration&&g.client.register(r.DidChangeConfigurationNotification.type,void 0),g.client.register(r.DidChangeWorkspaceFoldersNotification.type,void 0)})),S.registerNotification(r.DidChangeConfigurationNotification.type,(e=>{C()})),S.registerNotification(r.DidChangeWorkspaceFoldersNotification.type,(e=>{C()})),S.registerNotification(r.DidChangeWatchedFilesNotification.type,(async e=>{l.RuleMetaData.clear(),l.ESLint.ErrorHandlers.clearNoConfigReported(),l.ESLint.ErrorHandlers.clearMissingModuleReported(),l.ESLint.clearSettings(),l.RuleSeverities.clear(),l.SaveRuleConfigs.clear(),await Promise.all(e.changes.map((async e=>{const n=b(e.uri);if(void 0===n||0===n.length||(0,d.isUNC)(n))return;const i=t.dirname(n);if(i){const e=l.ESLint.ErrorHandlers.getConfigErrorReported(n);if(void 0!==e){const o=l.ESLint.newClass(e,{},!1);try{await o.lintText("",{filePath:t.join(i,"___test___.js")}),l.ESLint.ErrorHandlers.removeConfigErrorReported(n)}catch(e){}}}}))),function(e){e.forEach((e=>{S.addNotificationMessage(_.type,e,e.version)}))}(p.all())}));class k{constructor(){this._actions=new Map}get(e){let t=this._actions.get(e);return void 0===t&&(t={fixes:[],suggestions:[]},this._actions.set(e,t)),t}get fixAll(){return void 0===this._fixAll&&(this._fixAll=[]),this._fixAll}all(){const e=[];for(const t of this._actions.values())e.push(...t.fixes),e.push(...t.suggestions),t.disable&&e.push(t.disable),t.fixAll&&e.push(t.fixAll),t.disableFile&&e.push(t.disableFile),t.showDocumentation&&e.push(t.showDocumentation);return void 0!==this._fixAll&&e.push(...this._fixAll),e}get length(){let e=0;for(const t of this._actions.values())e+=t.fixes.length;return e}}!function(e){e.create=function(e,t,n){return{uri:e.uri,version:e.version,ruleId:t,sequence:n}},e.hasRuleId=function(e){return void 0!==e.ruleId}}(T||(T={}));const x=new class{constructor(){this.values=new Map,this.uri=void 0,this.version=void 0}clear(e){void 0===e?(this.uri=void 0,this.version=void 0):(this.uri=e.uri,this.version=e.version),this.values.clear()}isUsable(e,t){return this.uri===e&&this.version===t}set(e,t){this.values.set(e,t)}get(e){return this.values.get(e)}},P=`${r.CodeActionKind.SourceFixAll}.eslint`;var q;async function E(e,t){const n=e.uri,i=p.get(n);if(void 0===i||e.version!==i.version)return;const o=await l.ESLint.resolveSettings(i);if(o.validate!==u.Validate.on||!l.TextDocumentSettings.hasLibrary(o)||t===q.format&&!o.format)return[];const r=b(i),a=l.CodeActions.get(n),c=i.getText();let d=Date.now();if(t===q.onSave&&o.codeActionOnSave.mode===u.CodeActionsOnSaveMode.problems){const e=void 0!==a&&a.size>0?new l.Fixes(a).getApplicable().map((e=>l.FixableProblem.createTextEdit(i,e))):[];return g.tracer.log(`Computing all fixes took: ${Date.now()-d} ms.`),e}{const e=void 0!==r&&t===q.onSave?await l.SaveRuleConfigs.get(n,o):void 0,u=e?.offRules,h=e?.onRules;let m;if(void 0!==u){m={rules:Object.create(null)};for(const e of u)m.rules[e]="off"}return l.ESLint.withClass((async e=>{const t=[];let n;if(void 0!==a&&a.size>0)if(void 0!==u){const e=new Map;for(const[t,n]of a)h?.has(n.ruleId)&&e.set(t,n);n=e.size>0?new l.Fixes(e).getApplicable().map((e=>l.FixableProblem.createTextEdit(i,e))):void 0}else n=new l.Fixes(a).getApplicable().map((e=>l.FixableProblem.createTextEdit(i,e)));const o=void 0!==n?s.TextDocument.applyEdits(i,n):c,m=await e.lintText(o,{filePath:r});if(g.tracer.log(`Computing all fixes took: ${Date.now()-d} ms.`),Array.isArray(m)&&1===m.length&&void 0!==m[0].output){const e=m[0].output;d=Date.now();const n=(0,f.stringDiff)(c,e,!1);g.tracer.log(`Computing minimal edits took: ${Date.now()-d} ms.`);for(const o of n)t.push({range:{start:i.positionAt(o.originalStart),end:i.positionAt(o.originalStart+o.originalLength)},newText:e.substr(o.modifiedStart,o.modifiedLength)})}else void 0!==n&&t.push(...n);return t}),o,void 0!==m?{fix:!0,overrideConfig:m}:{fix:!0})}}S.registerRequest(r.CodeActionRequest.type,(async e=>{const t=new k,n=e.textDocument.uri,i=p.get(n);if(void 0===i)return x.clear(i),t.all();function s(e,t,n,i,o){const s=r.Command.create(e,n,i),a=r.CodeAction.create(e,s,t);return void 0!==o&&(a.diagnostics=[o]),a}function a(e,t){let n=e.indexOf("--");if(n<0){if("string"==typeof t)return e.length;for(n=e.indexOf(t[1]);n>0&&" "===e[n-1];)n--}else for(;n>1&&" "===e[n-1];)n--;return n}function c(e){return e.replace(/[|{}\\()[\]^$+*?.]/g,"\\$&")}function d(e,t,n){const i=h.default.getLineComment(e.languageId),s=h.default.getBlockComment(e.languageId);if(t.line-1>0){const n=e.getText(r.Range.create(r.Position.create(t.line-2,0),r.Position.create(t.line-2,r.uinteger.MAX_VALUE)));if(new RegExp(`${c(i)} eslint-disable-next-line`).test(n)){const e=a(n,i);return r.TextEdit.insert(r.Position.create(t.line-2,e),`, ${t.ruleId}`)}if(new RegExp(`${c(s[0])} eslint-disable-next-line`).test(n)){const e=a(n,s);return r.TextEdit.insert(r.Position.create(t.line-2,e),`, ${t.ruleId}`)}}let u;return u="block"===y.codeAction.disableRuleComment.commentStyle?`${n}${s[0]} eslint-disable-next-line ${t.ruleId} ${s[1]}${o.EOL}`:`${n}${i} eslint-disable-next-line ${t.ruleId}${o.EOL}`,r.TextEdit.insert(r.Position.create(t.line-1,0),u)}function f(e,t){const n=h.default.getLineComment(e.languageId),i=h.default.getBlockComment(e.languageId),o=e.getText(r.Range.create(r.Position.create(t.line-1,0),r.Position.create(t.line-1,r.uinteger.MAX_VALUE)));let s,c;const u=new RegExp(`${n} eslint-disable-line`).test(o),l=new RegExp(`${i[0]} eslint-disable-line`).test(o);return u?(s=`, ${t.ruleId}`,c=a(o,n)):l?(s=`, ${t.ruleId}`,c=a(o,i)):(s="line"===y.codeAction.disableRuleComment.commentStyle?` ${n} eslint-disable-line ${t.ruleId}`:` ${i[0]} eslint-disable-line ${t.ruleId} ${i[1]}`,c=r.uinteger.MAX_VALUE),r.TextEdit.insert(r.Position.create(t.line-1,c),s)}function g(e,t){const n="#!"===e.getText(r.Range.create(r.Position.create(0,0),r.Position.create(0,2)))?1:0,i=h.default.getBlockComment(e.languageId);return r.TextEdit.insert(r.Position.create(n,0),`${i[0]} eslint-disable ${t.ruleId} ${i[1]}${o.EOL}`)}function m(e){const t=e.length;if(0!==t)return e[t-1]}const y=await l.ESLint.resolveSettings(i);if(y.validate!==u.Validate.on||!l.TextDocumentSettings.hasLibrary(y))return t.all();const v=l.CodeActions.get(n);if(void 0===v&&"onType"===y.run)return t.all();const b=void 0!==e.context.only&&e.context.only.length>0?e.context.only[0]:void 0,R=b===r.CodeActionKind.Source,D=b===P||b===r.CodeActionKind.SourceFixAll;if(D||R){if(D){const e={uri:i.uri,version:i.version},n=await E(e,q.onSave);void 0!==n&&t.fixAll.push(r.CodeAction.create("Fix all fixable ESLint issues",{documentChanges:[r.TextDocumentEdit.create(e,n)]},P))}else R&&t.fixAll.push(s("Fix all fixable ESLint issues",r.CodeActionKind.Source,w.applyAllFixes,T.create(i)));return t.all()}if(void 0===v)return t.all();const _=new l.Fixes(v);if(_.isEmpty())return t.all();let S=-1;const C=[],M=b??r.CodeActionKind.QuickFix;for(const o of _.getScoped(e.context.diagnostics)){S=o.documentVersion;const e=o.ruleId;if(C.push(e),l.Problem.isFixable(o)){const a=new r.WorkspaceChange;a.getTextEditChange({uri:n,version:S}).add(l.FixableProblem.createTextEdit(i,o)),x.set(`${w.applySingleFix}:${e}`,a);const c=s(o.label,M,w.applySingleFix,T.create(i,e),o.diagnostic);c.isPreferred=!0,t.get(e).fixes.push(c)}if(l.Problem.hasSuggestions(o)&&o.suggestions.forEach(((a,c)=>{const u=new r.WorkspaceChange;u.getTextEditChange({uri:n,version:S}).add(l.SuggestionsProblem.createTextEdit(i,a)),x.set(`${w.applySuggestion}:${e}:${c}`,u);const d=s(`${a.desc} (${o.ruleId})`,r.CodeActionKind.QuickFix,w.applySuggestion,T.create(i,e,c),o.diagnostic);t.get(e).suggestions.push(d)})),y.codeAction.disableRuleComment.enable&&e!==l.RuleMetaData.unusedDisableDirectiveId){let a=new r.WorkspaceChange;if("sameLine"===y.codeAction.disableRuleComment.location)a.getTextEditChange({uri:n,version:S}).add(f(i,o));else{const e=i.getText(r.Range.create(r.Position.create(o.line-1,0),r.Position.create(o.line-1,r.uinteger.MAX_VALUE))),t=/^([ \t]*)/.exec(e),s=null!==t&&t.length>0?t[1]:"";a.getTextEditChange({uri:n,version:S}).add(d(i,o,s))}x.set(`${w.applyDisableLine}:${e}`,a),t.get(e).disable=s(`Disable ${e} for this line`,M,w.applyDisableLine,T.create(i,e)),void 0===t.get(e).disableFile&&(a=new r.WorkspaceChange,a.getTextEditChange({uri:n,version:S}).add(g(i,o)),x.set(`${w.applyDisableFile}:${e}`,a),t.get(e).disableFile=s(`Disable ${e} for the entire file`,M,w.applyDisableFile,T.create(i,e)))}y.codeAction.showDocumentation.enable&&void 0===t.get(e).showDocumentation&&l.RuleMetaData.hasRuleId(e)&&(t.get(e).showDocumentation=s(`Show documentation for ${e}`,M,w.openRuleDoc,T.create(i,e)))}if(t.length>0){const e=new Map(C.map((e=>[e,[]])));for(const t of _.getAllSorted())if(-1===S&&(S=t.documentVersion),e.has(t.ruleId)){const n=e.get(t.ruleId);l.Fixes.overlaps(m(n),t)||n.push(t)}e.forEach(((e,o)=>{if(e.length>1){const a=new r.WorkspaceChange,c=a.getTextEditChange({uri:n,version:S});e.map((e=>l.FixableProblem.createTextEdit(i,e))).forEach((e=>c.add(e))),x.set(w.applySameFixes,a),t.get(o).fixAll=s(`Fix all ${o} problems`,M,w.applySameFixes,T.create(i))}})),t.fixAll.push(s("Fix all auto-fixable problems",M,w.applyAllFixes,T.create(i)))}return t.all()}),(e=>{const t=p.get(e.textDocument.uri);return void 0!==t?t.version:void 0})),function(e){e.onSave="onsave",e.format="format",e.command="command"}(q||(q={})),S.registerRequest(r.ExecuteCommandRequest.type,(async e=>{let t;const n=e.arguments[0];if(e.command===w.applyAllFixes){const e=await E(n,q.command);if(void 0!==e&&e.length>0){t=new r.WorkspaceChange;const i=t.getTextEditChange(n);e.forEach((e=>i.add(e)))}}else if(-1!==[w.applySingleFix,w.applyDisableLine,w.applyDisableFile].indexOf(e.command))t=x.get(`${e.command}:${n.ruleId}`);else if(-1!==[w.applySuggestion].indexOf(e.command))t=x.get(`${e.command}:${n.ruleId}:${n.sequence}`);else if(e.command===w.openRuleDoc&&T.hasRuleId(n)){const e=l.RuleMetaData.getUrl(n.ruleId);e&&g.sendRequest(c.OpenESLintDocRequest.type,{url:e})}else t=x.get(e.command);return void 0===t?null:g.workspace.applyEdit(t.edit).then((t=>(t.applied||g.console.error(`Failed to apply command: ${e.command}`),null)),(()=>(g.console.error(`Failed to apply command: ${e.command}`),null)))}),(e=>{const t=e.arguments[0];return x.isUsable(t.uri,t.version)?t.version:void 0})),S.registerRequest(r.DocumentFormattingRequest.type,(e=>{const t=p.get(e.textDocument.uri);return void 0===t?[]:E({uri:t.uri,version:t.version},q.format)}),(e=>{const t=p.get(e.textDocument.uri);return void 0!==t?t.version:void 0})),p.listen(g),y.listen(g),g.listen(),g.console.info(`ESLint server running in node ${process.version}`)})();var o=exports;for(var r in i)o[r]=i[r];i.__esModule&&Object.defineProperty(o,"__esModule",{value:!0})})();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ 5232:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LcsDiff = exports.Debug = exports.stringDiff = void 0;
+function stringDiff(original, modified, pretty) {
+    return new LcsDiff(new StringDiffSequence(original), new StringDiffSequence(modified)).ComputeDiff(pretty).changes;
+}
+exports.stringDiff = stringDiff;
+class StringDiffSequence {
+    constructor(source) {
+        this.source = source;
+    }
+    getElements() {
+        const source = this.source;
+        const characters = new Int32Array(source.length);
+        for (let i = 0, len = source.length; i < len; i++) {
+            characters[i] = source.charCodeAt(i);
+        }
+        return characters;
+    }
+}
+/**
+ * Represents information about a specific difference between two sequences.
+ */
+class DiffChange {
+    /**
+     * Constructs a new DiffChange with the given sequence information
+     * and content.
+     */
+    constructor(originalStart, originalLength, modifiedStart, modifiedLength) {
+        //Debug.Assert(originalLength > 0 || modifiedLength > 0, "originalLength and modifiedLength cannot both be <= 0");
+        this.originalStart = originalStart;
+        this.originalLength = originalLength;
+        this.modifiedStart = modifiedStart;
+        this.modifiedLength = modifiedLength;
+    }
+    /**
+     * The end point (exclusive) of the change in the original sequence.
+     */
+    getOriginalEnd() {
+        return this.originalStart + this.originalLength;
+    }
+    /**
+     * The end point (exclusive) of the change in the modified sequence.
+     */
+    getModifiedEnd() {
+        return this.modifiedStart + this.modifiedLength;
+    }
+}
+class Debug {
+    static Assert(condition, message) {
+        if (!condition) {
+            throw new Error(message);
+        }
+    }
+}
+exports.Debug = Debug;
+class MyArray {
+    /**
+     * Copies a range of elements from an Array starting at the specified source index and pastes
+     * them to another Array starting at the specified destination index. The length and the indexes
+     * are specified as 64-bit integers.
+     * sourceArray:
+     *		The Array that contains the data to copy.
+     * sourceIndex:
+     *		A 64-bit integer that represents the index in the sourceArray at which copying begins.
+     * destinationArray:
+     *		The Array that receives the data.
+     * destinationIndex:
+     *		A 64-bit integer that represents the index in the destinationArray at which storing begins.
+     * length:
+     *		A 64-bit integer that represents the number of elements to copy.
+     */
+    static Copy(sourceArray, sourceIndex, destinationArray, destinationIndex, length) {
+        for (let i = 0; i < length; i++) {
+            destinationArray[destinationIndex + i] = sourceArray[sourceIndex + i];
+        }
+    }
+    static Copy2(sourceArray, sourceIndex, destinationArray, destinationIndex, length) {
+        for (let i = 0; i < length; i++) {
+            destinationArray[destinationIndex + i] = sourceArray[sourceIndex + i];
+        }
+    }
+}
+class DiffChangeHelper {
+    /**
+     * Constructs a new DiffChangeHelper for the given DiffSequences.
+     */
+    constructor() {
+        this.m_changes = [];
+        this.m_originalStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
+        this.m_modifiedStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
+        this.m_originalCount = 0;
+        this.m_modifiedCount = 0;
+    }
+    /**
+     * Marks the beginning of the next change in the set of differences.
+     */
+    MarkNextChange() {
+        // Only add to the list if there is something to add
+        if (this.m_originalCount > 0 || this.m_modifiedCount > 0) {
+            // Add the new change to our list
+            this.m_changes.push(new DiffChange(this.m_originalStart, this.m_originalCount, this.m_modifiedStart, this.m_modifiedCount));
+        }
+        // Reset for the next change
+        this.m_originalCount = 0;
+        this.m_modifiedCount = 0;
+        this.m_originalStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
+        this.m_modifiedStart = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
+    }
+    /**
+     * Adds the original element at the given position to the elements
+     * affected by the current change. The modified index gives context
+     * to the change position with respect to the original sequence.
+     * @param originalIndex The index of the original element to add.
+     * @param modifiedIndex The index of the modified element that provides corresponding position in the modified sequence.
+     */
+    AddOriginalElement(originalIndex, modifiedIndex) {
+        // The 'true' start index is the smallest of the ones we've seen
+        this.m_originalStart = Math.min(this.m_originalStart, originalIndex);
+        this.m_modifiedStart = Math.min(this.m_modifiedStart, modifiedIndex);
+        this.m_originalCount++;
+    }
+    /**
+     * Adds the modified element at the given position to the elements
+     * affected by the current change. The original index gives context
+     * to the change position with respect to the modified sequence.
+     * @param originalIndex The index of the original element that provides corresponding position in the original sequence.
+     * @param modifiedIndex The index of the modified element to add.
+     */
+    AddModifiedElement(originalIndex, modifiedIndex) {
+        // The 'true' start index is the smallest of the ones we've seen
+        this.m_originalStart = Math.min(this.m_originalStart, originalIndex);
+        this.m_modifiedStart = Math.min(this.m_modifiedStart, modifiedIndex);
+        this.m_modifiedCount++;
+    }
+    /**
+     * Retrieves all of the changes marked by the class.
+     */
+    getChanges() {
+        if (this.m_originalCount > 0 || this.m_modifiedCount > 0) {
+            // Finish up on whatever is left
+            this.MarkNextChange();
+        }
+        return this.m_changes;
+    }
+    /**
+     * Retrieves all of the changes marked by the class in the reverse order
+     */
+    getReverseChanges() {
+        if (this.m_originalCount > 0 || this.m_modifiedCount > 0) {
+            // Finish up on whatever is left
+            this.MarkNextChange();
+        }
+        this.m_changes.reverse();
+        return this.m_changes;
+    }
+}
+/**
+ * An implementation of the difference algorithm described in
+ * "An O(ND) Difference Algorithm and its variations" by Eugene W. Myers
+ */
+class LcsDiff {
+    /**
+     * Constructs the DiffFinder
+     */
+    constructor(originalSequence, modifiedSequence, continueProcessingPredicate = null) {
+        this.ContinueProcessingPredicate = continueProcessingPredicate;
+        const [originalStringElements, originalElementsOrHash, originalHasStrings] = LcsDiff._getElements(originalSequence);
+        const [modifiedStringElements, modifiedElementsOrHash, modifiedHasStrings] = LcsDiff._getElements(modifiedSequence);
+        this._hasStrings = (originalHasStrings && modifiedHasStrings);
+        this._originalStringElements = originalStringElements;
+        this._originalElementsOrHash = originalElementsOrHash;
+        this._modifiedStringElements = modifiedStringElements;
+        this._modifiedElementsOrHash = modifiedElementsOrHash;
+        this.m_forwardHistory = [];
+        this.m_reverseHistory = [];
+    }
+    static _getElements(sequence) {
+        const elements = sequence.getElements();
+        if (elements instanceof Int32Array) {
+            return [[], elements, false];
+        }
+        return [[], new Int32Array(elements), false];
+    }
+    ElementsAreEqual(originalIndex, newIndex) {
+        if (this._originalElementsOrHash[originalIndex] !== this._modifiedElementsOrHash[newIndex]) {
+            return false;
+        }
+        return (this._hasStrings ? this._originalStringElements[originalIndex] === this._modifiedStringElements[newIndex] : true);
+    }
+    OriginalElementsAreEqual(index1, index2) {
+        if (this._originalElementsOrHash[index1] !== this._originalElementsOrHash[index2]) {
+            return false;
+        }
+        return (this._hasStrings ? this._originalStringElements[index1] === this._originalStringElements[index2] : true);
+    }
+    ModifiedElementsAreEqual(index1, index2) {
+        if (this._modifiedElementsOrHash[index1] !== this._modifiedElementsOrHash[index2]) {
+            return false;
+        }
+        return (this._hasStrings ? this._modifiedStringElements[index1] === this._modifiedStringElements[index2] : true);
+    }
+    ComputeDiff(pretty) {
+        return this._ComputeDiff(0, this._originalElementsOrHash.length - 1, 0, this._modifiedElementsOrHash.length - 1, pretty);
+    }
+    /**
+     * Computes the differences between the original and modified input
+     * sequences on the bounded range.
+     * @returns An array of the differences between the two input sequences.
+     */
+    _ComputeDiff(originalStart, originalEnd, modifiedStart, modifiedEnd, pretty) {
+        const quitEarlyArr = [false];
+        let changes = this.ComputeDiffRecursive(originalStart, originalEnd, modifiedStart, modifiedEnd, quitEarlyArr);
+        if (pretty) {
+            // We have to clean up the computed diff to be more intuitive
+            // but it turns out this cannot be done correctly until the entire set
+            // of diffs have been computed
+            changes = this.PrettifyChanges(changes);
+        }
+        return {
+            quitEarly: quitEarlyArr[0],
+            changes: changes
+        };
+    }
+    /**
+     * Private helper method which computes the differences on the bounded range
+     * recursively.
+     * @returns An array of the differences between the two input sequences.
+     */
+    ComputeDiffRecursive(originalStart, originalEnd, modifiedStart, modifiedEnd, quitEarlyArr) {
+        quitEarlyArr[0] = false;
+        // Find the start of the differences
+        while (originalStart <= originalEnd && modifiedStart <= modifiedEnd && this.ElementsAreEqual(originalStart, modifiedStart)) {
+            originalStart++;
+            modifiedStart++;
+        }
+        // Find the end of the differences
+        while (originalEnd >= originalStart && modifiedEnd >= modifiedStart && this.ElementsAreEqual(originalEnd, modifiedEnd)) {
+            originalEnd--;
+            modifiedEnd--;
+        }
+        // In the special case where we either have all insertions or all deletions or the sequences are identical
+        if (originalStart > originalEnd || modifiedStart > modifiedEnd) {
+            let changes;
+            if (modifiedStart <= modifiedEnd) {
+                Debug.Assert(originalStart === originalEnd + 1, 'originalStart should only be one more than originalEnd');
+                // All insertions
+                changes = [
+                    new DiffChange(originalStart, 0, modifiedStart, modifiedEnd - modifiedStart + 1)
+                ];
+            }
+            else if (originalStart <= originalEnd) {
+                Debug.Assert(modifiedStart === modifiedEnd + 1, 'modifiedStart should only be one more than modifiedEnd');
+                // All deletions
+                changes = [
+                    new DiffChange(originalStart, originalEnd - originalStart + 1, modifiedStart, 0)
+                ];
+            }
+            else {
+                Debug.Assert(originalStart === originalEnd + 1, 'originalStart should only be one more than originalEnd');
+                Debug.Assert(modifiedStart === modifiedEnd + 1, 'modifiedStart should only be one more than modifiedEnd');
+                // Identical sequences - No differences
+                changes = [];
+            }
+            return changes;
+        }
+        // This problem can be solved using the Divide-And-Conquer technique.
+        const midOriginalArr = [0];
+        const midModifiedArr = [0];
+        const result = this.ComputeRecursionPoint(originalStart, originalEnd, modifiedStart, modifiedEnd, midOriginalArr, midModifiedArr, quitEarlyArr);
+        const midOriginal = midOriginalArr[0];
+        const midModified = midModifiedArr[0];
+        if (result !== null) {
+            // Result is not-null when there was enough memory to compute the changes while
+            // searching for the recursion point
+            return result;
+        }
+        else if (!quitEarlyArr[0]) {
+            // We can break the problem down recursively by finding the changes in the
+            // First Half:   (originalStart, modifiedStart) to (midOriginal, midModified)
+            // Second Half:  (midOriginal + 1, minModified + 1) to (originalEnd, modifiedEnd)
+            // NOTE: ComputeDiff() is inclusive, therefore the second range starts on the next point
+            const leftChanges = this.ComputeDiffRecursive(originalStart, midOriginal, modifiedStart, midModified, quitEarlyArr);
+            let rightChanges = [];
+            if (!quitEarlyArr[0]) {
+                rightChanges = this.ComputeDiffRecursive(midOriginal + 1, originalEnd, midModified + 1, modifiedEnd, quitEarlyArr);
+            }
+            else {
+                // We did't have time to finish the first half, so we don't have time to compute this half.
+                // Consider the entire rest of the sequence different.
+                rightChanges = [
+                    new DiffChange(midOriginal + 1, originalEnd - (midOriginal + 1) + 1, midModified + 1, modifiedEnd - (midModified + 1) + 1)
+                ];
+            }
+            return this.ConcatenateChanges(leftChanges, rightChanges);
+        }
+        // If we hit here, we quit early, and so can't return anything meaningful
+        return [
+            new DiffChange(originalStart, originalEnd - originalStart + 1, modifiedStart, modifiedEnd - modifiedStart + 1)
+        ];
+    }
+    WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr) {
+        let forwardChanges = null;
+        let reverseChanges = null;
+        // First, walk backward through the forward diagonals history
+        let changeHelper = new DiffChangeHelper();
+        let diagonalMin = diagonalForwardStart;
+        let diagonalMax = diagonalForwardEnd;
+        let diagonalRelative = (midOriginalArr[0] - midModifiedArr[0]) - diagonalForwardOffset;
+        let lastOriginalIndex = -1073741824 /* Constants.MIN_SAFE_SMALL_INTEGER */;
+        let historyIndex = this.m_forwardHistory.length - 1;
+        do {
+            // Get the diagonal index from the relative diagonal number
+            const diagonal = diagonalRelative + diagonalForwardBase;
+            // Figure out where we came from
+            if (diagonal === diagonalMin || (diagonal < diagonalMax && forwardPoints[diagonal - 1] < forwardPoints[diagonal + 1])) {
+                // Vertical line (the element is an insert)
+                originalIndex = forwardPoints[diagonal + 1];
+                modifiedIndex = originalIndex - diagonalRelative - diagonalForwardOffset;
+                if (originalIndex < lastOriginalIndex) {
+                    changeHelper.MarkNextChange();
+                }
+                lastOriginalIndex = originalIndex;
+                changeHelper.AddModifiedElement(originalIndex + 1, modifiedIndex);
+                diagonalRelative = (diagonal + 1) - diagonalForwardBase; //Setup for the next iteration
+            }
+            else {
+                // Horizontal line (the element is a deletion)
+                originalIndex = forwardPoints[diagonal - 1] + 1;
+                modifiedIndex = originalIndex - diagonalRelative - diagonalForwardOffset;
+                if (originalIndex < lastOriginalIndex) {
+                    changeHelper.MarkNextChange();
+                }
+                lastOriginalIndex = originalIndex - 1;
+                changeHelper.AddOriginalElement(originalIndex, modifiedIndex + 1);
+                diagonalRelative = (diagonal - 1) - diagonalForwardBase; //Setup for the next iteration
+            }
+            if (historyIndex >= 0) {
+                forwardPoints = this.m_forwardHistory[historyIndex];
+                diagonalForwardBase = forwardPoints[0]; //We stored this in the first spot
+                diagonalMin = 1;
+                diagonalMax = forwardPoints.length - 1;
+            }
+        } while (--historyIndex >= -1);
+        // Ironically, we get the forward changes as the reverse of the
+        // order we added them since we technically added them backwards
+        forwardChanges = changeHelper.getReverseChanges();
+        if (quitEarlyArr[0]) {
+            // TODO: Calculate a partial from the reverse diagonals.
+            //       For now, just assume everything after the midOriginal/midModified point is a diff
+            let originalStartPoint = midOriginalArr[0] + 1;
+            let modifiedStartPoint = midModifiedArr[0] + 1;
+            if (forwardChanges !== null && forwardChanges.length > 0) {
+                const lastForwardChange = forwardChanges[forwardChanges.length - 1];
+                originalStartPoint = Math.max(originalStartPoint, lastForwardChange.getOriginalEnd());
+                modifiedStartPoint = Math.max(modifiedStartPoint, lastForwardChange.getModifiedEnd());
+            }
+            reverseChanges = [
+                new DiffChange(originalStartPoint, originalEnd - originalStartPoint + 1, modifiedStartPoint, modifiedEnd - modifiedStartPoint + 1)
+            ];
+        }
+        else {
+            // Now walk backward through the reverse diagonals history
+            changeHelper = new DiffChangeHelper();
+            diagonalMin = diagonalReverseStart;
+            diagonalMax = diagonalReverseEnd;
+            diagonalRelative = (midOriginalArr[0] - midModifiedArr[0]) - diagonalReverseOffset;
+            lastOriginalIndex = 1073741824 /* Constants.MAX_SAFE_SMALL_INTEGER */;
+            historyIndex = (deltaIsEven) ? this.m_reverseHistory.length - 1 : this.m_reverseHistory.length - 2;
+            do {
+                // Get the diagonal index from the relative diagonal number
+                const diagonal = diagonalRelative + diagonalReverseBase;
+                // Figure out where we came from
+                if (diagonal === diagonalMin || (diagonal < diagonalMax && reversePoints[diagonal - 1] >= reversePoints[diagonal + 1])) {
+                    // Horizontal line (the element is a deletion))
+                    originalIndex = reversePoints[diagonal + 1] - 1;
+                    modifiedIndex = originalIndex - diagonalRelative - diagonalReverseOffset;
+                    if (originalIndex > lastOriginalIndex) {
+                        changeHelper.MarkNextChange();
+                    }
+                    lastOriginalIndex = originalIndex + 1;
+                    changeHelper.AddOriginalElement(originalIndex + 1, modifiedIndex + 1);
+                    diagonalRelative = (diagonal + 1) - diagonalReverseBase; //Setup for the next iteration
+                }
+                else {
+                    // Vertical line (the element is an insertion)
+                    originalIndex = reversePoints[diagonal - 1];
+                    modifiedIndex = originalIndex - diagonalRelative - diagonalReverseOffset;
+                    if (originalIndex > lastOriginalIndex) {
+                        changeHelper.MarkNextChange();
+                    }
+                    lastOriginalIndex = originalIndex;
+                    changeHelper.AddModifiedElement(originalIndex + 1, modifiedIndex + 1);
+                    diagonalRelative = (diagonal - 1) - diagonalReverseBase; //Setup for the next iteration
+                }
+                if (historyIndex >= 0) {
+                    reversePoints = this.m_reverseHistory[historyIndex];
+                    diagonalReverseBase = reversePoints[0]; //We stored this in the first spot
+                    diagonalMin = 1;
+                    diagonalMax = reversePoints.length - 1;
+                }
+            } while (--historyIndex >= -1);
+            // There are cases where the reverse history will find diffs that
+            // are correct, but not intuitive, so we need shift them.
+            reverseChanges = changeHelper.getChanges();
+        }
+        return this.ConcatenateChanges(forwardChanges, reverseChanges);
+    }
+    /**
+     * Given the range to compute the diff on, this method finds the point:
+     * (midOriginal, midModified)
+     * that exists in the middle of the LCS of the two sequences and
+     * is the point at which the LCS problem may be broken down recursively.
+     * This method will try to keep the LCS trace in memory. If the LCS recursion
+     * point is calculated and the full trace is available in memory, then this method
+     * will return the change list.
+     * @param originalStart The start bound of the original sequence range
+     * @param originalEnd The end bound of the original sequence range
+     * @param modifiedStart The start bound of the modified sequence range
+     * @param modifiedEnd The end bound of the modified sequence range
+     * @param midOriginal The middle point of the original sequence range
+     * @param midModified The middle point of the modified sequence range
+     * @returns The diff changes, if available, otherwise null
+     */
+    ComputeRecursionPoint(originalStart, originalEnd, modifiedStart, modifiedEnd, midOriginalArr, midModifiedArr, quitEarlyArr) {
+        let originalIndex = 0, modifiedIndex = 0;
+        let diagonalForwardStart = 0, diagonalForwardEnd = 0;
+        let diagonalReverseStart = 0, diagonalReverseEnd = 0;
+        // To traverse the edit graph and produce the proper LCS, our actual
+        // start position is just outside the given boundary
+        originalStart--;
+        modifiedStart--;
+        // We set these up to make the compiler happy, but they will
+        // be replaced before we return with the actual recursion point
+        midOriginalArr[0] = 0;
+        midModifiedArr[0] = 0;
+        // Clear out the history
+        this.m_forwardHistory = [];
+        this.m_reverseHistory = [];
+        // Each cell in the two arrays corresponds to a diagonal in the edit graph.
+        // The integer value in the cell represents the originalIndex of the furthest
+        // reaching point found so far that ends in that diagonal.
+        // The modifiedIndex can be computed mathematically from the originalIndex and the diagonal number.
+        const maxDifferences = (originalEnd - originalStart) + (modifiedEnd - modifiedStart);
+        const numDiagonals = maxDifferences + 1;
+        const forwardPoints = new Int32Array(numDiagonals);
+        const reversePoints = new Int32Array(numDiagonals);
+        // diagonalForwardBase: Index into forwardPoints of the diagonal which passes through (originalStart, modifiedStart)
+        // diagonalReverseBase: Index into reversePoints of the diagonal which passes through (originalEnd, modifiedEnd)
+        const diagonalForwardBase = (modifiedEnd - modifiedStart);
+        const diagonalReverseBase = (originalEnd - originalStart);
+        // diagonalForwardOffset: Geometric offset which allows modifiedIndex to be computed from originalIndex and the
+        //    diagonal number (relative to diagonalForwardBase)
+        // diagonalReverseOffset: Geometric offset which allows modifiedIndex to be computed from originalIndex and the
+        //    diagonal number (relative to diagonalReverseBase)
+        const diagonalForwardOffset = (originalStart - modifiedStart);
+        const diagonalReverseOffset = (originalEnd - modifiedEnd);
+        // delta: The difference between the end diagonal and the start diagonal. This is used to relate diagonal numbers
+        //   relative to the start diagonal with diagonal numbers relative to the end diagonal.
+        // The Even/Oddn-ness of this delta is important for determining when we should check for overlap
+        const delta = diagonalReverseBase - diagonalForwardBase;
+        const deltaIsEven = (delta % 2 === 0);
+        // Here we set up the start and end points as the furthest points found so far
+        // in both the forward and reverse directions, respectively
+        forwardPoints[diagonalForwardBase] = originalStart;
+        reversePoints[diagonalReverseBase] = originalEnd;
+        // Remember if we quit early, and thus need to do a best-effort result instead of a real result.
+        quitEarlyArr[0] = false;
+        // A couple of points:
+        // --With this method, we iterate on the number of differences between the two sequences.
+        //   The more differences there actually are, the longer this will take.
+        // --Also, as the number of differences increases, we have to search on diagonals further
+        //   away from the reference diagonal (which is diagonalForwardBase for forward, diagonalReverseBase for reverse).
+        // --We extend on even diagonals (relative to the reference diagonal) only when numDifferences
+        //   is even and odd diagonals only when numDifferences is odd.
+        for (let numDifferences = 1; numDifferences <= (maxDifferences / 2) + 1; numDifferences++) {
+            let furthestOriginalIndex = 0;
+            let furthestModifiedIndex = 0;
+            // Run the algorithm in the forward direction
+            diagonalForwardStart = this.ClipDiagonalBound(diagonalForwardBase - numDifferences, numDifferences, diagonalForwardBase, numDiagonals);
+            diagonalForwardEnd = this.ClipDiagonalBound(diagonalForwardBase + numDifferences, numDifferences, diagonalForwardBase, numDiagonals);
+            for (let diagonal = diagonalForwardStart; diagonal <= diagonalForwardEnd; diagonal += 2) {
+                // STEP 1: We extend the furthest reaching point in the present diagonal
+                // by looking at the diagonals above and below and picking the one whose point
+                // is further away from the start point (originalStart, modifiedStart)
+                if (diagonal === diagonalForwardStart || (diagonal < diagonalForwardEnd && forwardPoints[diagonal - 1] < forwardPoints[diagonal + 1])) {
+                    originalIndex = forwardPoints[diagonal + 1];
+                }
+                else {
+                    originalIndex = forwardPoints[diagonal - 1] + 1;
+                }
+                modifiedIndex = originalIndex - (diagonal - diagonalForwardBase) - diagonalForwardOffset;
+                // Save the current originalIndex so we can test for false overlap in step 3
+                const tempOriginalIndex = originalIndex;
+                // STEP 2: We can continue to extend the furthest reaching point in the present diagonal
+                // so long as the elements are equal.
+                while (originalIndex < originalEnd && modifiedIndex < modifiedEnd && this.ElementsAreEqual(originalIndex + 1, modifiedIndex + 1)) {
+                    originalIndex++;
+                    modifiedIndex++;
+                }
+                forwardPoints[diagonal] = originalIndex;
+                if (originalIndex + modifiedIndex > furthestOriginalIndex + furthestModifiedIndex) {
+                    furthestOriginalIndex = originalIndex;
+                    furthestModifiedIndex = modifiedIndex;
+                }
+                // STEP 3: If delta is odd (overlap first happens on forward when delta is odd)
+                // and diagonal is in the range of reverse diagonals computed for numDifferences-1
+                // (the previous iteration; we haven't computed reverse diagonals for numDifferences yet)
+                // then check for overlap.
+                if (!deltaIsEven && Math.abs(diagonal - diagonalReverseBase) <= (numDifferences - 1)) {
+                    if (originalIndex >= reversePoints[diagonal]) {
+                        midOriginalArr[0] = originalIndex;
+                        midModifiedArr[0] = modifiedIndex;
+                        if (tempOriginalIndex <= reversePoints[diagonal] && 1447 /* LocalConstants.MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* LocalConstants.MaxDifferencesHistory */ + 1)) {
+                            // BINGO! We overlapped, and we have the full trace in memory!
+                            return this.WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr);
+                        }
+                        else {
+                            // Either false overlap, or we didn't have enough memory for the full trace
+                            // Just return the recursion point
+                            return null;
+                        }
+                    }
+                }
+            }
+            // Check to see if we should be quitting early, before moving on to the next iteration.
+            const matchLengthOfLongest = ((furthestOriginalIndex - originalStart) + (furthestModifiedIndex - modifiedStart) - numDifferences) / 2;
+            if (this.ContinueProcessingPredicate !== null && !this.ContinueProcessingPredicate(furthestOriginalIndex, matchLengthOfLongest)) {
+                // We can't finish, so skip ahead to generating a result from what we have.
+                quitEarlyArr[0] = true;
+                // Use the furthest distance we got in the forward direction.
+                midOriginalArr[0] = furthestOriginalIndex;
+                midModifiedArr[0] = furthestModifiedIndex;
+                if (matchLengthOfLongest > 0 && 1447 /* LocalConstants.MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* LocalConstants.MaxDifferencesHistory */ + 1)) {
+                    // Enough of the history is in memory to walk it backwards
+                    return this.WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr);
+                }
+                else {
+                    // We didn't actually remember enough of the history.
+                    //Since we are quitting the diff early, we need to shift back the originalStart and modified start
+                    //back into the boundary limits since we decremented their value above beyond the boundary limit.
+                    originalStart++;
+                    modifiedStart++;
+                    return [
+                        new DiffChange(originalStart, originalEnd - originalStart + 1, modifiedStart, modifiedEnd - modifiedStart + 1)
+                    ];
+                }
+            }
+            // Run the algorithm in the reverse direction
+            diagonalReverseStart = this.ClipDiagonalBound(diagonalReverseBase - numDifferences, numDifferences, diagonalReverseBase, numDiagonals);
+            diagonalReverseEnd = this.ClipDiagonalBound(diagonalReverseBase + numDifferences, numDifferences, diagonalReverseBase, numDiagonals);
+            for (let diagonal = diagonalReverseStart; diagonal <= diagonalReverseEnd; diagonal += 2) {
+                // STEP 1: We extend the furthest reaching point in the present diagonal
+                // by looking at the diagonals above and below and picking the one whose point
+                // is further away from the start point (originalEnd, modifiedEnd)
+                if (diagonal === diagonalReverseStart || (diagonal < diagonalReverseEnd && reversePoints[diagonal - 1] >= reversePoints[diagonal + 1])) {
+                    originalIndex = reversePoints[diagonal + 1] - 1;
+                }
+                else {
+                    originalIndex = reversePoints[diagonal - 1];
+                }
+                modifiedIndex = originalIndex - (diagonal - diagonalReverseBase) - diagonalReverseOffset;
+                // Save the current originalIndex so we can test for false overlap
+                const tempOriginalIndex = originalIndex;
+                // STEP 2: We can continue to extend the furthest reaching point in the present diagonal
+                // as long as the elements are equal.
+                while (originalIndex > originalStart && modifiedIndex > modifiedStart && this.ElementsAreEqual(originalIndex, modifiedIndex)) {
+                    originalIndex--;
+                    modifiedIndex--;
+                }
+                reversePoints[diagonal] = originalIndex;
+                // STEP 4: If delta is even (overlap first happens on reverse when delta is even)
+                // and diagonal is in the range of forward diagonals computed for numDifferences
+                // then check for overlap.
+                if (deltaIsEven && Math.abs(diagonal - diagonalForwardBase) <= numDifferences) {
+                    if (originalIndex <= forwardPoints[diagonal]) {
+                        midOriginalArr[0] = originalIndex;
+                        midModifiedArr[0] = modifiedIndex;
+                        if (tempOriginalIndex >= forwardPoints[diagonal] && 1447 /* LocalConstants.MaxDifferencesHistory */ > 0 && numDifferences <= (1447 /* LocalConstants.MaxDifferencesHistory */ + 1)) {
+                            // BINGO! We overlapped, and we have the full trace in memory!
+                            return this.WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr);
+                        }
+                        else {
+                            // Either false overlap, or we didn't have enough memory for the full trace
+                            // Just return the recursion point
+                            return null;
+                        }
+                    }
+                }
+            }
+            // Save current vectors to history before the next iteration
+            if (numDifferences <= 1447 /* LocalConstants.MaxDifferencesHistory */) {
+                // We are allocating space for one extra int, which we fill with
+                // the index of the diagonal base index
+                let temp = new Int32Array(diagonalForwardEnd - diagonalForwardStart + 2);
+                temp[0] = diagonalForwardBase - diagonalForwardStart + 1;
+                MyArray.Copy2(forwardPoints, diagonalForwardStart, temp, 1, diagonalForwardEnd - diagonalForwardStart + 1);
+                this.m_forwardHistory.push(temp);
+                temp = new Int32Array(diagonalReverseEnd - diagonalReverseStart + 2);
+                temp[0] = diagonalReverseBase - diagonalReverseStart + 1;
+                MyArray.Copy2(reversePoints, diagonalReverseStart, temp, 1, diagonalReverseEnd - diagonalReverseStart + 1);
+                this.m_reverseHistory.push(temp);
+            }
+        }
+        // If we got here, then we have the full trace in history. We just have to convert it to a change list
+        // NOTE: This part is a bit messy
+        return this.WALKTRACE(diagonalForwardBase, diagonalForwardStart, diagonalForwardEnd, diagonalForwardOffset, diagonalReverseBase, diagonalReverseStart, diagonalReverseEnd, diagonalReverseOffset, forwardPoints, reversePoints, originalIndex, originalEnd, midOriginalArr, modifiedIndex, modifiedEnd, midModifiedArr, deltaIsEven, quitEarlyArr);
+    }
+    /**
+     * Shifts the given changes to provide a more intuitive diff.
+     * While the first element in a diff matches the first element after the diff,
+     * we shift the diff down.
+     *
+     * @param changes The list of changes to shift
+     * @returns The shifted changes
+     */
+    PrettifyChanges(changes) {
+        // Shift all the changes down first
+        for (let i = 0; i < changes.length; i++) {
+            const change = changes[i];
+            const originalStop = (i < changes.length - 1) ? changes[i + 1].originalStart : this._originalElementsOrHash.length;
+            const modifiedStop = (i < changes.length - 1) ? changes[i + 1].modifiedStart : this._modifiedElementsOrHash.length;
+            const checkOriginal = change.originalLength > 0;
+            const checkModified = change.modifiedLength > 0;
+            while (change.originalStart + change.originalLength < originalStop &&
+                change.modifiedStart + change.modifiedLength < modifiedStop &&
+                (!checkOriginal || this.OriginalElementsAreEqual(change.originalStart, change.originalStart + change.originalLength)) &&
+                (!checkModified || this.ModifiedElementsAreEqual(change.modifiedStart, change.modifiedStart + change.modifiedLength))) {
+                change.originalStart++;
+                change.modifiedStart++;
+            }
+            let mergedChangeArr = [null];
+            if (i < changes.length - 1 && this.ChangesOverlap(changes[i], changes[i + 1], mergedChangeArr)) {
+                changes[i] = mergedChangeArr[0];
+                changes.splice(i + 1, 1);
+                i--;
+                continue;
+            }
+        }
+        // Shift changes back up until we hit empty or whitespace-only lines
+        for (let i = changes.length - 1; i >= 0; i--) {
+            const change = changes[i];
+            let originalStop = 0;
+            let modifiedStop = 0;
+            if (i > 0) {
+                const prevChange = changes[i - 1];
+                if (prevChange.originalLength > 0) {
+                    originalStop = prevChange.originalStart + prevChange.originalLength;
+                }
+                if (prevChange.modifiedLength > 0) {
+                    modifiedStop = prevChange.modifiedStart + prevChange.modifiedLength;
+                }
+            }
+            const checkOriginal = change.originalLength > 0;
+            const checkModified = change.modifiedLength > 0;
+            let bestDelta = 0;
+            let bestScore = this._boundaryScore(change.originalStart, change.originalLength, change.modifiedStart, change.modifiedLength);
+            for (let delta = 1;; delta++) {
+                const originalStart = change.originalStart - delta;
+                const modifiedStart = change.modifiedStart - delta;
+                if (originalStart < originalStop || modifiedStart < modifiedStop) {
+                    break;
+                }
+                if (checkOriginal && !this.OriginalElementsAreEqual(originalStart, originalStart + change.originalLength)) {
+                    break;
+                }
+                if (checkModified && !this.ModifiedElementsAreEqual(modifiedStart, modifiedStart + change.modifiedLength)) {
+                    break;
+                }
+                const score = this._boundaryScore(originalStart, change.originalLength, modifiedStart, change.modifiedLength);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestDelta = delta;
+                }
+            }
+            change.originalStart -= bestDelta;
+            change.modifiedStart -= bestDelta;
+        }
+        return changes;
+    }
+    _OriginalIsBoundary(index) {
+        if (index <= 0 || index >= this._originalElementsOrHash.length - 1) {
+            return true;
+        }
+        return (this._hasStrings && /^\s*$/.test(this._originalStringElements[index]));
+    }
+    _OriginalRegionIsBoundary(originalStart, originalLength) {
+        if (this._OriginalIsBoundary(originalStart) || this._OriginalIsBoundary(originalStart - 1)) {
+            return true;
+        }
+        if (originalLength > 0) {
+            const originalEnd = originalStart + originalLength;
+            if (this._OriginalIsBoundary(originalEnd - 1) || this._OriginalIsBoundary(originalEnd)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    _ModifiedIsBoundary(index) {
+        if (index <= 0 || index >= this._modifiedElementsOrHash.length - 1) {
+            return true;
+        }
+        return (this._hasStrings && /^\s*$/.test(this._modifiedStringElements[index]));
+    }
+    _ModifiedRegionIsBoundary(modifiedStart, modifiedLength) {
+        if (this._ModifiedIsBoundary(modifiedStart) || this._ModifiedIsBoundary(modifiedStart - 1)) {
+            return true;
+        }
+        if (modifiedLength > 0) {
+            const modifiedEnd = modifiedStart + modifiedLength;
+            if (this._ModifiedIsBoundary(modifiedEnd - 1) || this._ModifiedIsBoundary(modifiedEnd)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    _boundaryScore(originalStart, originalLength, modifiedStart, modifiedLength) {
+        const originalScore = (this._OriginalRegionIsBoundary(originalStart, originalLength) ? 1 : 0);
+        const modifiedScore = (this._ModifiedRegionIsBoundary(modifiedStart, modifiedLength) ? 1 : 0);
+        return (originalScore + modifiedScore);
+    }
+    /**
+     * Concatenates the two input DiffChange lists and returns the resulting
+     * list.
+     * @param The left changes
+     * @param The right changes
+     * @returns The concatenated list
+     */
+    ConcatenateChanges(left, right) {
+        let mergedChangeArr = [];
+        if (left.length === 0 || right.length === 0) {
+            return (right.length > 0) ? right : left;
+        }
+        else if (this.ChangesOverlap(left[left.length - 1], right[0], mergedChangeArr)) {
+            // Since we break the problem down recursively, it is possible that we
+            // might recurse in the middle of a change thereby splitting it into
+            // two changes. Here in the combining stage, we detect and fuse those
+            // changes back together
+            const result = new Array(left.length + right.length - 1);
+            MyArray.Copy(left, 0, result, 0, left.length - 1);
+            result[left.length - 1] = mergedChangeArr[0];
+            MyArray.Copy(right, 1, result, left.length, right.length - 1);
+            return result;
+        }
+        else {
+            const result = new Array(left.length + right.length);
+            MyArray.Copy(left, 0, result, 0, left.length);
+            MyArray.Copy(right, 0, result, left.length, right.length);
+            return result;
+        }
+    }
+    /**
+     * Returns true if the two changes overlap and can be merged into a single
+     * change
+     * @param left The left change
+     * @param right The right change
+     * @param mergedChange The merged change if the two overlap, null otherwise
+     * @returns True if the two changes overlap
+     */
+    ChangesOverlap(left, right, mergedChangeArr) {
+        Debug.Assert(left.originalStart <= right.originalStart, 'Left change is not less than or equal to right change');
+        Debug.Assert(left.modifiedStart <= right.modifiedStart, 'Left change is not less than or equal to right change');
+        if (left.originalStart + left.originalLength >= right.originalStart || left.modifiedStart + left.modifiedLength >= right.modifiedStart) {
+            const originalStart = left.originalStart;
+            let originalLength = left.originalLength;
+            const modifiedStart = left.modifiedStart;
+            let modifiedLength = left.modifiedLength;
+            if (left.originalStart + left.originalLength >= right.originalStart) {
+                originalLength = right.originalStart + right.originalLength - left.originalStart;
+            }
+            if (left.modifiedStart + left.modifiedLength >= right.modifiedStart) {
+                modifiedLength = right.modifiedStart + right.modifiedLength - left.modifiedStart;
+            }
+            mergedChangeArr[0] = new DiffChange(originalStart, originalLength, modifiedStart, modifiedLength);
+            return true;
+        }
+        else {
+            mergedChangeArr[0] = null;
+            return false;
+        }
+    }
+    /**
+     * Helper method used to clip a diagonal index to the range of valid
+     * diagonals. This also decides whether or not the diagonal index,
+     * if it exceeds the boundary, should be clipped to the boundary or clipped
+     * one inside the boundary depending on the Even/Odd status of the boundary
+     * and numDifferences.
+     * @param diagonal The index of the diagonal to clip.
+     * @param numDifferences The current number of differences being iterated upon.
+     * @param diagonalBaseIndex The base reference diagonal.
+     * @param numDiagonals The total number of diagonals.
+     * @returns The clipped diagonal index.
+     */
+    ClipDiagonalBound(diagonal, numDifferences, diagonalBaseIndex, numDiagonals) {
+        if (diagonal >= 0 && diagonal < numDiagonals) {
+            // Nothing to clip, its in range
+            return diagonal;
+        }
+        // diagonalsBelow: The number of diagonals below the reference diagonal
+        // diagonalsAbove: The number of diagonals above the reference diagonal
+        const diagonalsBelow = diagonalBaseIndex;
+        const diagonalsAbove = numDiagonals - diagonalBaseIndex - 1;
+        const diffEven = (numDifferences % 2 === 0);
+        if (diagonal < 0) {
+            const lowerBoundEven = (diagonalsBelow % 2 === 0);
+            return (diffEven === lowerBoundEven) ? 0 : 1;
+        }
+        else {
+            const upperBoundEven = (diagonalsAbove % 2 === 0);
+            return (diffEven === upperBoundEven) ? numDiagonals - 1 : numDiagonals - 2;
+        }
+    }
+}
+exports.LcsDiff = LcsDiff;
+
+
+/***/ }),
+
+/***/ 7567:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ESLint = exports.CodeActions = exports.RuleSeverities = exports.SaveRuleConfigs = exports.Fixes = exports.ESLintModule = exports.SuggestionsProblem = exports.FixableProblem = exports.Problem = exports.RuleMetaData = exports.ESLintError = exports.TextDocumentSettings = void 0;
+const fs = __webpack_require__(7147);
+const path = __webpack_require__(1017);
+const crypto = __webpack_require__(6113);
+const child_process_1 = __webpack_require__(2081);
+const node_1 = __webpack_require__(8212);
+const vscode_uri_1 = __webpack_require__(6883);
+const customMessages_1 = __webpack_require__(2116);
+const settings_1 = __webpack_require__(7237);
+const Is = __webpack_require__(2389);
+const linkedMap_1 = __webpack_require__(572);
+const paths_1 = __webpack_require__(9675);
+const languageDefaults_1 = __webpack_require__(2388);
+var TextDocumentSettings;
+(function (TextDocumentSettings) {
+    function hasLibrary(settings) {
+        return settings.library !== undefined;
+    }
+    TextDocumentSettings.hasLibrary = hasLibrary;
+})(TextDocumentSettings || (exports.TextDocumentSettings = TextDocumentSettings = {}));
+var ESLintError;
+(function (ESLintError) {
+    function isNoConfigFound(error) {
+        const candidate = error;
+        return candidate.messageTemplate === 'no-config-found' || candidate.message === 'No ESLint configuration found.';
+    }
+    ESLintError.isNoConfigFound = isNoConfigFound;
+})(ESLintError || (exports.ESLintError = ESLintError = {}));
+var RuleMetaData;
+(function (RuleMetaData) {
+    // For unused eslint-disable comments, ESLint does not include a rule ID
+    // nor any other metadata (although they do provide a fix). In order to
+    // provide code actions for these, we create a fake rule ID and metadata.
+    RuleMetaData.unusedDisableDirectiveId = 'unused-disable-directive';
+    const unusedDisableDirectiveMeta = {
+        docs: {
+            url: 'https://eslint.org/docs/latest/use/configure/rules#report-unused-eslint-disable-comments'
+        },
+        type: 'directive'
+    };
+    const handled = new Set();
+    const ruleId2Meta = new Map([[RuleMetaData.unusedDisableDirectiveId, unusedDisableDirectiveMeta]]);
+    function capture(eslint, reports) {
+        let rulesMetaData;
+        if (eslint.isCLIEngine) {
+            const toHandle = reports.filter(report => !handled.has(report.filePath));
+            if (toHandle.length === 0) {
+                return;
+            }
+            rulesMetaData = typeof eslint.getRulesMetaForResults === 'function' ? eslint.getRulesMetaForResults(toHandle) : undefined;
+            toHandle.forEach(report => handled.add(report.filePath));
+        }
+        else {
+            rulesMetaData = typeof eslint.getRulesMetaForResults === 'function' ? eslint.getRulesMetaForResults(reports) : undefined;
+        }
+        if (rulesMetaData === undefined) {
+            return undefined;
+        }
+        Object.entries(rulesMetaData).forEach(([key, meta]) => {
+            if (ruleId2Meta.has(key)) {
+                return;
+            }
+            if (meta && meta.docs && Is.string(meta.docs.url)) {
+                ruleId2Meta.set(key, meta);
+            }
+        });
+    }
+    RuleMetaData.capture = capture;
+    function clear() {
+        handled.clear();
+        ruleId2Meta.clear();
+        ruleId2Meta.set(RuleMetaData.unusedDisableDirectiveId, unusedDisableDirectiveMeta);
+    }
+    RuleMetaData.clear = clear;
+    function getUrl(ruleId) {
+        return ruleId2Meta.get(ruleId)?.docs?.url;
+    }
+    RuleMetaData.getUrl = getUrl;
+    function getType(ruleId) {
+        return ruleId2Meta.get(ruleId)?.type;
+    }
+    RuleMetaData.getType = getType;
+    function hasRuleId(ruleId) {
+        return ruleId2Meta.has(ruleId);
+    }
+    RuleMetaData.hasRuleId = hasRuleId;
+    function isUnusedDisableDirectiveProblem(problem) {
+        return problem.ruleId === null && problem.message.startsWith('Unused eslint-disable directive');
+    }
+    RuleMetaData.isUnusedDisableDirectiveProblem = isUnusedDisableDirectiveProblem;
+})(RuleMetaData || (exports.RuleMetaData = RuleMetaData = {}));
+var Problem;
+(function (Problem) {
+    function isFixable(problem) {
+        return problem.edit !== undefined;
+    }
+    Problem.isFixable = isFixable;
+    function hasSuggestions(problem) {
+        return problem.suggestions !== undefined;
+    }
+    Problem.hasSuggestions = hasSuggestions;
+})(Problem || (exports.Problem = Problem = {}));
+var FixableProblem;
+(function (FixableProblem) {
+    function createTextEdit(document, editInfo) {
+        return node_1.TextEdit.replace(node_1.Range.create(document.positionAt(editInfo.edit.range[0]), document.positionAt(editInfo.edit.range[1])), editInfo.edit.text || '');
+    }
+    FixableProblem.createTextEdit = createTextEdit;
+})(FixableProblem || (exports.FixableProblem = FixableProblem = {}));
+var SuggestionsProblem;
+(function (SuggestionsProblem) {
+    function createTextEdit(document, suggestion) {
+        return node_1.TextEdit.replace(node_1.Range.create(document.positionAt(suggestion.fix.range[0]), document.positionAt(suggestion.fix.range[1])), suggestion.fix.text || '');
+    }
+    SuggestionsProblem.createTextEdit = createTextEdit;
+})(SuggestionsProblem || (exports.SuggestionsProblem = SuggestionsProblem = {}));
+var ESLintModule;
+(function (ESLintModule) {
+    function hasESLintClass(value) {
+        return value.ESLint !== undefined;
+    }
+    ESLintModule.hasESLintClass = hasESLintClass;
+    function hasCLIEngine(value) {
+        return value.CLIEngine !== undefined;
+    }
+    ESLintModule.hasCLIEngine = hasCLIEngine;
+    function isFlatConfig(value) {
+        const candidate = value;
+        return candidate.ESLint !== undefined && candidate.isFlatConfig === true;
+    }
+    ESLintModule.isFlatConfig = isFlatConfig;
+})(ESLintModule || (exports.ESLintModule = ESLintModule = {}));
+var RuleData;
+(function (RuleData) {
+    function hasMetaType(value) {
+        return value !== undefined && value.type !== undefined;
+    }
+    RuleData.hasMetaType = hasMetaType;
+})(RuleData || (RuleData = {}));
+var CLIEngine;
+(function (CLIEngine) {
+    function hasRule(value) {
+        return value.getRules !== undefined;
+    }
+    CLIEngine.hasRule = hasRule;
+})(CLIEngine || (CLIEngine = {}));
+/**
+ * ESLint class emulator using CLI Engine.
+ */
+class ESLintClassEmulator {
+    constructor(cli) {
+        this.cli = cli;
+    }
+    get isCLIEngine() {
+        return true;
+    }
+    async lintText(content, options) {
+        return this.cli.executeOnText(content, options.filePath, options.warnIgnored).results;
+    }
+    async isPathIgnored(path) {
+        return this.cli.isPathIgnored(path);
+    }
+    getRulesMetaForResults(_results) {
+        if (!CLIEngine.hasRule(this.cli)) {
+            return undefined;
+        }
+        const rules = {};
+        for (const [name, rule] of this.cli.getRules()) {
+            if (rule.meta !== undefined) {
+                rules[name] = rule.meta;
+            }
+        }
+        return rules;
+    }
+    async calculateConfigForFile(path) {
+        return typeof this.cli.getConfigForFile === 'function' ? this.cli.getConfigForFile(path) : undefined;
+    }
+}
+/**
+ * Class for dealing with Fixes.
+ */
+class Fixes {
+    constructor(edits) {
+        this.edits = edits;
+    }
+    static overlaps(a, b) {
+        return a !== undefined && a.edit.range[1] > b.edit.range[0];
+    }
+    static sameRange(a, b) {
+        return a.edit.range[0] === b.edit.range[0] && a.edit.range[1] === b.edit.range[1];
+    }
+    isEmpty() {
+        return this.edits.size === 0;
+    }
+    getDocumentVersion() {
+        if (this.isEmpty()) {
+            throw new Error('No edits recorded.');
+        }
+        return this.edits.values().next().value.documentVersion;
+    }
+    getScoped(diagnostics) {
+        const result = [];
+        for (const diagnostic of diagnostics) {
+            const key = Diagnostics.computeKey(diagnostic);
+            const editInfo = this.edits.get(key);
+            if (editInfo) {
+                result.push(editInfo);
+            }
+        }
+        return result;
+    }
+    getAllSorted() {
+        const result = [];
+        for (const value of this.edits.values()) {
+            if (Problem.isFixable(value)) {
+                result.push(value);
+            }
+        }
+        return result.sort((a, b) => {
+            const d0 = a.edit.range[0] - b.edit.range[0];
+            if (d0 !== 0) {
+                return d0;
+            }
+            // Both edits have now the same start offset.
+            // Length of a and length of b
+            const al = a.edit.range[1] - a.edit.range[0];
+            const bl = b.edit.range[1] - b.edit.range[0];
+            // Both has the same start offset and length.
+            if (al === bl) {
+                return 0;
+            }
+            if (al === 0) {
+                return -1;
+            }
+            if (bl === 0) {
+                return 1;
+            }
+            return al - bl;
+        });
+    }
+    getApplicable() {
+        const sorted = this.getAllSorted();
+        if (sorted.length <= 1) {
+            return sorted;
+        }
+        const result = [];
+        let last = sorted[0];
+        result.push(last);
+        for (let i = 1; i < sorted.length; i++) {
+            let current = sorted[i];
+            if (!Fixes.overlaps(last, current) && !Fixes.sameRange(last, current)) {
+                result.push(current);
+                last = current;
+            }
+        }
+        return result;
+    }
+}
+exports.Fixes = Fixes;
+/**
+ * Manages the special save rule configurations done in the VS Code settings.
+ */
+var SaveRuleConfigs;
+(function (SaveRuleConfigs) {
+    const saveRuleConfigCache = new linkedMap_1.LRUCache(128);
+    async function get(uri, settings) {
+        const filePath = SaveRuleConfigs.inferFilePath(uri);
+        let result = saveRuleConfigCache.get(uri);
+        if (filePath === undefined || result === null) {
+            return undefined;
+        }
+        if (result !== undefined) {
+            return result;
+        }
+        const rules = settings.codeActionOnSave.rules;
+        result = await ESLint.withClass(async (eslint) => {
+            if (rules === undefined || eslint.isCLIEngine) {
+                return undefined;
+            }
+            const config = await eslint.calculateConfigForFile(filePath);
+            if (config === undefined || config.rules === undefined || config.rules.length === 0) {
+                return undefined;
+            }
+            const offRules = new Set();
+            const onRules = new Set();
+            if (rules.length === 0) {
+                Object.keys(config.rules).forEach(ruleId => offRules.add(ruleId));
+            }
+            else {
+                for (const ruleId of Object.keys(config.rules)) {
+                    if (isOff(ruleId, rules)) {
+                        offRules.add(ruleId);
+                    }
+                    else {
+                        onRules.add(ruleId);
+                    }
+                }
+            }
+            return offRules.size > 0 ? { offRules, onRules } : undefined;
+        }, settings);
+        if (result === undefined || result === null) {
+            saveRuleConfigCache.set(uri, null);
+            return undefined;
+        }
+        else {
+            saveRuleConfigCache.set(uri, result);
+            return result;
+        }
+    }
+    SaveRuleConfigs.get = get;
+    function remove(key) {
+        return saveRuleConfigCache.delete(key);
+    }
+    SaveRuleConfigs.remove = remove;
+    function clear() {
+        saveRuleConfigCache.clear();
+    }
+    SaveRuleConfigs.clear = clear;
+    function isOff(ruleId, matchers) {
+        for (const matcher of matchers) {
+            if (matcher.startsWith('!') && new RegExp(`^${matcher.slice(1).replace(/\*/g, '.*')}$`, 'g').test(ruleId)) {
+                return true;
+            }
+            else if (new RegExp(`^${matcher.replace(/\*/g, '.*')}$`, 'g').test(ruleId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+})(SaveRuleConfigs || (exports.SaveRuleConfigs = SaveRuleConfigs = {}));
+/**
+ * Manages rule severity overrides done using VS Code settings.
+ */
+var RuleSeverities;
+(function (RuleSeverities) {
+    const ruleSeverityCache = new linkedMap_1.LRUCache(1024);
+    function getOverride(ruleId, customizations) {
+        let result = ruleSeverityCache.get(ruleId);
+        if (result === null) {
+            return undefined;
+        }
+        if (result !== undefined) {
+            return result;
+        }
+        for (const customization of customizations) {
+            if (asteriskMatches(customization.rule, ruleId)) {
+                result = customization.severity;
+            }
+        }
+        if (result === undefined) {
+            ruleSeverityCache.set(ruleId, null);
+            return undefined;
+        }
+        ruleSeverityCache.set(ruleId, result);
+        return result;
+    }
+    RuleSeverities.getOverride = getOverride;
+    function clear() {
+        ruleSeverityCache.clear();
+    }
+    RuleSeverities.clear = clear;
+    function asteriskMatches(matcher, ruleId) {
+        return matcher.startsWith('!')
+            ? !(new RegExp(`^${matcher.slice(1).replace(/\*/g, '.*')}$`, 'g').test(ruleId))
+            : new RegExp(`^${matcher.replace(/\*/g, '.*')}$`, 'g').test(ruleId);
+    }
+})(RuleSeverities || (exports.RuleSeverities = RuleSeverities = {}));
+/**
+ * Creates LSP Diagnostics and captures code action information.
+ */
+var Diagnostics;
+(function (Diagnostics) {
+    function computeKey(diagnostic) {
+        const range = diagnostic.range;
+        let message;
+        if (diagnostic.message) {
+            const hash = crypto.createHash('md5');
+            hash.update(diagnostic.message);
+            message = hash.digest('base64');
+        }
+        return `[${range.start.line},${range.start.character},${range.end.line},${range.end.character}]-${diagnostic.code}-${message ?? ''}`;
+    }
+    Diagnostics.computeKey = computeKey;
+    function create(settings, problem, document) {
+        const message = problem.message;
+        const startLine = typeof problem.line !== 'number' || Number.isNaN(problem.line) ? 0 : Math.max(0, problem.line - 1);
+        const startChar = typeof problem.column !== 'number' || Number.isNaN(problem.column) ? 0 : Math.max(0, problem.column - 1);
+        let endLine = typeof problem.endLine !== 'number' || Number.isNaN(problem.endLine) ? startLine : Math.max(0, problem.endLine - 1);
+        let endChar = typeof problem.endColumn !== 'number' || Number.isNaN(problem.endColumn) ? startChar : Math.max(0, problem.endColumn - 1);
+        if (settings.problems.shortenToSingleLine && endLine !== startLine) {
+            const startLineText = document.getText({
+                start: {
+                    line: startLine,
+                    character: 0,
+                },
+                end: {
+                    line: startLine,
+                    character: node_1.uinteger.MAX_VALUE,
+                }
+            });
+            endLine = startLine;
+            endChar = startLineText.length;
+        }
+        const override = RuleSeverities.getOverride(problem.ruleId, settings.rulesCustomizations);
+        const result = {
+            message: message,
+            severity: convertSeverityToDiagnosticWithOverride(problem.severity, override),
+            source: 'eslint',
+            range: {
+                start: { line: startLine, character: startChar },
+                end: { line: endLine, character: endChar }
+            }
+        };
+        if (problem.ruleId) {
+            const url = RuleMetaData.getUrl(problem.ruleId);
+            result.code = problem.ruleId;
+            if (url !== undefined) {
+                result.codeDescription = {
+                    href: url
+                };
+            }
+            if (problem.ruleId === 'no-unused-vars') {
+                result.tags = [node_1.DiagnosticTag.Unnecessary];
+            }
+        }
+        return [result, override];
+    }
+    Diagnostics.create = create;
+    function adjustSeverityForOverride(severity, severityOverride) {
+        switch (severityOverride) {
+            case settings_1.RuleSeverity.off:
+            case settings_1.RuleSeverity.info:
+            case settings_1.RuleSeverity.warn:
+            case settings_1.RuleSeverity.error:
+                return severityOverride;
+            case settings_1.RuleSeverity.downgrade:
+                switch (convertSeverityToDiagnostic(severity)) {
+                    case node_1.DiagnosticSeverity.Error:
+                        return settings_1.RuleSeverity.warn;
+                    case node_1.DiagnosticSeverity.Warning:
+                    case node_1.DiagnosticSeverity.Information:
+                        return settings_1.RuleSeverity.info;
+                }
+            case settings_1.RuleSeverity.upgrade:
+                switch (convertSeverityToDiagnostic(severity)) {
+                    case node_1.DiagnosticSeverity.Information:
+                        return settings_1.RuleSeverity.warn;
+                    case node_1.DiagnosticSeverity.Warning:
+                    case node_1.DiagnosticSeverity.Error:
+                        return settings_1.RuleSeverity.error;
+                }
+            default:
+                return severity;
+        }
+    }
+    function convertSeverityToDiagnostic(severity) {
+        // RuleSeverity concerns an overridden rule. A number is direct from ESLint.
+        switch (severity) {
+            // Eslint 1 is warning
+            case 1:
+            case settings_1.RuleSeverity.warn:
+                return node_1.DiagnosticSeverity.Warning;
+            case 2:
+            case settings_1.RuleSeverity.error:
+                return node_1.DiagnosticSeverity.Error;
+            case settings_1.RuleSeverity.info:
+                return node_1.DiagnosticSeverity.Information;
+            default:
+                return node_1.DiagnosticSeverity.Error;
+        }
+    }
+    function convertSeverityToDiagnosticWithOverride(severity, severityOverride) {
+        return convertSeverityToDiagnostic(adjustSeverityForOverride(severity, severityOverride));
+    }
+})(Diagnostics || (Diagnostics = {}));
+/**
+ * Capture information necessary to compute code actions.
+ */
+var CodeActions;
+(function (CodeActions) {
+    const codeActions = new Map();
+    function get(uri) {
+        return codeActions.get(uri);
+    }
+    CodeActions.get = get;
+    function set(uri, value) {
+        codeActions.set(uri, value);
+    }
+    CodeActions.set = set;
+    function remove(uri) {
+        return codeActions.delete(uri);
+    }
+    CodeActions.remove = remove;
+    function record(document, diagnostic, problem) {
+        if (!problem.ruleId) {
+            return;
+        }
+        const uri = document.uri;
+        let edits = CodeActions.get(uri);
+        if (edits === undefined) {
+            edits = new Map();
+            CodeActions.set(uri, edits);
+        }
+        edits.set(Diagnostics.computeKey(diagnostic), {
+            label: `Fix this ${problem.ruleId} problem`,
+            documentVersion: document.version,
+            ruleId: problem.ruleId,
+            line: problem.line,
+            diagnostic: diagnostic,
+            edit: problem.fix,
+            suggestions: problem.suggestions
+        });
+    }
+    CodeActions.record = record;
+})(CodeActions || (exports.CodeActions = CodeActions = {}));
+/**
+ * Wrapper round the ESLint npm module.
+ */
+var ESLint;
+(function (ESLint) {
+    let connection;
+    let documents;
+    let inferFilePath;
+    let loadNodeModule;
+    const languageId2ParserRegExp = function createLanguageId2ParserRegExp() {
+        const result = new Map();
+        const typescript = /\/@typescript-eslint\/parser\//;
+        const babelESLint = /\/babel-eslint\/lib\/index.js$/;
+        const vueESLint = /\/vue-eslint-parser\/index.js$/;
+        result.set('typescript', [typescript, babelESLint, vueESLint]);
+        result.set('typescriptreact', [typescript, babelESLint, vueESLint]);
+        const angular = /\/@angular-eslint\/template-parser\//;
+        result.set('html', [angular]);
+        return result;
+    }();
+    const languageId2ParserOptions = function createLanguageId2ParserOptionsRegExp() {
+        const result = new Map();
+        const vue = /vue-eslint-parser\/.*\.js$/;
+        const typescriptEslintParser = /@typescript-eslint\/parser\/.*\.js$/;
+        result.set('typescript', { regExps: [vue], parsers: new Set(['@typescript-eslint/parser']), parserRegExps: [typescriptEslintParser] });
+        return result;
+    }();
+    const languageId2PluginName = new Map([
+        ['html', 'html'],
+        ['vue', 'vue'],
+        ['markdown', 'markdown']
+    ]);
+    const defaultLanguageIds = new Set([
+        'javascript', 'javascriptreact'
+    ]);
+    const projectFolderIndicators = [
+        { fileName: 'package.json', isRoot: true },
+        { fileName: '.eslintignore', isRoot: true },
+        { fileName: 'eslint.config.js', isRoot: true },
+        { fileName: '.eslintrc', isRoot: false },
+        { fileName: '.eslintrc.json', isRoot: false },
+        { fileName: '.eslintrc.js', isRoot: false },
+        { fileName: '.eslintrc.yaml', isRoot: false },
+        { fileName: '.eslintrc.yml', isRoot: false },
+    ];
+    const path2Library = new Map();
+    const document2Settings = new Map();
+    const formatterRegistrations = new Map();
+    function initialize($connection, $documents, $inferFilePath, $loadNodeModule) {
+        connection = $connection;
+        documents = $documents;
+        inferFilePath = $inferFilePath;
+        loadNodeModule = $loadNodeModule;
+    }
+    ESLint.initialize = initialize;
+    function removeSettings(key) {
+        return document2Settings.delete(key);
+    }
+    ESLint.removeSettings = removeSettings;
+    function clearSettings() {
+        document2Settings.clear();
+    }
+    ESLint.clearSettings = clearSettings;
+    function unregisterAsFormatter(document) {
+        const unregister = formatterRegistrations.get(document.uri);
+        if (unregister !== undefined) {
+            void unregister.then(disposable => disposable.dispose());
+            formatterRegistrations.delete(document.uri);
+        }
+    }
+    ESLint.unregisterAsFormatter = unregisterAsFormatter;
+    function clearFormatters() {
+        for (const unregistration of formatterRegistrations.values()) {
+            void unregistration.then(disposable => disposable.dispose());
+        }
+        formatterRegistrations.clear();
+    }
+    ESLint.clearFormatters = clearFormatters;
+    function resolveSettings(document) {
+        const uri = document.uri;
+        let resultPromise = document2Settings.get(uri);
+        if (resultPromise) {
+            return resultPromise;
+        }
+        resultPromise = connection.workspace.getConfiguration({ scopeUri: uri, section: '' }).then((configuration) => {
+            const settings = Object.assign({}, configuration, { silent: false, library: undefined, resolvedGlobalPackageManagerPath: undefined }, { workingDirectory: undefined });
+            if (settings.validate === settings_1.Validate.off) {
+                return settings;
+            }
+            settings.resolvedGlobalPackageManagerPath = GlobalPaths.get(settings.packageManager);
+            const filePath = inferFilePath(document);
+            const workspaceFolderPath = settings.workspaceFolder !== undefined ? inferFilePath(settings.workspaceFolder.uri) : undefined;
+            const hasUserDefinedWorkingDirectories = configuration.workingDirectory !== undefined;
+            const workingDirectoryConfig = configuration.workingDirectory ?? { mode: settings_1.ModeEnum.location };
+            if (settings_1.ModeItem.is(workingDirectoryConfig)) {
+                let candidate;
+                if (workingDirectoryConfig.mode === settings_1.ModeEnum.location) {
+                    if (workspaceFolderPath !== undefined) {
+                        candidate = workspaceFolderPath;
+                    }
+                    else if (filePath !== undefined && !(0, paths_1.isUNC)(filePath)) {
+                        candidate = path.dirname(filePath);
+                    }
+                }
+                else if (workingDirectoryConfig.mode === settings_1.ModeEnum.auto) {
+                    if (workspaceFolderPath !== undefined) {
+                        candidate = findWorkingDirectory(workspaceFolderPath, filePath);
+                    }
+                    else if (filePath !== undefined && !(0, paths_1.isUNC)(filePath)) {
+                        candidate = path.dirname(filePath);
+                    }
+                }
+                if (candidate !== undefined && fs.existsSync(candidate)) {
+                    settings.workingDirectory = { directory: candidate };
+                }
+            }
+            else {
+                settings.workingDirectory = workingDirectoryConfig;
+            }
+            let promise;
+            let nodePath;
+            if (settings.nodePath !== null) {
+                nodePath = settings.nodePath;
+                if (!path.isAbsolute(nodePath) && workspaceFolderPath !== undefined) {
+                    nodePath = path.join(workspaceFolderPath, nodePath);
+                }
+            }
+            let moduleResolveWorkingDirectory;
+            if (!hasUserDefinedWorkingDirectories && filePath !== undefined) {
+                moduleResolveWorkingDirectory = path.dirname(filePath);
+            }
+            if (moduleResolveWorkingDirectory === undefined && settings.workingDirectory !== undefined && !settings.workingDirectory['!cwd']) {
+                moduleResolveWorkingDirectory = settings.workingDirectory.directory;
+            }
+            // During Flat Config is considered experimental,
+            // we need to import FlatESLint from 'eslint/use-at-your-own-risk'.
+            // See: https://eslint.org/blog/2022/08/new-config-system-part-3/
+            const eslintPath = settings.experimental.useFlatConfig ? 'eslint/use-at-your-own-risk' : 'eslint';
+            if (nodePath !== undefined) {
+                promise = node_1.Files.resolve(eslintPath, nodePath, nodePath, trace).then(undefined, () => {
+                    return node_1.Files.resolve(eslintPath, settings.resolvedGlobalPackageManagerPath, moduleResolveWorkingDirectory, trace);
+                });
+            }
+            else {
+                promise = node_1.Files.resolve(eslintPath, settings.resolvedGlobalPackageManagerPath, moduleResolveWorkingDirectory, trace);
+            }
+            settings.silent = settings.validate === settings_1.Validate.probe;
+            return promise.then(async (libraryPath) => {
+                let library = path2Library.get(libraryPath);
+                if (library === undefined) {
+                    if (settings.experimental.useFlatConfig) {
+                        const lib = loadNodeModule(libraryPath);
+                        if (lib === undefined) {
+                            settings.validate = settings_1.Validate.off;
+                            if (!settings.silent) {
+                                connection.console.error(`Failed to load eslint library from ${libraryPath}. If you are using ESLint v8.21 or earlier, try upgrading it. For newer versions, try disabling the 'eslint.experimental.useFlatConfig' setting. See the output panel for more information.`);
+                            }
+                        }
+                        else if (lib.FlatESLint === undefined) {
+                            settings.validate = settings_1.Validate.off;
+                            connection.console.error(`The eslint library loaded from ${libraryPath} doesn\'t export a FlatESLint class.`);
+                        }
+                        else {
+                            connection.console.info(`ESLint library loaded from: ${libraryPath}`);
+                            // pretend to be a regular eslint endpoint
+                            library = {
+                                ESLint: lib.FlatESLint,
+                                isFlatConfig: true,
+                                CLIEngine: undefined,
+                            };
+                            settings.library = library;
+                            path2Library.set(libraryPath, library);
+                        }
+                    }
+                    else {
+                        library = loadNodeModule(libraryPath);
+                        if (library === undefined) {
+                            settings.validate = settings_1.Validate.off;
+                            if (!settings.silent) {
+                                connection.console.error(`Failed to load eslint library from ${libraryPath}. See output panel for more information.`);
+                            }
+                        }
+                        else if (library.CLIEngine === undefined && library.ESLint === undefined) {
+                            settings.validate = settings_1.Validate.off;
+                            connection.console.error(`The eslint library loaded from ${libraryPath} doesn\'t export neither a CLIEngine nor an ESLint class. You need at least eslint@1.0.0`);
+                        }
+                        else {
+                            connection.console.info(`ESLint library loaded from: ${libraryPath}`);
+                            settings.library = library;
+                            path2Library.set(libraryPath, library);
+                        }
+                    }
+                }
+                else {
+                    settings.library = library;
+                }
+                if (settings.validate === settings_1.Validate.probe && TextDocumentSettings.hasLibrary(settings)) {
+                    settings.validate = settings_1.Validate.off;
+                    let filePath = ESLint.getFilePath(document, settings);
+                    if (filePath !== undefined) {
+                        const parserRegExps = languageId2ParserRegExp.get(document.languageId);
+                        const pluginName = languageId2PluginName.get(document.languageId);
+                        const parserOptions = languageId2ParserOptions.get(document.languageId);
+                        if (defaultLanguageIds.has(document.languageId)) {
+                            settings.validate = settings_1.Validate.on;
+                        }
+                        else if (parserRegExps !== undefined || pluginName !== undefined || parserOptions !== undefined) {
+                            const eslintConfig = await ESLint.withClass(async (eslintClass) => {
+                                try {
+                                    return await eslintClass.calculateConfigForFile(filePath);
+                                }
+                                catch (err) {
+                                    try {
+                                        void connection.sendNotification(customMessages_1.StatusNotification.type, { uri, state: customMessages_1.Status.error });
+                                        void connection.console.error(`Calculating config file for ${uri}) failed.\n${err instanceof Error ? err.stack : ''}`);
+                                    }
+                                    catch {
+                                        // little we can do here
+                                    }
+                                    return undefined;
+                                }
+                            }, settings);
+                            if (eslintConfig !== undefined) {
+                                if (ESLintModule.isFlatConfig(settings.library)) {
+                                    // We have a flat configuration. This means that the config file needs to
+                                    // have a section per file extension we want to validate. If there is none than
+                                    // `calculateConfigForFile` will return no config since the config options without
+                                    // a `files` property only applies to `**/*.js, **/*.cjs, and **/*.mjs` by default
+                                    // See https://eslint.org/docs/latest/user-guide/configuring/configuration-files-new#specifying-files-and-ignores
+                                    // This means since we have found a configuration for the given file we assume that
+                                    // that configuration is correctly pointing to a parser.
+                                    settings.validate = settings_1.Validate.on;
+                                }
+                                else {
+                                    const parser = eslintConfig.parser !== null
+                                        ? (0, paths_1.normalizePath)(eslintConfig.parser)
+                                        : undefined;
+                                    if (parser !== undefined) {
+                                        if (parserRegExps !== undefined) {
+                                            for (const regExp of parserRegExps) {
+                                                if (regExp.test(parser)) {
+                                                    settings.validate = settings_1.Validate.on;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (settings.validate !== settings_1.Validate.on && parserOptions !== undefined && typeof eslintConfig.parserOptions?.parser === 'string') {
+                                            const eslintConfigParserOptionsParser = (0, paths_1.normalizePath)(eslintConfig.parserOptions.parser);
+                                            for (const regExp of parserOptions.regExps) {
+                                                if (regExp.test(parser) && (parserOptions.parsers.has(eslintConfig.parserOptions.parser) ||
+                                                    parserOptions.parserRegExps !== undefined && parserOptions.parserRegExps.some(parserRegExp => parserRegExp.test(eslintConfigParserOptionsParser)))) {
+                                                    settings.validate = settings_1.Validate.on;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (settings.validate !== settings_1.Validate.on && Array.isArray(eslintConfig.plugins) && eslintConfig.plugins.length > 0 && pluginName !== undefined) {
+                                        for (const name of eslintConfig.plugins) {
+                                            if (name === pluginName) {
+                                                settings.validate = settings_1.Validate.on;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (settings.validate === settings_1.Validate.off) {
+                        const params = { textDocument: { uri: document.uri } };
+                        void connection.sendRequest(customMessages_1.ProbeFailedRequest.type, params);
+                    }
+                }
+                if (settings.validate === settings_1.Validate.on) {
+                    settings.silent = false;
+                    if (settings.format && TextDocumentSettings.hasLibrary(settings)) {
+                        const Uri = vscode_uri_1.URI.parse(uri);
+                        const isFile = Uri.scheme === 'file';
+                        let pattern = isFile
+                            ? Uri.fsPath.replace(/\\/g, '/')
+                            : Uri.fsPath;
+                        pattern = pattern.replace(/[\[\]\{\}]/g, '?');
+                        const filter = { scheme: Uri.scheme, pattern: pattern };
+                        const options = { documentSelector: [filter] };
+                        if (!isFile) {
+                            formatterRegistrations.set(uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
+                        }
+                        else {
+                            const filePath = inferFilePath(uri);
+                            await ESLint.withClass(async (eslintClass) => {
+                                if (!await eslintClass.isPathIgnored(filePath)) {
+                                    formatterRegistrations.set(uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
+                                }
+                            }, settings);
+                        }
+                    }
+                }
+                return settings;
+            }, () => {
+                settings.validate = settings_1.Validate.off;
+                if (!settings.silent) {
+                    void connection.sendRequest(customMessages_1.NoESLintLibraryRequest.type, { source: { uri: document.uri } });
+                }
+                return settings;
+            });
+        });
+        document2Settings.set(uri, resultPromise);
+        return resultPromise;
+    }
+    ESLint.resolveSettings = resolveSettings;
+    function newClass(library, newOptions, useESLintClass) {
+        if (ESLintModule.hasESLintClass(library) && useESLintClass) {
+            return new library.ESLint(newOptions);
+        }
+        if (ESLintModule.hasCLIEngine(library)) {
+            return new ESLintClassEmulator(new library.CLIEngine(newOptions));
+        }
+        return new library.ESLint(newOptions);
+    }
+    ESLint.newClass = newClass;
+    async function withClass(func, settings, options) {
+        const newOptions = options === undefined
+            ? Object.assign(Object.create(null), settings.options)
+            : Object.assign(Object.create(null), settings.options, options);
+        const cwd = process.cwd();
+        try {
+            if (settings.workingDirectory) {
+                // A lot of libs are sensitive to drive letter casing and assume a
+                // capital drive letter. Make sure we support that correctly.
+                const newCWD = normalizeWorkingDirectory(settings.workingDirectory.directory);
+                newOptions.cwd = newCWD;
+                if (settings.workingDirectory['!cwd'] !== true && fs.existsSync(newCWD)) {
+                    process.chdir(newCWD);
+                }
+            }
+            const eslintClass = newClass(settings.library, newOptions, settings.useESLintClass);
+            // We need to await the result to ensure proper execution of the
+            // finally block.
+            return await func(eslintClass);
+        }
+        finally {
+            if (cwd !== process.cwd()) {
+                process.chdir(cwd);
+            }
+        }
+    }
+    ESLint.withClass = withClass;
+    function normalizeWorkingDirectory(value) {
+        const result = (0, paths_1.normalizeDriveLetter)(value);
+        if (result.length === 0) {
+            return result;
+        }
+        return result[result.length - 1] === path.sep
+            ? result.substring(0, result.length - 1)
+            : result;
+    }
+    function getFilePath(document, settings) {
+        if (document === undefined) {
+            return undefined;
+        }
+        const uri = vscode_uri_1.URI.parse(document.uri);
+        if (uri.scheme !== 'file') {
+            if (settings.workspaceFolder !== undefined) {
+                const ext = languageDefaults_1.default.getExtension(document.languageId);
+                const workspacePath = inferFilePath(settings.workspaceFolder.uri);
+                if (workspacePath !== undefined && ext !== undefined) {
+                    return path.join(workspacePath, `test.${ext}`);
+                }
+            }
+            return undefined;
+        }
+        else {
+            return inferFilePath(uri);
+        }
+    }
+    ESLint.getFilePath = getFilePath;
+    const validFixTypes = new Set(['problem', 'suggestion', 'layout', 'directive']);
+    async function validate(document, settings) {
+        const newOptions = Object.assign(Object.create(null), settings.options);
+        let fixTypes = undefined;
+        if (Array.isArray(newOptions.fixTypes) && newOptions.fixTypes.length > 0) {
+            fixTypes = new Set();
+            for (const item of newOptions.fixTypes) {
+                if (validFixTypes.has(item)) {
+                    fixTypes.add(item);
+                }
+            }
+            if (fixTypes.size === 0) {
+                fixTypes = undefined;
+            }
+        }
+        const content = document.getText();
+        const uri = document.uri;
+        const file = getFilePath(document, settings);
+        return withClass(async (eslintClass) => {
+            CodeActions.remove(uri);
+            const reportResults = await eslintClass.lintText(content, { filePath: file, warnIgnored: settings.onIgnoredFiles !== settings_1.ESLintSeverity.off });
+            RuleMetaData.capture(eslintClass, reportResults);
+            const diagnostics = [];
+            if (reportResults && Array.isArray(reportResults) && reportResults.length > 0) {
+                const docReport = reportResults[0];
+                if (docReport.messages && Array.isArray(docReport.messages)) {
+                    docReport.messages.forEach((problem) => {
+                        if (problem) {
+                            const [diagnostic, override] = Diagnostics.create(settings, problem, document);
+                            if (!(override === settings_1.RuleSeverity.off || (settings.quiet && diagnostic.severity === node_1.DiagnosticSeverity.Warning))) {
+                                diagnostics.push(diagnostic);
+                            }
+                            if (fixTypes !== undefined && problem.ruleId !== undefined && problem.fix !== undefined) {
+                                const type = RuleMetaData.getType(problem.ruleId);
+                                if (type !== undefined && fixTypes.has(type)) {
+                                    CodeActions.record(document, diagnostic, problem);
+                                }
+                            }
+                            else {
+                                if (RuleMetaData.isUnusedDisableDirectiveProblem(problem)) {
+                                    problem.ruleId = RuleMetaData.unusedDisableDirectiveId;
+                                }
+                                CodeActions.record(document, diagnostic, problem);
+                            }
+                        }
+                    });
+                }
+            }
+            return diagnostics;
+        }, settings);
+    }
+    ESLint.validate = validate;
+    function trace(message, verbose) {
+        connection.tracer.log(message, verbose);
+    }
+    /**
+     * Global paths for the different package managers
+     */
+    let GlobalPaths;
+    (function (GlobalPaths) {
+        const globalPaths = {
+            yarn: {
+                cache: undefined,
+                get() {
+                    return node_1.Files.resolveGlobalYarnPath(trace);
+                }
+            },
+            npm: {
+                cache: undefined,
+                get() {
+                    return node_1.Files.resolveGlobalNodePath(trace);
+                }
+            },
+            pnpm: {
+                cache: undefined,
+                get() {
+                    const pnpmPath = (0, child_process_1.execSync)('pnpm root -g').toString().trim();
+                    return pnpmPath;
+                }
+            }
+        };
+        function get(packageManager) {
+            const pm = globalPaths[packageManager];
+            if (pm) {
+                if (pm.cache === undefined) {
+                    pm.cache = pm.get();
+                }
+                return pm.cache;
+            }
+            return undefined;
+        }
+        GlobalPaths.get = get;
+    })(GlobalPaths || (GlobalPaths = {}));
+    function findWorkingDirectory(workspaceFolder, file) {
+        if (file === undefined || (0, paths_1.isUNC)(file)) {
+            return workspaceFolder;
+        }
+        // Don't probe for something in node modules folder.
+        if (file.indexOf(`${path.sep}node_modules${path.sep}`) !== -1) {
+            return workspaceFolder;
+        }
+        let result = workspaceFolder;
+        let directory = path.dirname(file);
+        outer: while (directory !== undefined && directory.startsWith(workspaceFolder)) {
+            for (const { fileName, isRoot } of projectFolderIndicators) {
+                if (fs.existsSync(path.join(directory, fileName))) {
+                    result = directory;
+                    if (isRoot) {
+                        break outer;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+            const parent = path.dirname(directory);
+            directory = parent !== directory ? parent : undefined;
+        }
+        return result;
+    }
+    ESLint.findWorkingDirectory = findWorkingDirectory;
+    let ErrorHandlers;
+    (function (ErrorHandlers) {
+        ErrorHandlers.single = [
+            tryHandleNoConfig,
+            tryHandleConfigError,
+            tryHandleMissingModule,
+            showErrorMessage
+        ];
+        function getMessage(err, document) {
+            let result = undefined;
+            if (typeof err.message === 'string' || err.message instanceof String) {
+                result = err.message;
+                result = result.replace(/\r?\n/g, ' ');
+                if (/^CLI: /.test(result)) {
+                    result = result.substr(5);
+                }
+            }
+            else {
+                result = `An unknown error occurred while validating document: ${document.uri}`;
+            }
+            return result;
+        }
+        ErrorHandlers.getMessage = getMessage;
+        const noConfigReported = new Map();
+        function clearNoConfigReported() {
+            noConfigReported.clear();
+        }
+        ErrorHandlers.clearNoConfigReported = clearNoConfigReported;
+        function tryHandleNoConfig(error, document, library) {
+            if (!ESLintError.isNoConfigFound(error)) {
+                return undefined;
+            }
+            if (!noConfigReported.has(document.uri)) {
+                connection.sendRequest(customMessages_1.NoConfigRequest.type, {
+                    message: getMessage(error, document),
+                    document: {
+                        uri: document.uri
+                    }
+                }).then(undefined, () => { });
+                noConfigReported.set(document.uri, library);
+            }
+            return customMessages_1.Status.warn;
+        }
+        const configErrorReported = new Map();
+        function getConfigErrorReported(key) {
+            return configErrorReported.get(key);
+        }
+        ErrorHandlers.getConfigErrorReported = getConfigErrorReported;
+        function removeConfigErrorReported(key) {
+            return configErrorReported.delete(key);
+        }
+        ErrorHandlers.removeConfigErrorReported = removeConfigErrorReported;
+        function tryHandleConfigError(error, document, library) {
+            if (!error.message) {
+                return undefined;
+            }
+            function handleFileName(filename) {
+                if (!configErrorReported.has(filename)) {
+                    connection.console.error(getMessage(error, document));
+                    if (!documents.get(vscode_uri_1.URI.file(filename).toString())) {
+                        connection.window.showInformationMessage(getMessage(error, document));
+                    }
+                    configErrorReported.set(filename, library);
+                }
+                return customMessages_1.Status.warn;
+            }
+            let matches = /Cannot read config file:\s+(.*)\nError:\s+(.*)/.exec(error.message);
+            if (matches && matches.length === 3) {
+                return handleFileName(matches[1]);
+            }
+            matches = /(.*):\n\s*Configuration for rule \"(.*)\" is /.exec(error.message);
+            if (matches && matches.length === 3) {
+                return handleFileName(matches[1]);
+            }
+            matches = /Cannot find module '([^']*)'\nReferenced from:\s+(.*)/.exec(error.message);
+            if (matches && matches.length === 3) {
+                return handleFileName(matches[2]);
+            }
+            return undefined;
+        }
+        const missingModuleReported = new Map();
+        function clearMissingModuleReported() {
+            missingModuleReported.clear();
+        }
+        ErrorHandlers.clearMissingModuleReported = clearMissingModuleReported;
+        function tryHandleMissingModule(error, document, library) {
+            if (!error.message) {
+                return undefined;
+            }
+            function handleMissingModule(plugin, module, error) {
+                if (!missingModuleReported.has(plugin)) {
+                    const fsPath = inferFilePath(document);
+                    missingModuleReported.set(plugin, library);
+                    if (error.messageTemplate === 'plugin-missing') {
+                        connection.console.error([
+                            '',
+                            `${error.message.toString()}`,
+                            `Happened while validating ${fsPath ? fsPath : document.uri}`,
+                            `This can happen for a couple of reasons:`,
+                            `1. The plugin name is spelled incorrectly in an ESLint configuration file (e.g. .eslintrc).`,
+                            `2. If ESLint is installed globally, then make sure ${module} is installed globally as well.`,
+                            `3. If ESLint is installed locally, then ${module} isn't installed correctly.`,
+                            '',
+                            `Consider running eslint --debug ${fsPath ? fsPath : document.uri} from a terminal to obtain a trace about the configuration files used.`
+                        ].join('\n'));
+                    }
+                    else {
+                        connection.console.error([
+                            `${error.message.toString()}`,
+                            `Happened while validating ${fsPath ? fsPath : document.uri}`
+                        ].join('\n'));
+                    }
+                }
+                return customMessages_1.Status.warn;
+            }
+            const matches = /Failed to load plugin (.*): Cannot find module (.*)/.exec(error.message);
+            if (matches && matches.length === 3) {
+                return handleMissingModule(matches[1], matches[2], error);
+            }
+            return undefined;
+        }
+        function showErrorMessage(error, document) {
+            if (Is.string(error.stack)) {
+                connection.console.error('An unexpected error occurred:');
+                connection.console.error(error.stack);
+            }
+            else {
+                connection.console.error(`An unexpected error occurred: ${getMessage(error, document)}.`);
+            }
+            return customMessages_1.Status.error;
+        }
+    })(ErrorHandlers = ESLint.ErrorHandlers || (ESLint.ErrorHandlers = {}));
+})(ESLint || (exports.ESLint = ESLint = {}));
+
+
+/***/ }),
+
+/***/ 2389:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.string = exports.nullOrUndefined = exports.boolean = void 0;
+const toString = Object.prototype.toString;
+function boolean(value) {
+    return value === true || value === false;
+}
+exports.boolean = boolean;
+function nullOrUndefined(value) {
+    return value === null || value === undefined;
+}
+exports.nullOrUndefined = nullOrUndefined;
+function string(value) {
+    return toString.call(value) === '[object String]';
+}
+exports.string = string;
+
+
+/***/ }),
+
+/***/ 2388:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const languageId2Config = new Map([
+    ['javascript', { ext: 'js', lineComment: '//', blockComment: ['/*', '*/'] }],
+    ['javascriptreact', { ext: 'jsx', lineComment: '//', blockComment: ['/*', '*/'] }],
+    ['typescript', { ext: 'ts', lineComment: '//', blockComment: ['/*', '*/'] }],
+    ['typescriptreact', { ext: 'tsx', lineComment: '//', blockComment: ['/*', '*/'] }],
+    ['html', { ext: 'html', lineComment: '//', blockComment: ['<!--', '-->'] }],
+    ['vue', { ext: 'vue', lineComment: '//', blockComment: ['<!--', '-->'] }],
+    ['coffeescript', { ext: 'coffee', lineComment: '#', blockComment: ['###', '###'] }],
+    ['yaml', { ext: 'yaml', lineComment: '#', blockComment: ['#', ''] }],
+    ['graphql', { ext: 'graphql', lineComment: '#', blockComment: ['#', ''] }]
+]);
+var LanguageDefaults;
+(function (LanguageDefaults) {
+    function getLineComment(languageId) {
+        return languageId2Config.get(languageId)?.lineComment ?? '//';
+    }
+    LanguageDefaults.getLineComment = getLineComment;
+    function getBlockComment(languageId) {
+        return languageId2Config.get(languageId)?.blockComment ?? ['/**', '*/'];
+    }
+    LanguageDefaults.getBlockComment = getBlockComment;
+    function getExtension(languageId) {
+        return languageId2Config.get(languageId)?.ext;
+    }
+    LanguageDefaults.getExtension = getExtension;
+})(LanguageDefaults || (LanguageDefaults = {}));
+exports["default"] = LanguageDefaults;
+
+
+/***/ }),
+
+/***/ 572:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LRUCache = exports.LinkedMap = exports.Touch = void 0;
+var Touch;
+(function (Touch) {
+    Touch.None = 0;
+    Touch.First = 1;
+    Touch.AsOld = Touch.First;
+    Touch.Last = 2;
+    Touch.AsNew = Touch.Last;
+})(Touch || (exports.Touch = Touch = {}));
+class LinkedMap {
+    constructor() {
+        this[_a] = 'LinkedMap';
+        this._map = new Map();
+        this._head = undefined;
+        this._tail = undefined;
+        this._size = 0;
+        this._state = 0;
+    }
+    clear() {
+        this._map.clear();
+        this._head = undefined;
+        this._tail = undefined;
+        this._size = 0;
+        this._state++;
+    }
+    isEmpty() {
+        return !this._head && !this._tail;
+    }
+    get size() {
+        return this._size;
+    }
+    get first() {
+        return this._head?.value;
+    }
+    get last() {
+        return this._tail?.value;
+    }
+    has(key) {
+        return this._map.has(key);
+    }
+    get(key, touch = Touch.None) {
+        const item = this._map.get(key);
+        if (!item) {
+            return undefined;
+        }
+        if (touch !== Touch.None) {
+            this.touch(item, touch);
+        }
+        return item.value;
+    }
+    set(key, value, touch = Touch.None) {
+        let item = this._map.get(key);
+        if (item) {
+            item.value = value;
+            if (touch !== Touch.None) {
+                this.touch(item, touch);
+            }
+        }
+        else {
+            item = { key, value, next: undefined, previous: undefined };
+            switch (touch) {
+                case Touch.None:
+                    this.addItemLast(item);
+                    break;
+                case Touch.First:
+                    this.addItemFirst(item);
+                    break;
+                case Touch.Last:
+                    this.addItemLast(item);
+                    break;
+                default:
+                    this.addItemLast(item);
+                    break;
+            }
+            this._map.set(key, item);
+            this._size++;
+        }
+        return this;
+    }
+    delete(key) {
+        return !!this.remove(key);
+    }
+    remove(key) {
+        const item = this._map.get(key);
+        if (!item) {
+            return undefined;
+        }
+        this._map.delete(key);
+        this.removeItem(item);
+        this._size--;
+        return item.value;
+    }
+    shift() {
+        if (!this._head && !this._tail) {
+            return undefined;
+        }
+        if (!this._head || !this._tail) {
+            throw new Error('Invalid list');
+        }
+        const item = this._head;
+        this._map.delete(item.key);
+        this.removeItem(item);
+        this._size--;
+        return item.value;
+    }
+    forEach(callbackfn, thisArg) {
+        const state = this._state;
+        let current = this._head;
+        while (current) {
+            if (thisArg) {
+                callbackfn.bind(thisArg)(current.value, current.key, this);
+            }
+            else {
+                callbackfn(current.value, current.key, this);
+            }
+            if (this._state !== state) {
+                throw new Error(`LinkedMap got modified during iteration.`);
+            }
+            current = current.next;
+        }
+    }
+    keys() {
+        const map = this;
+        const state = this._state;
+        let current = this._head;
+        const iterator = {
+            [Symbol.iterator]() {
+                return iterator;
+            },
+            next() {
+                if (map._state !== state) {
+                    throw new Error(`LinkedMap got modified during iteration.`);
+                }
+                if (current) {
+                    const result = { value: current.key, done: false };
+                    current = current.next;
+                    return result;
+                }
+                else {
+                    return { value: undefined, done: true };
+                }
+            }
+        };
+        return iterator;
+    }
+    values() {
+        const map = this;
+        const state = this._state;
+        let current = this._head;
+        const iterator = {
+            [Symbol.iterator]() {
+                return iterator;
+            },
+            next() {
+                if (map._state !== state) {
+                    throw new Error(`LinkedMap got modified during iteration.`);
+                }
+                if (current) {
+                    const result = { value: current.value, done: false };
+                    current = current.next;
+                    return result;
+                }
+                else {
+                    return { value: undefined, done: true };
+                }
+            }
+        };
+        return iterator;
+    }
+    entries() {
+        const map = this;
+        const state = this._state;
+        let current = this._head;
+        const iterator = {
+            [Symbol.iterator]() {
+                return iterator;
+            },
+            next() {
+                if (map._state !== state) {
+                    throw new Error(`LinkedMap got modified during iteration.`);
+                }
+                if (current) {
+                    const result = { value: [current.key, current.value], done: false };
+                    current = current.next;
+                    return result;
+                }
+                else {
+                    return { value: undefined, done: true };
+                }
+            }
+        };
+        return iterator;
+    }
+    [(_a = Symbol.toStringTag, Symbol.iterator)]() {
+        return this.entries();
+    }
+    trimOld(newSize) {
+        if (newSize >= this.size) {
+            return;
+        }
+        if (newSize === 0) {
+            this.clear();
+            return;
+        }
+        let current = this._head;
+        let currentSize = this.size;
+        while (current && currentSize > newSize) {
+            this._map.delete(current.key);
+            current = current.next;
+            currentSize--;
+        }
+        this._head = current;
+        this._size = currentSize;
+        if (current) {
+            current.previous = undefined;
+        }
+        this._state++;
+    }
+    addItemFirst(item) {
+        // First time Insert
+        if (!this._head && !this._tail) {
+            this._tail = item;
+        }
+        else if (!this._head) {
+            throw new Error('Invalid list');
+        }
+        else {
+            item.next = this._head;
+            this._head.previous = item;
+        }
+        this._head = item;
+        this._state++;
+    }
+    addItemLast(item) {
+        // First time Insert
+        if (!this._head && !this._tail) {
+            this._head = item;
+        }
+        else if (!this._tail) {
+            throw new Error('Invalid list');
+        }
+        else {
+            item.previous = this._tail;
+            this._tail.next = item;
+        }
+        this._tail = item;
+        this._state++;
+    }
+    removeItem(item) {
+        if (item === this._head && item === this._tail) {
+            this._head = undefined;
+            this._tail = undefined;
+        }
+        else if (item === this._head) {
+            // This can only happend if size === 1 which is handle
+            // by the case above.
+            if (!item.next) {
+                throw new Error('Invalid list');
+            }
+            item.next.previous = undefined;
+            this._head = item.next;
+        }
+        else if (item === this._tail) {
+            // This can only happend if size === 1 which is handle
+            // by the case above.
+            if (!item.previous) {
+                throw new Error('Invalid list');
+            }
+            item.previous.next = undefined;
+            this._tail = item.previous;
+        }
+        else {
+            const next = item.next;
+            const previous = item.previous;
+            if (!next || !previous) {
+                throw new Error('Invalid list');
+            }
+            next.previous = previous;
+            previous.next = next;
+        }
+        item.next = undefined;
+        item.previous = undefined;
+        this._state++;
+    }
+    touch(item, touch) {
+        if (!this._head || !this._tail) {
+            throw new Error('Invalid list');
+        }
+        if ((touch !== Touch.First && touch !== Touch.Last)) {
+            return;
+        }
+        if (touch === Touch.First) {
+            if (item === this._head) {
+                return;
+            }
+            const next = item.next;
+            const previous = item.previous;
+            // Unlink the item
+            if (item === this._tail) {
+                // previous must be defined since item was not head but is tail
+                // So there are more than on item in the map
+                previous.next = undefined;
+                this._tail = previous;
+            }
+            else {
+                // Both next and previous are not undefined since item was neither head nor tail.
+                next.previous = previous;
+                previous.next = next;
+            }
+            // Insert the node at head
+            item.previous = undefined;
+            item.next = this._head;
+            this._head.previous = item;
+            this._head = item;
+            this._state++;
+        }
+        else if (touch === Touch.Last) {
+            if (item === this._tail) {
+                return;
+            }
+            const next = item.next;
+            const previous = item.previous;
+            // Unlink the item.
+            if (item === this._head) {
+                // next must be defined since item was not tail but is head
+                // So there are more than on item in the map
+                next.previous = undefined;
+                this._head = next;
+            }
+            else {
+                // Both next and previous are not undefined since item was neither head nor tail.
+                next.previous = previous;
+                previous.next = next;
+            }
+            item.next = undefined;
+            item.previous = this._tail;
+            this._tail.next = item;
+            this._tail = item;
+            this._state++;
+        }
+    }
+    toJSON() {
+        const data = [];
+        this.forEach((value, key) => {
+            data.push([key, value]);
+        });
+        return data;
+    }
+    fromJSON(data) {
+        this.clear();
+        for (const [key, value] of data) {
+            this.set(key, value);
+        }
+    }
+}
+exports.LinkedMap = LinkedMap;
+class LRUCache extends LinkedMap {
+    constructor(limit, ratio = 1) {
+        super();
+        this._limit = limit;
+        this._ratio = Math.min(Math.max(0, ratio), 1);
+    }
+    get limit() {
+        return this._limit;
+    }
+    set limit(limit) {
+        this._limit = limit;
+        this.checkTrim();
+    }
+    get ratio() {
+        return this._ratio;
+    }
+    set ratio(ratio) {
+        this._ratio = Math.min(Math.max(0, ratio), 1);
+        this.checkTrim();
+    }
+    get(key, touch = Touch.AsNew) {
+        return super.get(key, touch);
+    }
+    peek(key) {
+        return super.get(key, Touch.None);
+    }
+    set(key, value) {
+        super.set(key, value, Touch.Last);
+        this.checkTrim();
+        return this;
+    }
+    checkTrim() {
+        if (this.size > this._limit) {
+            this.trimOld(Math.round(this._limit * this._ratio));
+        }
+    }
+}
+exports.LRUCache = LRUCache;
+
+
+/***/ }),
+
+/***/ 9675:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getUri = exports.normalizePath = exports.getFileSystemPath = exports.isUNC = exports.normalizeDriveLetter = void 0;
+const fs = __webpack_require__(7147);
+const vscode_uri_1 = __webpack_require__(6883);
+const Is = __webpack_require__(2389);
+/**
+ * Special functions to deal with path conversions in the context of ESLint
+ */
+/**
+ * Normalizes the drive letter to upper case which is the default in Node but not in
+ * VS Code.
+ */
+function normalizeDriveLetter(path) {
+    if (process.platform !== 'win32' || path.length < 2 || path[1] !== ':') {
+        return path;
+    }
+    return path[0].toUpperCase() + path.substring(1);
+}
+exports.normalizeDriveLetter = normalizeDriveLetter;
+/**
+ * Check if the path follows this pattern: `\\hostname\sharename`.
+ *
+ * @see https://msdn.microsoft.com/en-us/library/gg465305.aspx
+ * @return A boolean indication if the path is a UNC path, on none-windows
+ * always false.
+ */
+function isUNC(path) {
+    if (process.platform !== 'win32') {
+        // UNC is a windows concept
+        return false;
+    }
+    if (!path || path.length < 5) {
+        // at least \\a\b
+        return false;
+    }
+    let code = path.charCodeAt(0);
+    if (code !== 92 /* CharCode.Backslash */) {
+        return false;
+    }
+    code = path.charCodeAt(1);
+    if (code !== 92 /* CharCode.Backslash */) {
+        return false;
+    }
+    let pos = 2;
+    const start = pos;
+    for (; pos < path.length; pos++) {
+        code = path.charCodeAt(pos);
+        if (code === 92 /* CharCode.Backslash */) {
+            break;
+        }
+    }
+    if (start === pos) {
+        return false;
+    }
+    code = path.charCodeAt(pos + 1);
+    if (isNaN(code) || code === 92 /* CharCode.Backslash */) {
+        return false;
+    }
+    return true;
+}
+exports.isUNC = isUNC;
+function getFileSystemPath(uri) {
+    let result = uri.fsPath;
+    if (process.platform === 'win32' && result.length >= 2 && result[1] === ':') {
+        // Node by default uses an upper case drive letter and ESLint uses
+        // === to compare paths which results in the equal check failing
+        // if the drive letter is lower case in th URI. Ensure upper case.
+        result = result[0].toUpperCase() + result.substr(1);
+    }
+    if (process.platform === 'win32' || process.platform === 'darwin') {
+        try {
+            const realpath = fs.realpathSync.native(result);
+            // Only use the real path if only the casing has changed.
+            if (realpath.toLowerCase() === result.toLowerCase()) {
+                result = realpath;
+            }
+        }
+        catch {
+            // Silently ignore errors from `fs.realpathSync` to handle scenarios where
+            // the file being linted is not yet written to disk. This occurs in editors
+            // such as Neovim for non-written buffers.
+        }
+    }
+    return result;
+}
+exports.getFileSystemPath = getFileSystemPath;
+function normalizePath(path) {
+    if (path === undefined) {
+        return undefined;
+    }
+    if (process.platform === 'win32') {
+        return path.replace(/\\/g, '/');
+    }
+    return path;
+}
+exports.normalizePath = normalizePath;
+function getUri(documentOrUri) {
+    return Is.string(documentOrUri)
+        ? vscode_uri_1.URI.parse(documentOrUri)
+        : documentOrUri instanceof vscode_uri_1.URI
+            ? documentOrUri
+            : vscode_uri_1.URI.parse(documentOrUri.uri);
+}
+exports.getUri = getUri;
+
+
+/***/ }),
+
+/***/ 2116:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ExitCalled = exports.ShowOutputChannel = exports.ProbeFailedRequest = exports.OpenESLintDocRequest = exports.NoESLintLibraryRequest = exports.NoConfigRequest = exports.StatusNotification = exports.Status = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+var Status;
+(function (Status) {
+    Status[Status["ok"] = 1] = "ok";
+    Status[Status["warn"] = 2] = "warn";
+    Status[Status["error"] = 3] = "error";
+})(Status || (exports.Status = Status = {}));
+/**
+ * The status notification is sent from the server to the client to
+ * inform the client about server status changes.
+ */
+var StatusNotification;
+(function (StatusNotification) {
+    StatusNotification.method = 'eslint/status';
+    StatusNotification.type = new vscode_languageserver_protocol_1.NotificationType(StatusNotification.method);
+})(StatusNotification || (exports.StatusNotification = StatusNotification = {}));
+/**
+ * The NoConfigRequest is sent from the server to the client to inform
+ * the client that no eslint configuration file could be found when
+ * trying to lint a file.
+ */
+var NoConfigRequest;
+(function (NoConfigRequest) {
+    NoConfigRequest.method = 'eslint/noConfig';
+    NoConfigRequest.type = new vscode_languageserver_protocol_1.RequestType(NoConfigRequest.method);
+})(NoConfigRequest || (exports.NoConfigRequest = NoConfigRequest = {}));
+/**
+ * The NoESLintLibraryRequest is sent from the server to the client to
+ * inform the client that no eslint library could be found when trying
+ * to lint a file.
+ */
+var NoESLintLibraryRequest;
+(function (NoESLintLibraryRequest) {
+    NoESLintLibraryRequest.method = 'eslint/noLibrary';
+    NoESLintLibraryRequest.type = new vscode_languageserver_protocol_1.RequestType(NoESLintLibraryRequest.method);
+})(NoESLintLibraryRequest || (exports.NoESLintLibraryRequest = NoESLintLibraryRequest = {}));
+/**
+ * The eslint/openDoc request is sent from the server to the client to
+ * ask the client to open the documentation URI for a given
+ * ESLint rule.
+ */
+var OpenESLintDocRequest;
+(function (OpenESLintDocRequest) {
+    OpenESLintDocRequest.method = 'eslint/openDoc';
+    OpenESLintDocRequest.type = new vscode_languageserver_protocol_1.RequestType(OpenESLintDocRequest.method);
+})(OpenESLintDocRequest || (exports.OpenESLintDocRequest = OpenESLintDocRequest = {}));
+/**
+ * The eslint/probeFailed request is sent from the server to the client
+ * to tell the client the the lint probing for a certain document has
+ * failed and that there is no need to sync that document to the server
+ * anymore.
+ */
+var ProbeFailedRequest;
+(function (ProbeFailedRequest) {
+    ProbeFailedRequest.method = 'eslint/probeFailed';
+    ProbeFailedRequest.type = new vscode_languageserver_protocol_1.RequestType(ProbeFailedRequest.method);
+})(ProbeFailedRequest || (exports.ProbeFailedRequest = ProbeFailedRequest = {}));
+/**
+ * The eslint/showOutputChannel notification is sent from the server to
+ * the client to ask the client to reveal it's output channel.
+ */
+var ShowOutputChannel;
+(function (ShowOutputChannel) {
+    ShowOutputChannel.method = 'eslint/showOutputChannel';
+    ShowOutputChannel.type = new vscode_languageserver_protocol_1.NotificationType0('eslint/showOutputChannel');
+})(ShowOutputChannel || (exports.ShowOutputChannel = ShowOutputChannel = {}));
+/**
+ * The eslint/exitCalled notification is sent from the server to the client
+ * to inform the client that a process.exit call on the server got intercepted.
+ * The call was very likely made by an ESLint plugin.
+ */
+var ExitCalled;
+(function (ExitCalled) {
+    ExitCalled.method = 'eslint/exitCalled';
+    ExitCalled.type = new vscode_languageserver_protocol_1.NotificationType(ExitCalled.method);
+})(ExitCalled || (exports.ExitCalled = ExitCalled = {}));
+
+
+/***/ }),
+
+/***/ 7237:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DirectoryItem = exports.ModeItem = exports.ModeEnum = exports.RuleSeverity = exports.ESLintSeverity = exports.CodeActionsOnSaveRules = exports.CodeActionsOnSaveMode = exports.Validate = void 0;
+var Is;
+(function (Is) {
+    const toString = Object.prototype.toString;
+    function boolean(value) {
+        return value === true || value === false;
+    }
+    Is.boolean = boolean;
+    function string(value) {
+        return toString.call(value) === '[object String]';
+    }
+    Is.string = string;
+})(Is || (Is = {}));
+var Validate;
+(function (Validate) {
+    Validate["on"] = "on";
+    Validate["off"] = "off";
+    Validate["probe"] = "probe";
+})(Validate || (exports.Validate = Validate = {}));
+var CodeActionsOnSaveMode;
+(function (CodeActionsOnSaveMode) {
+    CodeActionsOnSaveMode["all"] = "all";
+    CodeActionsOnSaveMode["problems"] = "problems";
+})(CodeActionsOnSaveMode || (exports.CodeActionsOnSaveMode = CodeActionsOnSaveMode = {}));
+(function (CodeActionsOnSaveMode) {
+    function from(value) {
+        if (value === undefined || value === null || !Is.string(value)) {
+            return CodeActionsOnSaveMode.all;
+        }
+        switch (value.toLowerCase()) {
+            case CodeActionsOnSaveMode.problems:
+                return CodeActionsOnSaveMode.problems;
+            default:
+                return CodeActionsOnSaveMode.all;
+        }
+    }
+    CodeActionsOnSaveMode.from = from;
+})(CodeActionsOnSaveMode || (exports.CodeActionsOnSaveMode = CodeActionsOnSaveMode = {}));
+var CodeActionsOnSaveRules;
+(function (CodeActionsOnSaveRules) {
+    function from(value) {
+        if (value === undefined || value === null || !Array.isArray(value)) {
+            return undefined;
+        }
+        return value.filter(item => Is.string(item));
+    }
+    CodeActionsOnSaveRules.from = from;
+})(CodeActionsOnSaveRules || (exports.CodeActionsOnSaveRules = CodeActionsOnSaveRules = {}));
+var ESLintSeverity;
+(function (ESLintSeverity) {
+    ESLintSeverity["off"] = "off";
+    ESLintSeverity["warn"] = "warn";
+    ESLintSeverity["error"] = "error";
+})(ESLintSeverity || (exports.ESLintSeverity = ESLintSeverity = {}));
+(function (ESLintSeverity) {
+    function from(value) {
+        if (value === undefined || value === null) {
+            return ESLintSeverity.off;
+        }
+        switch (value.toLowerCase()) {
+            case ESLintSeverity.off:
+                return ESLintSeverity.off;
+            case ESLintSeverity.warn:
+                return ESLintSeverity.warn;
+            case ESLintSeverity.error:
+                return ESLintSeverity.error;
+            default:
+                return ESLintSeverity.off;
+        }
+    }
+    ESLintSeverity.from = from;
+})(ESLintSeverity || (exports.ESLintSeverity = ESLintSeverity = {}));
+var RuleSeverity;
+(function (RuleSeverity) {
+    // Original ESLint values
+    RuleSeverity["info"] = "info";
+    RuleSeverity["warn"] = "warn";
+    RuleSeverity["error"] = "error";
+    RuleSeverity["off"] = "off";
+    // Added severity override changes
+    RuleSeverity["default"] = "default";
+    RuleSeverity["downgrade"] = "downgrade";
+    RuleSeverity["upgrade"] = "upgrade";
+})(RuleSeverity || (exports.RuleSeverity = RuleSeverity = {}));
+var ModeEnum;
+(function (ModeEnum) {
+    ModeEnum["auto"] = "auto";
+    ModeEnum["location"] = "location";
+})(ModeEnum || (exports.ModeEnum = ModeEnum = {}));
+(function (ModeEnum) {
+    function is(value) {
+        return value === ModeEnum.auto || value === ModeEnum.location;
+    }
+    ModeEnum.is = is;
+})(ModeEnum || (exports.ModeEnum = ModeEnum = {}));
+var ModeItem;
+(function (ModeItem) {
+    function is(item) {
+        const candidate = item;
+        return candidate && ModeEnum.is(candidate.mode);
+    }
+    ModeItem.is = is;
+})(ModeItem || (exports.ModeItem = ModeItem = {}));
+var DirectoryItem;
+(function (DirectoryItem) {
+    function is(item) {
+        const candidate = item;
+        return candidate && Is.string(candidate.directory) && (Is.boolean(candidate['!cwd']) || candidate['!cwd'] === undefined);
+    }
+    DirectoryItem.is = is;
+})(DirectoryItem || (exports.DirectoryItem = DirectoryItem = {}));
+
+
+/***/ }),
+
+/***/ 3870:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+/// <reference path="../../typings/thenable.d.ts" />
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProgressType = exports.ProgressToken = exports.createMessageConnection = exports.NullLogger = exports.ConnectionOptions = exports.ConnectionStrategy = exports.AbstractMessageBuffer = exports.WriteableStreamMessageWriter = exports.AbstractMessageWriter = exports.MessageWriter = exports.ReadableStreamMessageReader = exports.AbstractMessageReader = exports.MessageReader = exports.SharedArrayReceiverStrategy = exports.SharedArraySenderStrategy = exports.CancellationToken = exports.CancellationTokenSource = exports.Emitter = exports.Event = exports.Disposable = exports.LRUCache = exports.Touch = exports.LinkedMap = exports.ParameterStructures = exports.NotificationType9 = exports.NotificationType8 = exports.NotificationType7 = exports.NotificationType6 = exports.NotificationType5 = exports.NotificationType4 = exports.NotificationType3 = exports.NotificationType2 = exports.NotificationType1 = exports.NotificationType0 = exports.NotificationType = exports.ErrorCodes = exports.ResponseError = exports.RequestType9 = exports.RequestType8 = exports.RequestType7 = exports.RequestType6 = exports.RequestType5 = exports.RequestType4 = exports.RequestType3 = exports.RequestType2 = exports.RequestType1 = exports.RequestType0 = exports.RequestType = exports.Message = exports.RAL = void 0;
+exports.MessageStrategy = exports.CancellationStrategy = exports.CancellationSenderStrategy = exports.CancellationReceiverStrategy = exports.ConnectionError = exports.ConnectionErrors = exports.LogTraceNotification = exports.SetTraceNotification = exports.TraceFormat = exports.TraceValues = exports.Trace = void 0;
+const messages_1 = __webpack_require__(839);
+Object.defineProperty(exports, "Message", ({ enumerable: true, get: function () { return messages_1.Message; } }));
+Object.defineProperty(exports, "RequestType", ({ enumerable: true, get: function () { return messages_1.RequestType; } }));
+Object.defineProperty(exports, "RequestType0", ({ enumerable: true, get: function () { return messages_1.RequestType0; } }));
+Object.defineProperty(exports, "RequestType1", ({ enumerable: true, get: function () { return messages_1.RequestType1; } }));
+Object.defineProperty(exports, "RequestType2", ({ enumerable: true, get: function () { return messages_1.RequestType2; } }));
+Object.defineProperty(exports, "RequestType3", ({ enumerable: true, get: function () { return messages_1.RequestType3; } }));
+Object.defineProperty(exports, "RequestType4", ({ enumerable: true, get: function () { return messages_1.RequestType4; } }));
+Object.defineProperty(exports, "RequestType5", ({ enumerable: true, get: function () { return messages_1.RequestType5; } }));
+Object.defineProperty(exports, "RequestType6", ({ enumerable: true, get: function () { return messages_1.RequestType6; } }));
+Object.defineProperty(exports, "RequestType7", ({ enumerable: true, get: function () { return messages_1.RequestType7; } }));
+Object.defineProperty(exports, "RequestType8", ({ enumerable: true, get: function () { return messages_1.RequestType8; } }));
+Object.defineProperty(exports, "RequestType9", ({ enumerable: true, get: function () { return messages_1.RequestType9; } }));
+Object.defineProperty(exports, "ResponseError", ({ enumerable: true, get: function () { return messages_1.ResponseError; } }));
+Object.defineProperty(exports, "ErrorCodes", ({ enumerable: true, get: function () { return messages_1.ErrorCodes; } }));
+Object.defineProperty(exports, "NotificationType", ({ enumerable: true, get: function () { return messages_1.NotificationType; } }));
+Object.defineProperty(exports, "NotificationType0", ({ enumerable: true, get: function () { return messages_1.NotificationType0; } }));
+Object.defineProperty(exports, "NotificationType1", ({ enumerable: true, get: function () { return messages_1.NotificationType1; } }));
+Object.defineProperty(exports, "NotificationType2", ({ enumerable: true, get: function () { return messages_1.NotificationType2; } }));
+Object.defineProperty(exports, "NotificationType3", ({ enumerable: true, get: function () { return messages_1.NotificationType3; } }));
+Object.defineProperty(exports, "NotificationType4", ({ enumerable: true, get: function () { return messages_1.NotificationType4; } }));
+Object.defineProperty(exports, "NotificationType5", ({ enumerable: true, get: function () { return messages_1.NotificationType5; } }));
+Object.defineProperty(exports, "NotificationType6", ({ enumerable: true, get: function () { return messages_1.NotificationType6; } }));
+Object.defineProperty(exports, "NotificationType7", ({ enumerable: true, get: function () { return messages_1.NotificationType7; } }));
+Object.defineProperty(exports, "NotificationType8", ({ enumerable: true, get: function () { return messages_1.NotificationType8; } }));
+Object.defineProperty(exports, "NotificationType9", ({ enumerable: true, get: function () { return messages_1.NotificationType9; } }));
+Object.defineProperty(exports, "ParameterStructures", ({ enumerable: true, get: function () { return messages_1.ParameterStructures; } }));
+const linkedMap_1 = __webpack_require__(6184);
+Object.defineProperty(exports, "LinkedMap", ({ enumerable: true, get: function () { return linkedMap_1.LinkedMap; } }));
+Object.defineProperty(exports, "LRUCache", ({ enumerable: true, get: function () { return linkedMap_1.LRUCache; } }));
+Object.defineProperty(exports, "Touch", ({ enumerable: true, get: function () { return linkedMap_1.Touch; } }));
+const disposable_1 = __webpack_require__(3911);
+Object.defineProperty(exports, "Disposable", ({ enumerable: true, get: function () { return disposable_1.Disposable; } }));
+const events_1 = __webpack_require__(7135);
+Object.defineProperty(exports, "Event", ({ enumerable: true, get: function () { return events_1.Event; } }));
+Object.defineProperty(exports, "Emitter", ({ enumerable: true, get: function () { return events_1.Emitter; } }));
+const cancellation_1 = __webpack_require__(3881);
+Object.defineProperty(exports, "CancellationTokenSource", ({ enumerable: true, get: function () { return cancellation_1.CancellationTokenSource; } }));
+Object.defineProperty(exports, "CancellationToken", ({ enumerable: true, get: function () { return cancellation_1.CancellationToken; } }));
+const sharedArrayCancellation_1 = __webpack_require__(8211);
+Object.defineProperty(exports, "SharedArraySenderStrategy", ({ enumerable: true, get: function () { return sharedArrayCancellation_1.SharedArraySenderStrategy; } }));
+Object.defineProperty(exports, "SharedArrayReceiverStrategy", ({ enumerable: true, get: function () { return sharedArrayCancellation_1.SharedArrayReceiverStrategy; } }));
+const messageReader_1 = __webpack_require__(6525);
+Object.defineProperty(exports, "MessageReader", ({ enumerable: true, get: function () { return messageReader_1.MessageReader; } }));
+Object.defineProperty(exports, "AbstractMessageReader", ({ enumerable: true, get: function () { return messageReader_1.AbstractMessageReader; } }));
+Object.defineProperty(exports, "ReadableStreamMessageReader", ({ enumerable: true, get: function () { return messageReader_1.ReadableStreamMessageReader; } }));
+const messageWriter_1 = __webpack_require__(6654);
+Object.defineProperty(exports, "MessageWriter", ({ enumerable: true, get: function () { return messageWriter_1.MessageWriter; } }));
+Object.defineProperty(exports, "AbstractMessageWriter", ({ enumerable: true, get: function () { return messageWriter_1.AbstractMessageWriter; } }));
+Object.defineProperty(exports, "WriteableStreamMessageWriter", ({ enumerable: true, get: function () { return messageWriter_1.WriteableStreamMessageWriter; } }));
+const messageBuffer_1 = __webpack_require__(5530);
+Object.defineProperty(exports, "AbstractMessageBuffer", ({ enumerable: true, get: function () { return messageBuffer_1.AbstractMessageBuffer; } }));
+const connection_1 = __webpack_require__(1343);
+Object.defineProperty(exports, "ConnectionStrategy", ({ enumerable: true, get: function () { return connection_1.ConnectionStrategy; } }));
+Object.defineProperty(exports, "ConnectionOptions", ({ enumerable: true, get: function () { return connection_1.ConnectionOptions; } }));
+Object.defineProperty(exports, "NullLogger", ({ enumerable: true, get: function () { return connection_1.NullLogger; } }));
+Object.defineProperty(exports, "createMessageConnection", ({ enumerable: true, get: function () { return connection_1.createMessageConnection; } }));
+Object.defineProperty(exports, "ProgressToken", ({ enumerable: true, get: function () { return connection_1.ProgressToken; } }));
+Object.defineProperty(exports, "ProgressType", ({ enumerable: true, get: function () { return connection_1.ProgressType; } }));
+Object.defineProperty(exports, "Trace", ({ enumerable: true, get: function () { return connection_1.Trace; } }));
+Object.defineProperty(exports, "TraceValues", ({ enumerable: true, get: function () { return connection_1.TraceValues; } }));
+Object.defineProperty(exports, "TraceFormat", ({ enumerable: true, get: function () { return connection_1.TraceFormat; } }));
+Object.defineProperty(exports, "SetTraceNotification", ({ enumerable: true, get: function () { return connection_1.SetTraceNotification; } }));
+Object.defineProperty(exports, "LogTraceNotification", ({ enumerable: true, get: function () { return connection_1.LogTraceNotification; } }));
+Object.defineProperty(exports, "ConnectionErrors", ({ enumerable: true, get: function () { return connection_1.ConnectionErrors; } }));
+Object.defineProperty(exports, "ConnectionError", ({ enumerable: true, get: function () { return connection_1.ConnectionError; } }));
+Object.defineProperty(exports, "CancellationReceiverStrategy", ({ enumerable: true, get: function () { return connection_1.CancellationReceiverStrategy; } }));
+Object.defineProperty(exports, "CancellationSenderStrategy", ({ enumerable: true, get: function () { return connection_1.CancellationSenderStrategy; } }));
+Object.defineProperty(exports, "CancellationStrategy", ({ enumerable: true, get: function () { return connection_1.CancellationStrategy; } }));
+Object.defineProperty(exports, "MessageStrategy", ({ enumerable: true, get: function () { return connection_1.MessageStrategy; } }));
+const ral_1 = __webpack_require__(147);
+exports.RAL = ral_1.default;
+
+
+/***/ }),
+
+/***/ 3881:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CancellationTokenSource = exports.CancellationToken = void 0;
+const ral_1 = __webpack_require__(147);
+const Is = __webpack_require__(7574);
+const events_1 = __webpack_require__(7135);
+var CancellationToken;
+(function (CancellationToken) {
+    CancellationToken.None = Object.freeze({
+        isCancellationRequested: false,
+        onCancellationRequested: events_1.Event.None
+    });
+    CancellationToken.Cancelled = Object.freeze({
+        isCancellationRequested: true,
+        onCancellationRequested: events_1.Event.None
+    });
+    function is(value) {
+        const candidate = value;
+        return candidate && (candidate === CancellationToken.None
+            || candidate === CancellationToken.Cancelled
+            || (Is.boolean(candidate.isCancellationRequested) && !!candidate.onCancellationRequested));
+    }
+    CancellationToken.is = is;
+})(CancellationToken || (exports.CancellationToken = CancellationToken = {}));
+const shortcutEvent = Object.freeze(function (callback, context) {
+    const handle = (0, ral_1.default)().timer.setTimeout(callback.bind(context), 0);
+    return { dispose() { handle.dispose(); } };
+});
+class MutableToken {
+    constructor() {
+        this._isCancelled = false;
+    }
+    cancel() {
+        if (!this._isCancelled) {
+            this._isCancelled = true;
+            if (this._emitter) {
+                this._emitter.fire(undefined);
+                this.dispose();
+            }
+        }
+    }
+    get isCancellationRequested() {
+        return this._isCancelled;
+    }
+    get onCancellationRequested() {
+        if (this._isCancelled) {
+            return shortcutEvent;
+        }
+        if (!this._emitter) {
+            this._emitter = new events_1.Emitter();
+        }
+        return this._emitter.event;
+    }
+    dispose() {
+        if (this._emitter) {
+            this._emitter.dispose();
+            this._emitter = undefined;
+        }
+    }
+}
+class CancellationTokenSource {
+    get token() {
+        if (!this._token) {
+            // be lazy and create the token only when
+            // actually needed
+            this._token = new MutableToken();
+        }
+        return this._token;
+    }
+    cancel() {
+        if (!this._token) {
+            // save an object by returning the default
+            // cancelled token when cancellation happens
+            // before someone asks for the token
+            this._token = CancellationToken.Cancelled;
+        }
+        else {
+            this._token.cancel();
+        }
+    }
+    dispose() {
+        if (!this._token) {
+            // ensure to initialize with an empty token if we had none
+            this._token = CancellationToken.None;
+        }
+        else if (this._token instanceof MutableToken) {
+            // actually dispose
+            this._token.dispose();
+        }
+    }
+}
+exports.CancellationTokenSource = CancellationTokenSource;
+
+
+/***/ }),
+
+/***/ 1343:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createMessageConnection = exports.ConnectionOptions = exports.MessageStrategy = exports.CancellationStrategy = exports.CancellationSenderStrategy = exports.CancellationReceiverStrategy = exports.RequestCancellationReceiverStrategy = exports.IdCancellationReceiverStrategy = exports.ConnectionStrategy = exports.ConnectionError = exports.ConnectionErrors = exports.LogTraceNotification = exports.SetTraceNotification = exports.TraceFormat = exports.TraceValues = exports.Trace = exports.NullLogger = exports.ProgressType = exports.ProgressToken = void 0;
+const ral_1 = __webpack_require__(147);
+const Is = __webpack_require__(7574);
+const messages_1 = __webpack_require__(839);
+const linkedMap_1 = __webpack_require__(6184);
+const events_1 = __webpack_require__(7135);
+const cancellation_1 = __webpack_require__(3881);
+var CancelNotification;
+(function (CancelNotification) {
+    CancelNotification.type = new messages_1.NotificationType('$/cancelRequest');
+})(CancelNotification || (CancelNotification = {}));
+var ProgressToken;
+(function (ProgressToken) {
+    function is(value) {
+        return typeof value === 'string' || typeof value === 'number';
+    }
+    ProgressToken.is = is;
+})(ProgressToken || (exports.ProgressToken = ProgressToken = {}));
+var ProgressNotification;
+(function (ProgressNotification) {
+    ProgressNotification.type = new messages_1.NotificationType('$/progress');
+})(ProgressNotification || (ProgressNotification = {}));
+class ProgressType {
+    constructor() {
+    }
+}
+exports.ProgressType = ProgressType;
+var StarRequestHandler;
+(function (StarRequestHandler) {
+    function is(value) {
+        return Is.func(value);
+    }
+    StarRequestHandler.is = is;
+})(StarRequestHandler || (StarRequestHandler = {}));
+exports.NullLogger = Object.freeze({
+    error: () => { },
+    warn: () => { },
+    info: () => { },
+    log: () => { }
+});
+var Trace;
+(function (Trace) {
+    Trace[Trace["Off"] = 0] = "Off";
+    Trace[Trace["Messages"] = 1] = "Messages";
+    Trace[Trace["Compact"] = 2] = "Compact";
+    Trace[Trace["Verbose"] = 3] = "Verbose";
+})(Trace || (exports.Trace = Trace = {}));
+var TraceValues;
+(function (TraceValues) {
+    /**
+     * Turn tracing off.
+     */
+    TraceValues.Off = 'off';
+    /**
+     * Trace messages only.
+     */
+    TraceValues.Messages = 'messages';
+    /**
+     * Compact message tracing.
+     */
+    TraceValues.Compact = 'compact';
+    /**
+     * Verbose message tracing.
+     */
+    TraceValues.Verbose = 'verbose';
+})(TraceValues || (exports.TraceValues = TraceValues = {}));
+(function (Trace) {
+    function fromString(value) {
+        if (!Is.string(value)) {
+            return Trace.Off;
+        }
+        value = value.toLowerCase();
+        switch (value) {
+            case 'off':
+                return Trace.Off;
+            case 'messages':
+                return Trace.Messages;
+            case 'compact':
+                return Trace.Compact;
+            case 'verbose':
+                return Trace.Verbose;
+            default:
+                return Trace.Off;
+        }
+    }
+    Trace.fromString = fromString;
+    function toString(value) {
+        switch (value) {
+            case Trace.Off:
+                return 'off';
+            case Trace.Messages:
+                return 'messages';
+            case Trace.Compact:
+                return 'compact';
+            case Trace.Verbose:
+                return 'verbose';
+            default:
+                return 'off';
+        }
+    }
+    Trace.toString = toString;
+})(Trace || (exports.Trace = Trace = {}));
+var TraceFormat;
+(function (TraceFormat) {
+    TraceFormat["Text"] = "text";
+    TraceFormat["JSON"] = "json";
+})(TraceFormat || (exports.TraceFormat = TraceFormat = {}));
+(function (TraceFormat) {
+    function fromString(value) {
+        if (!Is.string(value)) {
+            return TraceFormat.Text;
+        }
+        value = value.toLowerCase();
+        if (value === 'json') {
+            return TraceFormat.JSON;
+        }
+        else {
+            return TraceFormat.Text;
+        }
+    }
+    TraceFormat.fromString = fromString;
+})(TraceFormat || (exports.TraceFormat = TraceFormat = {}));
+var SetTraceNotification;
+(function (SetTraceNotification) {
+    SetTraceNotification.type = new messages_1.NotificationType('$/setTrace');
+})(SetTraceNotification || (exports.SetTraceNotification = SetTraceNotification = {}));
+var LogTraceNotification;
+(function (LogTraceNotification) {
+    LogTraceNotification.type = new messages_1.NotificationType('$/logTrace');
+})(LogTraceNotification || (exports.LogTraceNotification = LogTraceNotification = {}));
+var ConnectionErrors;
+(function (ConnectionErrors) {
+    /**
+     * The connection is closed.
+     */
+    ConnectionErrors[ConnectionErrors["Closed"] = 1] = "Closed";
+    /**
+     * The connection got disposed.
+     */
+    ConnectionErrors[ConnectionErrors["Disposed"] = 2] = "Disposed";
+    /**
+     * The connection is already in listening mode.
+     */
+    ConnectionErrors[ConnectionErrors["AlreadyListening"] = 3] = "AlreadyListening";
+})(ConnectionErrors || (exports.ConnectionErrors = ConnectionErrors = {}));
+class ConnectionError extends Error {
+    constructor(code, message) {
+        super(message);
+        this.code = code;
+        Object.setPrototypeOf(this, ConnectionError.prototype);
+    }
+}
+exports.ConnectionError = ConnectionError;
+var ConnectionStrategy;
+(function (ConnectionStrategy) {
+    function is(value) {
+        const candidate = value;
+        return candidate && Is.func(candidate.cancelUndispatched);
+    }
+    ConnectionStrategy.is = is;
+})(ConnectionStrategy || (exports.ConnectionStrategy = ConnectionStrategy = {}));
+var IdCancellationReceiverStrategy;
+(function (IdCancellationReceiverStrategy) {
+    function is(value) {
+        const candidate = value;
+        return candidate && (candidate.kind === undefined || candidate.kind === 'id') && Is.func(candidate.createCancellationTokenSource) && (candidate.dispose === undefined || Is.func(candidate.dispose));
+    }
+    IdCancellationReceiverStrategy.is = is;
+})(IdCancellationReceiverStrategy || (exports.IdCancellationReceiverStrategy = IdCancellationReceiverStrategy = {}));
+var RequestCancellationReceiverStrategy;
+(function (RequestCancellationReceiverStrategy) {
+    function is(value) {
+        const candidate = value;
+        return candidate && candidate.kind === 'request' && Is.func(candidate.createCancellationTokenSource) && (candidate.dispose === undefined || Is.func(candidate.dispose));
+    }
+    RequestCancellationReceiverStrategy.is = is;
+})(RequestCancellationReceiverStrategy || (exports.RequestCancellationReceiverStrategy = RequestCancellationReceiverStrategy = {}));
+var CancellationReceiverStrategy;
+(function (CancellationReceiverStrategy) {
+    CancellationReceiverStrategy.Message = Object.freeze({
+        createCancellationTokenSource(_) {
+            return new cancellation_1.CancellationTokenSource();
+        }
+    });
+    function is(value) {
+        return IdCancellationReceiverStrategy.is(value) || RequestCancellationReceiverStrategy.is(value);
+    }
+    CancellationReceiverStrategy.is = is;
+})(CancellationReceiverStrategy || (exports.CancellationReceiverStrategy = CancellationReceiverStrategy = {}));
+var CancellationSenderStrategy;
+(function (CancellationSenderStrategy) {
+    CancellationSenderStrategy.Message = Object.freeze({
+        sendCancellation(conn, id) {
+            return conn.sendNotification(CancelNotification.type, { id });
+        },
+        cleanup(_) { }
+    });
+    function is(value) {
+        const candidate = value;
+        return candidate && Is.func(candidate.sendCancellation) && Is.func(candidate.cleanup);
+    }
+    CancellationSenderStrategy.is = is;
+})(CancellationSenderStrategy || (exports.CancellationSenderStrategy = CancellationSenderStrategy = {}));
+var CancellationStrategy;
+(function (CancellationStrategy) {
+    CancellationStrategy.Message = Object.freeze({
+        receiver: CancellationReceiverStrategy.Message,
+        sender: CancellationSenderStrategy.Message
+    });
+    function is(value) {
+        const candidate = value;
+        return candidate && CancellationReceiverStrategy.is(candidate.receiver) && CancellationSenderStrategy.is(candidate.sender);
+    }
+    CancellationStrategy.is = is;
+})(CancellationStrategy || (exports.CancellationStrategy = CancellationStrategy = {}));
+var MessageStrategy;
+(function (MessageStrategy) {
+    function is(value) {
+        const candidate = value;
+        return candidate && Is.func(candidate.handleMessage);
+    }
+    MessageStrategy.is = is;
+})(MessageStrategy || (exports.MessageStrategy = MessageStrategy = {}));
+var ConnectionOptions;
+(function (ConnectionOptions) {
+    function is(value) {
+        const candidate = value;
+        return candidate && (CancellationStrategy.is(candidate.cancellationStrategy) || ConnectionStrategy.is(candidate.connectionStrategy) || MessageStrategy.is(candidate.messageStrategy));
+    }
+    ConnectionOptions.is = is;
+})(ConnectionOptions || (exports.ConnectionOptions = ConnectionOptions = {}));
+var ConnectionState;
+(function (ConnectionState) {
+    ConnectionState[ConnectionState["New"] = 1] = "New";
+    ConnectionState[ConnectionState["Listening"] = 2] = "Listening";
+    ConnectionState[ConnectionState["Closed"] = 3] = "Closed";
+    ConnectionState[ConnectionState["Disposed"] = 4] = "Disposed";
+})(ConnectionState || (ConnectionState = {}));
+function createMessageConnection(messageReader, messageWriter, _logger, options) {
+    const logger = _logger !== undefined ? _logger : exports.NullLogger;
+    let sequenceNumber = 0;
+    let notificationSequenceNumber = 0;
+    let unknownResponseSequenceNumber = 0;
+    const version = '2.0';
+    let starRequestHandler = undefined;
+    const requestHandlers = new Map();
+    let starNotificationHandler = undefined;
+    const notificationHandlers = new Map();
+    const progressHandlers = new Map();
+    let timer;
+    let messageQueue = new linkedMap_1.LinkedMap();
+    let responsePromises = new Map();
+    let knownCanceledRequests = new Set();
+    let requestTokens = new Map();
+    let trace = Trace.Off;
+    let traceFormat = TraceFormat.Text;
+    let tracer;
+    let state = ConnectionState.New;
+    const errorEmitter = new events_1.Emitter();
+    const closeEmitter = new events_1.Emitter();
+    const unhandledNotificationEmitter = new events_1.Emitter();
+    const unhandledProgressEmitter = new events_1.Emitter();
+    const disposeEmitter = new events_1.Emitter();
+    const cancellationStrategy = (options && options.cancellationStrategy) ? options.cancellationStrategy : CancellationStrategy.Message;
+    function createRequestQueueKey(id) {
+        if (id === null) {
+            throw new Error(`Can't send requests with id null since the response can't be correlated.`);
+        }
+        return 'req-' + id.toString();
+    }
+    function createResponseQueueKey(id) {
+        if (id === null) {
+            return 'res-unknown-' + (++unknownResponseSequenceNumber).toString();
+        }
+        else {
+            return 'res-' + id.toString();
+        }
+    }
+    function createNotificationQueueKey() {
+        return 'not-' + (++notificationSequenceNumber).toString();
+    }
+    function addMessageToQueue(queue, message) {
+        if (messages_1.Message.isRequest(message)) {
+            queue.set(createRequestQueueKey(message.id), message);
+        }
+        else if (messages_1.Message.isResponse(message)) {
+            queue.set(createResponseQueueKey(message.id), message);
+        }
+        else {
+            queue.set(createNotificationQueueKey(), message);
+        }
+    }
+    function cancelUndispatched(_message) {
+        return undefined;
+    }
+    function isListening() {
+        return state === ConnectionState.Listening;
+    }
+    function isClosed() {
+        return state === ConnectionState.Closed;
+    }
+    function isDisposed() {
+        return state === ConnectionState.Disposed;
+    }
+    function closeHandler() {
+        if (state === ConnectionState.New || state === ConnectionState.Listening) {
+            state = ConnectionState.Closed;
+            closeEmitter.fire(undefined);
+        }
+        // If the connection is disposed don't sent close events.
+    }
+    function readErrorHandler(error) {
+        errorEmitter.fire([error, undefined, undefined]);
+    }
+    function writeErrorHandler(data) {
+        errorEmitter.fire(data);
+    }
+    messageReader.onClose(closeHandler);
+    messageReader.onError(readErrorHandler);
+    messageWriter.onClose(closeHandler);
+    messageWriter.onError(writeErrorHandler);
+    function triggerMessageQueue() {
+        if (timer || messageQueue.size === 0) {
+            return;
+        }
+        timer = (0, ral_1.default)().timer.setImmediate(() => {
+            timer = undefined;
+            processMessageQueue();
+        });
+    }
+    function handleMessage(message) {
+        if (messages_1.Message.isRequest(message)) {
+            handleRequest(message);
+        }
+        else if (messages_1.Message.isNotification(message)) {
+            handleNotification(message);
+        }
+        else if (messages_1.Message.isResponse(message)) {
+            handleResponse(message);
+        }
+        else {
+            handleInvalidMessage(message);
+        }
+    }
+    function processMessageQueue() {
+        if (messageQueue.size === 0) {
+            return;
+        }
+        const message = messageQueue.shift();
+        try {
+            const messageStrategy = options?.messageStrategy;
+            if (MessageStrategy.is(messageStrategy)) {
+                messageStrategy.handleMessage(message, handleMessage);
+            }
+            else {
+                handleMessage(message);
+            }
+        }
+        finally {
+            triggerMessageQueue();
+        }
+    }
+    const callback = (message) => {
+        try {
+            // We have received a cancellation message. Check if the message is still in the queue
+            // and cancel it if allowed to do so.
+            if (messages_1.Message.isNotification(message) && message.method === CancelNotification.type.method) {
+                const cancelId = message.params.id;
+                const key = createRequestQueueKey(cancelId);
+                const toCancel = messageQueue.get(key);
+                if (messages_1.Message.isRequest(toCancel)) {
+                    const strategy = options?.connectionStrategy;
+                    const response = (strategy && strategy.cancelUndispatched) ? strategy.cancelUndispatched(toCancel, cancelUndispatched) : cancelUndispatched(toCancel);
+                    if (response && (response.error !== undefined || response.result !== undefined)) {
+                        messageQueue.delete(key);
+                        requestTokens.delete(cancelId);
+                        response.id = toCancel.id;
+                        traceSendingResponse(response, message.method, Date.now());
+                        messageWriter.write(response).catch(() => logger.error(`Sending response for canceled message failed.`));
+                        return;
+                    }
+                }
+                const cancellationToken = requestTokens.get(cancelId);
+                // The request is already running. Cancel the token
+                if (cancellationToken !== undefined) {
+                    cancellationToken.cancel();
+                    traceReceivedNotification(message);
+                    return;
+                }
+                else {
+                    // Remember the cancel but still queue the message to
+                    // clean up state in process message.
+                    knownCanceledRequests.add(cancelId);
+                }
+            }
+            addMessageToQueue(messageQueue, message);
+        }
+        finally {
+            triggerMessageQueue();
+        }
+    };
+    function handleRequest(requestMessage) {
+        if (isDisposed()) {
+            // we return here silently since we fired an event when the
+            // connection got disposed.
+            return;
+        }
+        function reply(resultOrError, method, startTime) {
+            const message = {
+                jsonrpc: version,
+                id: requestMessage.id
+            };
+            if (resultOrError instanceof messages_1.ResponseError) {
+                message.error = resultOrError.toJson();
+            }
+            else {
+                message.result = resultOrError === undefined ? null : resultOrError;
+            }
+            traceSendingResponse(message, method, startTime);
+            messageWriter.write(message).catch(() => logger.error(`Sending response failed.`));
+        }
+        function replyError(error, method, startTime) {
+            const message = {
+                jsonrpc: version,
+                id: requestMessage.id,
+                error: error.toJson()
+            };
+            traceSendingResponse(message, method, startTime);
+            messageWriter.write(message).catch(() => logger.error(`Sending response failed.`));
+        }
+        function replySuccess(result, method, startTime) {
+            // The JSON RPC defines that a response must either have a result or an error
+            // So we can't treat undefined as a valid response result.
+            if (result === undefined) {
+                result = null;
+            }
+            const message = {
+                jsonrpc: version,
+                id: requestMessage.id,
+                result: result
+            };
+            traceSendingResponse(message, method, startTime);
+            messageWriter.write(message).catch(() => logger.error(`Sending response failed.`));
+        }
+        traceReceivedRequest(requestMessage);
+        const element = requestHandlers.get(requestMessage.method);
+        let type;
+        let requestHandler;
+        if (element) {
+            type = element.type;
+            requestHandler = element.handler;
+        }
+        const startTime = Date.now();
+        if (requestHandler || starRequestHandler) {
+            const tokenKey = requestMessage.id ?? String(Date.now()); //
+            const cancellationSource = IdCancellationReceiverStrategy.is(cancellationStrategy.receiver)
+                ? cancellationStrategy.receiver.createCancellationTokenSource(tokenKey)
+                : cancellationStrategy.receiver.createCancellationTokenSource(requestMessage);
+            if (requestMessage.id !== null && knownCanceledRequests.has(requestMessage.id)) {
+                cancellationSource.cancel();
+            }
+            if (requestMessage.id !== null) {
+                requestTokens.set(tokenKey, cancellationSource);
+            }
+            try {
+                let handlerResult;
+                if (requestHandler) {
+                    if (requestMessage.params === undefined) {
+                        if (type !== undefined && type.numberOfParams !== 0) {
+                            replyError(new messages_1.ResponseError(messages_1.ErrorCodes.InvalidParams, `Request ${requestMessage.method} defines ${type.numberOfParams} params but received none.`), requestMessage.method, startTime);
+                            return;
+                        }
+                        handlerResult = requestHandler(cancellationSource.token);
+                    }
+                    else if (Array.isArray(requestMessage.params)) {
+                        if (type !== undefined && type.parameterStructures === messages_1.ParameterStructures.byName) {
+                            replyError(new messages_1.ResponseError(messages_1.ErrorCodes.InvalidParams, `Request ${requestMessage.method} defines parameters by name but received parameters by position`), requestMessage.method, startTime);
+                            return;
+                        }
+                        handlerResult = requestHandler(...requestMessage.params, cancellationSource.token);
+                    }
+                    else {
+                        if (type !== undefined && type.parameterStructures === messages_1.ParameterStructures.byPosition) {
+                            replyError(new messages_1.ResponseError(messages_1.ErrorCodes.InvalidParams, `Request ${requestMessage.method} defines parameters by position but received parameters by name`), requestMessage.method, startTime);
+                            return;
+                        }
+                        handlerResult = requestHandler(requestMessage.params, cancellationSource.token);
+                    }
+                }
+                else if (starRequestHandler) {
+                    handlerResult = starRequestHandler(requestMessage.method, requestMessage.params, cancellationSource.token);
+                }
+                const promise = handlerResult;
+                if (!handlerResult) {
+                    requestTokens.delete(tokenKey);
+                    replySuccess(handlerResult, requestMessage.method, startTime);
+                }
+                else if (promise.then) {
+                    promise.then((resultOrError) => {
+                        requestTokens.delete(tokenKey);
+                        reply(resultOrError, requestMessage.method, startTime);
+                    }, error => {
+                        requestTokens.delete(tokenKey);
+                        if (error instanceof messages_1.ResponseError) {
+                            replyError(error, requestMessage.method, startTime);
+                        }
+                        else if (error && Is.string(error.message)) {
+                            replyError(new messages_1.ResponseError(messages_1.ErrorCodes.InternalError, `Request ${requestMessage.method} failed with message: ${error.message}`), requestMessage.method, startTime);
+                        }
+                        else {
+                            replyError(new messages_1.ResponseError(messages_1.ErrorCodes.InternalError, `Request ${requestMessage.method} failed unexpectedly without providing any details.`), requestMessage.method, startTime);
+                        }
+                    });
+                }
+                else {
+                    requestTokens.delete(tokenKey);
+                    reply(handlerResult, requestMessage.method, startTime);
+                }
+            }
+            catch (error) {
+                requestTokens.delete(tokenKey);
+                if (error instanceof messages_1.ResponseError) {
+                    reply(error, requestMessage.method, startTime);
+                }
+                else if (error && Is.string(error.message)) {
+                    replyError(new messages_1.ResponseError(messages_1.ErrorCodes.InternalError, `Request ${requestMessage.method} failed with message: ${error.message}`), requestMessage.method, startTime);
+                }
+                else {
+                    replyError(new messages_1.ResponseError(messages_1.ErrorCodes.InternalError, `Request ${requestMessage.method} failed unexpectedly without providing any details.`), requestMessage.method, startTime);
+                }
+            }
+        }
+        else {
+            replyError(new messages_1.ResponseError(messages_1.ErrorCodes.MethodNotFound, `Unhandled method ${requestMessage.method}`), requestMessage.method, startTime);
+        }
+    }
+    function handleResponse(responseMessage) {
+        if (isDisposed()) {
+            // See handle request.
+            return;
+        }
+        if (responseMessage.id === null) {
+            if (responseMessage.error) {
+                logger.error(`Received response message without id: Error is: \n${JSON.stringify(responseMessage.error, undefined, 4)}`);
+            }
+            else {
+                logger.error(`Received response message without id. No further error information provided.`);
+            }
+        }
+        else {
+            const key = responseMessage.id;
+            const responsePromise = responsePromises.get(key);
+            traceReceivedResponse(responseMessage, responsePromise);
+            if (responsePromise !== undefined) {
+                responsePromises.delete(key);
+                try {
+                    if (responseMessage.error) {
+                        const error = responseMessage.error;
+                        responsePromise.reject(new messages_1.ResponseError(error.code, error.message, error.data));
+                    }
+                    else if (responseMessage.result !== undefined) {
+                        responsePromise.resolve(responseMessage.result);
+                    }
+                    else {
+                        throw new Error('Should never happen.');
+                    }
+                }
+                catch (error) {
+                    if (error.message) {
+                        logger.error(`Response handler '${responsePromise.method}' failed with message: ${error.message}`);
+                    }
+                    else {
+                        logger.error(`Response handler '${responsePromise.method}' failed unexpectedly.`);
+                    }
+                }
+            }
+        }
+    }
+    function handleNotification(message) {
+        if (isDisposed()) {
+            // See handle request.
+            return;
+        }
+        let type = undefined;
+        let notificationHandler;
+        if (message.method === CancelNotification.type.method) {
+            const cancelId = message.params.id;
+            knownCanceledRequests.delete(cancelId);
+            traceReceivedNotification(message);
+            return;
+        }
+        else {
+            const element = notificationHandlers.get(message.method);
+            if (element) {
+                notificationHandler = element.handler;
+                type = element.type;
+            }
+        }
+        if (notificationHandler || starNotificationHandler) {
+            try {
+                traceReceivedNotification(message);
+                if (notificationHandler) {
+                    if (message.params === undefined) {
+                        if (type !== undefined) {
+                            if (type.numberOfParams !== 0 && type.parameterStructures !== messages_1.ParameterStructures.byName) {
+                                logger.error(`Notification ${message.method} defines ${type.numberOfParams} params but received none.`);
+                            }
+                        }
+                        notificationHandler();
+                    }
+                    else if (Array.isArray(message.params)) {
+                        // There are JSON-RPC libraries that send progress message as positional params although
+                        // specified as named. So convert them if this is the case.
+                        const params = message.params;
+                        if (message.method === ProgressNotification.type.method && params.length === 2 && ProgressToken.is(params[0])) {
+                            notificationHandler({ token: params[0], value: params[1] });
+                        }
+                        else {
+                            if (type !== undefined) {
+                                if (type.parameterStructures === messages_1.ParameterStructures.byName) {
+                                    logger.error(`Notification ${message.method} defines parameters by name but received parameters by position`);
+                                }
+                                if (type.numberOfParams !== message.params.length) {
+                                    logger.error(`Notification ${message.method} defines ${type.numberOfParams} params but received ${params.length} arguments`);
+                                }
+                            }
+                            notificationHandler(...params);
+                        }
+                    }
+                    else {
+                        if (type !== undefined && type.parameterStructures === messages_1.ParameterStructures.byPosition) {
+                            logger.error(`Notification ${message.method} defines parameters by position but received parameters by name`);
+                        }
+                        notificationHandler(message.params);
+                    }
+                }
+                else if (starNotificationHandler) {
+                    starNotificationHandler(message.method, message.params);
+                }
+            }
+            catch (error) {
+                if (error.message) {
+                    logger.error(`Notification handler '${message.method}' failed with message: ${error.message}`);
+                }
+                else {
+                    logger.error(`Notification handler '${message.method}' failed unexpectedly.`);
+                }
+            }
+        }
+        else {
+            unhandledNotificationEmitter.fire(message);
+        }
+    }
+    function handleInvalidMessage(message) {
+        if (!message) {
+            logger.error('Received empty message.');
+            return;
+        }
+        logger.error(`Received message which is neither a response nor a notification message:\n${JSON.stringify(message, null, 4)}`);
+        // Test whether we find an id to reject the promise
+        const responseMessage = message;
+        if (Is.string(responseMessage.id) || Is.number(responseMessage.id)) {
+            const key = responseMessage.id;
+            const responseHandler = responsePromises.get(key);
+            if (responseHandler) {
+                responseHandler.reject(new Error('The received response has neither a result nor an error property.'));
+            }
+        }
+    }
+    function stringifyTrace(params) {
+        if (params === undefined || params === null) {
+            return undefined;
+        }
+        switch (trace) {
+            case Trace.Verbose:
+                return JSON.stringify(params, null, 4);
+            case Trace.Compact:
+                return JSON.stringify(params);
+            default:
+                return undefined;
+        }
+    }
+    function traceSendingRequest(message) {
+        if (trace === Trace.Off || !tracer) {
+            return;
+        }
+        if (traceFormat === TraceFormat.Text) {
+            let data = undefined;
+            if ((trace === Trace.Verbose || trace === Trace.Compact) && message.params) {
+                data = `Params: ${stringifyTrace(message.params)}\n\n`;
+            }
+            tracer.log(`Sending request '${message.method} - (${message.id})'.`, data);
+        }
+        else {
+            logLSPMessage('send-request', message);
+        }
+    }
+    function traceSendingNotification(message) {
+        if (trace === Trace.Off || !tracer) {
+            return;
+        }
+        if (traceFormat === TraceFormat.Text) {
+            let data = undefined;
+            if (trace === Trace.Verbose || trace === Trace.Compact) {
+                if (message.params) {
+                    data = `Params: ${stringifyTrace(message.params)}\n\n`;
+                }
+                else {
+                    data = 'No parameters provided.\n\n';
+                }
+            }
+            tracer.log(`Sending notification '${message.method}'.`, data);
+        }
+        else {
+            logLSPMessage('send-notification', message);
+        }
+    }
+    function traceSendingResponse(message, method, startTime) {
+        if (trace === Trace.Off || !tracer) {
+            return;
+        }
+        if (traceFormat === TraceFormat.Text) {
+            let data = undefined;
+            if (trace === Trace.Verbose || trace === Trace.Compact) {
+                if (message.error && message.error.data) {
+                    data = `Error data: ${stringifyTrace(message.error.data)}\n\n`;
+                }
+                else {
+                    if (message.result) {
+                        data = `Result: ${stringifyTrace(message.result)}\n\n`;
+                    }
+                    else if (message.error === undefined) {
+                        data = 'No result returned.\n\n';
+                    }
+                }
+            }
+            tracer.log(`Sending response '${method} - (${message.id})'. Processing request took ${Date.now() - startTime}ms`, data);
+        }
+        else {
+            logLSPMessage('send-response', message);
+        }
+    }
+    function traceReceivedRequest(message) {
+        if (trace === Trace.Off || !tracer) {
+            return;
+        }
+        if (traceFormat === TraceFormat.Text) {
+            let data = undefined;
+            if ((trace === Trace.Verbose || trace === Trace.Compact) && message.params) {
+                data = `Params: ${stringifyTrace(message.params)}\n\n`;
+            }
+            tracer.log(`Received request '${message.method} - (${message.id})'.`, data);
+        }
+        else {
+            logLSPMessage('receive-request', message);
+        }
+    }
+    function traceReceivedNotification(message) {
+        if (trace === Trace.Off || !tracer || message.method === LogTraceNotification.type.method) {
+            return;
+        }
+        if (traceFormat === TraceFormat.Text) {
+            let data = undefined;
+            if (trace === Trace.Verbose || trace === Trace.Compact) {
+                if (message.params) {
+                    data = `Params: ${stringifyTrace(message.params)}\n\n`;
+                }
+                else {
+                    data = 'No parameters provided.\n\n';
+                }
+            }
+            tracer.log(`Received notification '${message.method}'.`, data);
+        }
+        else {
+            logLSPMessage('receive-notification', message);
+        }
+    }
+    function traceReceivedResponse(message, responsePromise) {
+        if (trace === Trace.Off || !tracer) {
+            return;
+        }
+        if (traceFormat === TraceFormat.Text) {
+            let data = undefined;
+            if (trace === Trace.Verbose || trace === Trace.Compact) {
+                if (message.error && message.error.data) {
+                    data = `Error data: ${stringifyTrace(message.error.data)}\n\n`;
+                }
+                else {
+                    if (message.result) {
+                        data = `Result: ${stringifyTrace(message.result)}\n\n`;
+                    }
+                    else if (message.error === undefined) {
+                        data = 'No result returned.\n\n';
+                    }
+                }
+            }
+            if (responsePromise) {
+                const error = message.error ? ` Request failed: ${message.error.message} (${message.error.code}).` : '';
+                tracer.log(`Received response '${responsePromise.method} - (${message.id})' in ${Date.now() - responsePromise.timerStart}ms.${error}`, data);
+            }
+            else {
+                tracer.log(`Received response ${message.id} without active response promise.`, data);
+            }
+        }
+        else {
+            logLSPMessage('receive-response', message);
+        }
+    }
+    function logLSPMessage(type, message) {
+        if (!tracer || trace === Trace.Off) {
+            return;
+        }
+        const lspMessage = {
+            isLSPMessage: true,
+            type,
+            message,
+            timestamp: Date.now()
+        };
+        tracer.log(lspMessage);
+    }
+    function throwIfClosedOrDisposed() {
+        if (isClosed()) {
+            throw new ConnectionError(ConnectionErrors.Closed, 'Connection is closed.');
+        }
+        if (isDisposed()) {
+            throw new ConnectionError(ConnectionErrors.Disposed, 'Connection is disposed.');
+        }
+    }
+    function throwIfListening() {
+        if (isListening()) {
+            throw new ConnectionError(ConnectionErrors.AlreadyListening, 'Connection is already listening');
+        }
+    }
+    function throwIfNotListening() {
+        if (!isListening()) {
+            throw new Error('Call listen() first.');
+        }
+    }
+    function undefinedToNull(param) {
+        if (param === undefined) {
+            return null;
+        }
+        else {
+            return param;
+        }
+    }
+    function nullToUndefined(param) {
+        if (param === null) {
+            return undefined;
+        }
+        else {
+            return param;
+        }
+    }
+    function isNamedParam(param) {
+        return param !== undefined && param !== null && !Array.isArray(param) && typeof param === 'object';
+    }
+    function computeSingleParam(parameterStructures, param) {
+        switch (parameterStructures) {
+            case messages_1.ParameterStructures.auto:
+                if (isNamedParam(param)) {
+                    return nullToUndefined(param);
+                }
+                else {
+                    return [undefinedToNull(param)];
+                }
+            case messages_1.ParameterStructures.byName:
+                if (!isNamedParam(param)) {
+                    throw new Error(`Received parameters by name but param is not an object literal.`);
+                }
+                return nullToUndefined(param);
+            case messages_1.ParameterStructures.byPosition:
+                return [undefinedToNull(param)];
+            default:
+                throw new Error(`Unknown parameter structure ${parameterStructures.toString()}`);
+        }
+    }
+    function computeMessageParams(type, params) {
+        let result;
+        const numberOfParams = type.numberOfParams;
+        switch (numberOfParams) {
+            case 0:
+                result = undefined;
+                break;
+            case 1:
+                result = computeSingleParam(type.parameterStructures, params[0]);
+                break;
+            default:
+                result = [];
+                for (let i = 0; i < params.length && i < numberOfParams; i++) {
+                    result.push(undefinedToNull(params[i]));
+                }
+                if (params.length < numberOfParams) {
+                    for (let i = params.length; i < numberOfParams; i++) {
+                        result.push(null);
+                    }
+                }
+                break;
+        }
+        return result;
+    }
+    const connection = {
+        sendNotification: (type, ...args) => {
+            throwIfClosedOrDisposed();
+            let method;
+            let messageParams;
+            if (Is.string(type)) {
+                method = type;
+                const first = args[0];
+                let paramStart = 0;
+                let parameterStructures = messages_1.ParameterStructures.auto;
+                if (messages_1.ParameterStructures.is(first)) {
+                    paramStart = 1;
+                    parameterStructures = first;
+                }
+                let paramEnd = args.length;
+                const numberOfParams = paramEnd - paramStart;
+                switch (numberOfParams) {
+                    case 0:
+                        messageParams = undefined;
+                        break;
+                    case 1:
+                        messageParams = computeSingleParam(parameterStructures, args[paramStart]);
+                        break;
+                    default:
+                        if (parameterStructures === messages_1.ParameterStructures.byName) {
+                            throw new Error(`Received ${numberOfParams} parameters for 'by Name' notification parameter structure.`);
+                        }
+                        messageParams = args.slice(paramStart, paramEnd).map(value => undefinedToNull(value));
+                        break;
+                }
+            }
+            else {
+                const params = args;
+                method = type.method;
+                messageParams = computeMessageParams(type, params);
+            }
+            const notificationMessage = {
+                jsonrpc: version,
+                method: method,
+                params: messageParams
+            };
+            traceSendingNotification(notificationMessage);
+            return messageWriter.write(notificationMessage).catch((error) => {
+                logger.error(`Sending notification failed.`);
+                throw error;
+            });
+        },
+        onNotification: (type, handler) => {
+            throwIfClosedOrDisposed();
+            let method;
+            if (Is.func(type)) {
+                starNotificationHandler = type;
+            }
+            else if (handler) {
+                if (Is.string(type)) {
+                    method = type;
+                    notificationHandlers.set(type, { type: undefined, handler });
+                }
+                else {
+                    method = type.method;
+                    notificationHandlers.set(type.method, { type, handler });
+                }
+            }
+            return {
+                dispose: () => {
+                    if (method !== undefined) {
+                        notificationHandlers.delete(method);
+                    }
+                    else {
+                        starNotificationHandler = undefined;
+                    }
+                }
+            };
+        },
+        onProgress: (_type, token, handler) => {
+            if (progressHandlers.has(token)) {
+                throw new Error(`Progress handler for token ${token} already registered`);
+            }
+            progressHandlers.set(token, handler);
+            return {
+                dispose: () => {
+                    progressHandlers.delete(token);
+                }
+            };
+        },
+        sendProgress: (_type, token, value) => {
+            // This should not await but simple return to ensure that we don't have another
+            // async scheduling. Otherwise one send could overtake another send.
+            return connection.sendNotification(ProgressNotification.type, { token, value });
+        },
+        onUnhandledProgress: unhandledProgressEmitter.event,
+        sendRequest: (type, ...args) => {
+            throwIfClosedOrDisposed();
+            throwIfNotListening();
+            let method;
+            let messageParams;
+            let token = undefined;
+            if (Is.string(type)) {
+                method = type;
+                const first = args[0];
+                const last = args[args.length - 1];
+                let paramStart = 0;
+                let parameterStructures = messages_1.ParameterStructures.auto;
+                if (messages_1.ParameterStructures.is(first)) {
+                    paramStart = 1;
+                    parameterStructures = first;
+                }
+                let paramEnd = args.length;
+                if (cancellation_1.CancellationToken.is(last)) {
+                    paramEnd = paramEnd - 1;
+                    token = last;
+                }
+                const numberOfParams = paramEnd - paramStart;
+                switch (numberOfParams) {
+                    case 0:
+                        messageParams = undefined;
+                        break;
+                    case 1:
+                        messageParams = computeSingleParam(parameterStructures, args[paramStart]);
+                        break;
+                    default:
+                        if (parameterStructures === messages_1.ParameterStructures.byName) {
+                            throw new Error(`Received ${numberOfParams} parameters for 'by Name' request parameter structure.`);
+                        }
+                        messageParams = args.slice(paramStart, paramEnd).map(value => undefinedToNull(value));
+                        break;
+                }
+            }
+            else {
+                const params = args;
+                method = type.method;
+                messageParams = computeMessageParams(type, params);
+                const numberOfParams = type.numberOfParams;
+                token = cancellation_1.CancellationToken.is(params[numberOfParams]) ? params[numberOfParams] : undefined;
+            }
+            const id = sequenceNumber++;
+            let disposable;
+            if (token) {
+                disposable = token.onCancellationRequested(() => {
+                    const p = cancellationStrategy.sender.sendCancellation(connection, id);
+                    if (p === undefined) {
+                        logger.log(`Received no promise from cancellation strategy when cancelling id ${id}`);
+                        return Promise.resolve();
+                    }
+                    else {
+                        return p.catch(() => {
+                            logger.log(`Sending cancellation messages for id ${id} failed`);
+                        });
+                    }
+                });
+            }
+            const requestMessage = {
+                jsonrpc: version,
+                id: id,
+                method: method,
+                params: messageParams
+            };
+            traceSendingRequest(requestMessage);
+            if (typeof cancellationStrategy.sender.enableCancellation === 'function') {
+                cancellationStrategy.sender.enableCancellation(requestMessage);
+            }
+            return new Promise(async (resolve, reject) => {
+                const resolveWithCleanup = (r) => {
+                    resolve(r);
+                    cancellationStrategy.sender.cleanup(id);
+                    disposable?.dispose();
+                };
+                const rejectWithCleanup = (r) => {
+                    reject(r);
+                    cancellationStrategy.sender.cleanup(id);
+                    disposable?.dispose();
+                };
+                const responsePromise = { method: method, timerStart: Date.now(), resolve: resolveWithCleanup, reject: rejectWithCleanup };
+                try {
+                    await messageWriter.write(requestMessage);
+                    responsePromises.set(id, responsePromise);
+                }
+                catch (error) {
+                    logger.error(`Sending request failed.`);
+                    // Writing the message failed. So we need to reject the promise.
+                    responsePromise.reject(new messages_1.ResponseError(messages_1.ErrorCodes.MessageWriteError, error.message ? error.message : 'Unknown reason'));
+                    throw error;
+                }
+            });
+        },
+        onRequest: (type, handler) => {
+            throwIfClosedOrDisposed();
+            let method = null;
+            if (StarRequestHandler.is(type)) {
+                method = undefined;
+                starRequestHandler = type;
+            }
+            else if (Is.string(type)) {
+                method = null;
+                if (handler !== undefined) {
+                    method = type;
+                    requestHandlers.set(type, { handler: handler, type: undefined });
+                }
+            }
+            else {
+                if (handler !== undefined) {
+                    method = type.method;
+                    requestHandlers.set(type.method, { type, handler });
+                }
+            }
+            return {
+                dispose: () => {
+                    if (method === null) {
+                        return;
+                    }
+                    if (method !== undefined) {
+                        requestHandlers.delete(method);
+                    }
+                    else {
+                        starRequestHandler = undefined;
+                    }
+                }
+            };
+        },
+        hasPendingResponse: () => {
+            return responsePromises.size > 0;
+        },
+        trace: async (_value, _tracer, sendNotificationOrTraceOptions) => {
+            let _sendNotification = false;
+            let _traceFormat = TraceFormat.Text;
+            if (sendNotificationOrTraceOptions !== undefined) {
+                if (Is.boolean(sendNotificationOrTraceOptions)) {
+                    _sendNotification = sendNotificationOrTraceOptions;
+                }
+                else {
+                    _sendNotification = sendNotificationOrTraceOptions.sendNotification || false;
+                    _traceFormat = sendNotificationOrTraceOptions.traceFormat || TraceFormat.Text;
+                }
+            }
+            trace = _value;
+            traceFormat = _traceFormat;
+            if (trace === Trace.Off) {
+                tracer = undefined;
+            }
+            else {
+                tracer = _tracer;
+            }
+            if (_sendNotification && !isClosed() && !isDisposed()) {
+                await connection.sendNotification(SetTraceNotification.type, { value: Trace.toString(_value) });
+            }
+        },
+        onError: errorEmitter.event,
+        onClose: closeEmitter.event,
+        onUnhandledNotification: unhandledNotificationEmitter.event,
+        onDispose: disposeEmitter.event,
+        end: () => {
+            messageWriter.end();
+        },
+        dispose: () => {
+            if (isDisposed()) {
+                return;
+            }
+            state = ConnectionState.Disposed;
+            disposeEmitter.fire(undefined);
+            const error = new messages_1.ResponseError(messages_1.ErrorCodes.PendingResponseRejected, 'Pending response rejected since connection got disposed');
+            for (const promise of responsePromises.values()) {
+                promise.reject(error);
+            }
+            responsePromises = new Map();
+            requestTokens = new Map();
+            knownCanceledRequests = new Set();
+            messageQueue = new linkedMap_1.LinkedMap();
+            // Test for backwards compatibility
+            if (Is.func(messageWriter.dispose)) {
+                messageWriter.dispose();
+            }
+            if (Is.func(messageReader.dispose)) {
+                messageReader.dispose();
+            }
+        },
+        listen: () => {
+            throwIfClosedOrDisposed();
+            throwIfListening();
+            state = ConnectionState.Listening;
+            messageReader.listen(callback);
+        },
+        inspect: () => {
+            // eslint-disable-next-line no-console
+            (0, ral_1.default)().console.log('inspect');
+        }
+    };
+    connection.onNotification(LogTraceNotification.type, (params) => {
+        if (trace === Trace.Off || !tracer) {
+            return;
+        }
+        const verbose = trace === Trace.Verbose || trace === Trace.Compact;
+        tracer.log(params.message, verbose ? params.verbose : undefined);
+    });
+    connection.onNotification(ProgressNotification.type, (params) => {
+        const handler = progressHandlers.get(params.token);
+        if (handler) {
+            handler(params.value);
+        }
+        else {
+            unhandledProgressEmitter.fire(params);
+        }
+    });
+    return connection;
+}
+exports.createMessageConnection = createMessageConnection;
+
+
+/***/ }),
+
+/***/ 3911:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Disposable = void 0;
+var Disposable;
+(function (Disposable) {
+    function create(func) {
+        return {
+            dispose: func
+        };
+    }
+    Disposable.create = create;
+})(Disposable || (exports.Disposable = Disposable = {}));
+
+
+/***/ }),
+
+/***/ 7135:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Emitter = exports.Event = void 0;
+const ral_1 = __webpack_require__(147);
+var Event;
+(function (Event) {
+    const _disposable = { dispose() { } };
+    Event.None = function () { return _disposable; };
+})(Event || (exports.Event = Event = {}));
+class CallbackList {
+    add(callback, context = null, bucket) {
+        if (!this._callbacks) {
+            this._callbacks = [];
+            this._contexts = [];
+        }
+        this._callbacks.push(callback);
+        this._contexts.push(context);
+        if (Array.isArray(bucket)) {
+            bucket.push({ dispose: () => this.remove(callback, context) });
+        }
+    }
+    remove(callback, context = null) {
+        if (!this._callbacks) {
+            return;
+        }
+        let foundCallbackWithDifferentContext = false;
+        for (let i = 0, len = this._callbacks.length; i < len; i++) {
+            if (this._callbacks[i] === callback) {
+                if (this._contexts[i] === context) {
+                    // callback & context match => remove it
+                    this._callbacks.splice(i, 1);
+                    this._contexts.splice(i, 1);
+                    return;
+                }
+                else {
+                    foundCallbackWithDifferentContext = true;
+                }
+            }
+        }
+        if (foundCallbackWithDifferentContext) {
+            throw new Error('When adding a listener with a context, you should remove it with the same context');
+        }
+    }
+    invoke(...args) {
+        if (!this._callbacks) {
+            return [];
+        }
+        const ret = [], callbacks = this._callbacks.slice(0), contexts = this._contexts.slice(0);
+        for (let i = 0, len = callbacks.length; i < len; i++) {
+            try {
+                ret.push(callbacks[i].apply(contexts[i], args));
+            }
+            catch (e) {
+                // eslint-disable-next-line no-console
+                (0, ral_1.default)().console.error(e);
+            }
+        }
+        return ret;
+    }
+    isEmpty() {
+        return !this._callbacks || this._callbacks.length === 0;
+    }
+    dispose() {
+        this._callbacks = undefined;
+        this._contexts = undefined;
+    }
+}
+class Emitter {
+    constructor(_options) {
+        this._options = _options;
+    }
+    /**
+     * For the public to allow to subscribe
+     * to events from this Emitter
+     */
+    get event() {
+        if (!this._event) {
+            this._event = (listener, thisArgs, disposables) => {
+                if (!this._callbacks) {
+                    this._callbacks = new CallbackList();
+                }
+                if (this._options && this._options.onFirstListenerAdd && this._callbacks.isEmpty()) {
+                    this._options.onFirstListenerAdd(this);
+                }
+                this._callbacks.add(listener, thisArgs);
+                const result = {
+                    dispose: () => {
+                        if (!this._callbacks) {
+                            // disposable is disposed after emitter is disposed.
+                            return;
+                        }
+                        this._callbacks.remove(listener, thisArgs);
+                        result.dispose = Emitter._noop;
+                        if (this._options && this._options.onLastListenerRemove && this._callbacks.isEmpty()) {
+                            this._options.onLastListenerRemove(this);
+                        }
+                    }
+                };
+                if (Array.isArray(disposables)) {
+                    disposables.push(result);
+                }
+                return result;
+            };
+        }
+        return this._event;
+    }
+    /**
+     * To be kept private to fire an event to
+     * subscribers
+     */
+    fire(event) {
+        if (this._callbacks) {
+            this._callbacks.invoke.call(this._callbacks, event);
+        }
+    }
+    dispose() {
+        if (this._callbacks) {
+            this._callbacks.dispose();
+            this._callbacks = undefined;
+        }
+    }
+}
+exports.Emitter = Emitter;
+Emitter._noop = function () { };
+
+
+/***/ }),
+
+/***/ 7574:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.stringArray = exports.array = exports.func = exports.error = exports.number = exports.string = exports.boolean = void 0;
+function boolean(value) {
+    return value === true || value === false;
+}
+exports.boolean = boolean;
+function string(value) {
+    return typeof value === 'string' || value instanceof String;
+}
+exports.string = string;
+function number(value) {
+    return typeof value === 'number' || value instanceof Number;
+}
+exports.number = number;
+function error(value) {
+    return value instanceof Error;
+}
+exports.error = error;
+function func(value) {
+    return typeof value === 'function';
+}
+exports.func = func;
+function array(value) {
+    return Array.isArray(value);
+}
+exports.array = array;
+function stringArray(value) {
+    return array(value) && value.every(elem => string(elem));
+}
+exports.stringArray = stringArray;
+
+
+/***/ }),
+
+/***/ 6184:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LRUCache = exports.LinkedMap = exports.Touch = void 0;
+var Touch;
+(function (Touch) {
+    Touch.None = 0;
+    Touch.First = 1;
+    Touch.AsOld = Touch.First;
+    Touch.Last = 2;
+    Touch.AsNew = Touch.Last;
+})(Touch || (exports.Touch = Touch = {}));
+class LinkedMap {
+    constructor() {
+        this[_a] = 'LinkedMap';
+        this._map = new Map();
+        this._head = undefined;
+        this._tail = undefined;
+        this._size = 0;
+        this._state = 0;
+    }
+    clear() {
+        this._map.clear();
+        this._head = undefined;
+        this._tail = undefined;
+        this._size = 0;
+        this._state++;
+    }
+    isEmpty() {
+        return !this._head && !this._tail;
+    }
+    get size() {
+        return this._size;
+    }
+    get first() {
+        return this._head?.value;
+    }
+    get last() {
+        return this._tail?.value;
+    }
+    has(key) {
+        return this._map.has(key);
+    }
+    get(key, touch = Touch.None) {
+        const item = this._map.get(key);
+        if (!item) {
+            return undefined;
+        }
+        if (touch !== Touch.None) {
+            this.touch(item, touch);
+        }
+        return item.value;
+    }
+    set(key, value, touch = Touch.None) {
+        let item = this._map.get(key);
+        if (item) {
+            item.value = value;
+            if (touch !== Touch.None) {
+                this.touch(item, touch);
+            }
+        }
+        else {
+            item = { key, value, next: undefined, previous: undefined };
+            switch (touch) {
+                case Touch.None:
+                    this.addItemLast(item);
+                    break;
+                case Touch.First:
+                    this.addItemFirst(item);
+                    break;
+                case Touch.Last:
+                    this.addItemLast(item);
+                    break;
+                default:
+                    this.addItemLast(item);
+                    break;
+            }
+            this._map.set(key, item);
+            this._size++;
+        }
+        return this;
+    }
+    delete(key) {
+        return !!this.remove(key);
+    }
+    remove(key) {
+        const item = this._map.get(key);
+        if (!item) {
+            return undefined;
+        }
+        this._map.delete(key);
+        this.removeItem(item);
+        this._size--;
+        return item.value;
+    }
+    shift() {
+        if (!this._head && !this._tail) {
+            return undefined;
+        }
+        if (!this._head || !this._tail) {
+            throw new Error('Invalid list');
+        }
+        const item = this._head;
+        this._map.delete(item.key);
+        this.removeItem(item);
+        this._size--;
+        return item.value;
+    }
+    forEach(callbackfn, thisArg) {
+        const state = this._state;
+        let current = this._head;
+        while (current) {
+            if (thisArg) {
+                callbackfn.bind(thisArg)(current.value, current.key, this);
+            }
+            else {
+                callbackfn(current.value, current.key, this);
+            }
+            if (this._state !== state) {
+                throw new Error(`LinkedMap got modified during iteration.`);
+            }
+            current = current.next;
+        }
+    }
+    keys() {
+        const state = this._state;
+        let current = this._head;
+        const iterator = {
+            [Symbol.iterator]: () => {
+                return iterator;
+            },
+            next: () => {
+                if (this._state !== state) {
+                    throw new Error(`LinkedMap got modified during iteration.`);
+                }
+                if (current) {
+                    const result = { value: current.key, done: false };
+                    current = current.next;
+                    return result;
+                }
+                else {
+                    return { value: undefined, done: true };
+                }
+            }
+        };
+        return iterator;
+    }
+    values() {
+        const state = this._state;
+        let current = this._head;
+        const iterator = {
+            [Symbol.iterator]: () => {
+                return iterator;
+            },
+            next: () => {
+                if (this._state !== state) {
+                    throw new Error(`LinkedMap got modified during iteration.`);
+                }
+                if (current) {
+                    const result = { value: current.value, done: false };
+                    current = current.next;
+                    return result;
+                }
+                else {
+                    return { value: undefined, done: true };
+                }
+            }
+        };
+        return iterator;
+    }
+    entries() {
+        const state = this._state;
+        let current = this._head;
+        const iterator = {
+            [Symbol.iterator]: () => {
+                return iterator;
+            },
+            next: () => {
+                if (this._state !== state) {
+                    throw new Error(`LinkedMap got modified during iteration.`);
+                }
+                if (current) {
+                    const result = { value: [current.key, current.value], done: false };
+                    current = current.next;
+                    return result;
+                }
+                else {
+                    return { value: undefined, done: true };
+                }
+            }
+        };
+        return iterator;
+    }
+    [(_a = Symbol.toStringTag, Symbol.iterator)]() {
+        return this.entries();
+    }
+    trimOld(newSize) {
+        if (newSize >= this.size) {
+            return;
+        }
+        if (newSize === 0) {
+            this.clear();
+            return;
+        }
+        let current = this._head;
+        let currentSize = this.size;
+        while (current && currentSize > newSize) {
+            this._map.delete(current.key);
+            current = current.next;
+            currentSize--;
+        }
+        this._head = current;
+        this._size = currentSize;
+        if (current) {
+            current.previous = undefined;
+        }
+        this._state++;
+    }
+    addItemFirst(item) {
+        // First time Insert
+        if (!this._head && !this._tail) {
+            this._tail = item;
+        }
+        else if (!this._head) {
+            throw new Error('Invalid list');
+        }
+        else {
+            item.next = this._head;
+            this._head.previous = item;
+        }
+        this._head = item;
+        this._state++;
+    }
+    addItemLast(item) {
+        // First time Insert
+        if (!this._head && !this._tail) {
+            this._head = item;
+        }
+        else if (!this._tail) {
+            throw new Error('Invalid list');
+        }
+        else {
+            item.previous = this._tail;
+            this._tail.next = item;
+        }
+        this._tail = item;
+        this._state++;
+    }
+    removeItem(item) {
+        if (item === this._head && item === this._tail) {
+            this._head = undefined;
+            this._tail = undefined;
+        }
+        else if (item === this._head) {
+            // This can only happened if size === 1 which is handle
+            // by the case above.
+            if (!item.next) {
+                throw new Error('Invalid list');
+            }
+            item.next.previous = undefined;
+            this._head = item.next;
+        }
+        else if (item === this._tail) {
+            // This can only happened if size === 1 which is handle
+            // by the case above.
+            if (!item.previous) {
+                throw new Error('Invalid list');
+            }
+            item.previous.next = undefined;
+            this._tail = item.previous;
+        }
+        else {
+            const next = item.next;
+            const previous = item.previous;
+            if (!next || !previous) {
+                throw new Error('Invalid list');
+            }
+            next.previous = previous;
+            previous.next = next;
+        }
+        item.next = undefined;
+        item.previous = undefined;
+        this._state++;
+    }
+    touch(item, touch) {
+        if (!this._head || !this._tail) {
+            throw new Error('Invalid list');
+        }
+        if ((touch !== Touch.First && touch !== Touch.Last)) {
+            return;
+        }
+        if (touch === Touch.First) {
+            if (item === this._head) {
+                return;
+            }
+            const next = item.next;
+            const previous = item.previous;
+            // Unlink the item
+            if (item === this._tail) {
+                // previous must be defined since item was not head but is tail
+                // So there are more than on item in the map
+                previous.next = undefined;
+                this._tail = previous;
+            }
+            else {
+                // Both next and previous are not undefined since item was neither head nor tail.
+                next.previous = previous;
+                previous.next = next;
+            }
+            // Insert the node at head
+            item.previous = undefined;
+            item.next = this._head;
+            this._head.previous = item;
+            this._head = item;
+            this._state++;
+        }
+        else if (touch === Touch.Last) {
+            if (item === this._tail) {
+                return;
+            }
+            const next = item.next;
+            const previous = item.previous;
+            // Unlink the item.
+            if (item === this._head) {
+                // next must be defined since item was not tail but is head
+                // So there are more than on item in the map
+                next.previous = undefined;
+                this._head = next;
+            }
+            else {
+                // Both next and previous are not undefined since item was neither head nor tail.
+                next.previous = previous;
+                previous.next = next;
+            }
+            item.next = undefined;
+            item.previous = this._tail;
+            this._tail.next = item;
+            this._tail = item;
+            this._state++;
+        }
+    }
+    toJSON() {
+        const data = [];
+        this.forEach((value, key) => {
+            data.push([key, value]);
+        });
+        return data;
+    }
+    fromJSON(data) {
+        this.clear();
+        for (const [key, value] of data) {
+            this.set(key, value);
+        }
+    }
+}
+exports.LinkedMap = LinkedMap;
+class LRUCache extends LinkedMap {
+    constructor(limit, ratio = 1) {
+        super();
+        this._limit = limit;
+        this._ratio = Math.min(Math.max(0, ratio), 1);
+    }
+    get limit() {
+        return this._limit;
+    }
+    set limit(limit) {
+        this._limit = limit;
+        this.checkTrim();
+    }
+    get ratio() {
+        return this._ratio;
+    }
+    set ratio(ratio) {
+        this._ratio = Math.min(Math.max(0, ratio), 1);
+        this.checkTrim();
+    }
+    get(key, touch = Touch.AsNew) {
+        return super.get(key, touch);
+    }
+    peek(key) {
+        return super.get(key, Touch.None);
+    }
+    set(key, value) {
+        super.set(key, value, Touch.Last);
+        this.checkTrim();
+        return this;
+    }
+    checkTrim() {
+        if (this.size > this._limit) {
+            this.trimOld(Math.round(this._limit * this._ratio));
+        }
+    }
+}
+exports.LRUCache = LRUCache;
+
+
+/***/ }),
+
+/***/ 5530:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractMessageBuffer = void 0;
+const CR = 13;
+const LF = 10;
+const CRLF = '\r\n';
+class AbstractMessageBuffer {
+    constructor(encoding = 'utf-8') {
+        this._encoding = encoding;
+        this._chunks = [];
+        this._totalLength = 0;
+    }
+    get encoding() {
+        return this._encoding;
+    }
+    append(chunk) {
+        const toAppend = typeof chunk === 'string' ? this.fromString(chunk, this._encoding) : chunk;
+        this._chunks.push(toAppend);
+        this._totalLength += toAppend.byteLength;
+    }
+    tryReadHeaders(lowerCaseKeys = false) {
+        if (this._chunks.length === 0) {
+            return undefined;
+        }
+        let state = 0;
+        let chunkIndex = 0;
+        let offset = 0;
+        let chunkBytesRead = 0;
+        row: while (chunkIndex < this._chunks.length) {
+            const chunk = this._chunks[chunkIndex];
+            offset = 0;
+            column: while (offset < chunk.length) {
+                const value = chunk[offset];
+                switch (value) {
+                    case CR:
+                        switch (state) {
+                            case 0:
+                                state = 1;
+                                break;
+                            case 2:
+                                state = 3;
+                                break;
+                            default:
+                                state = 0;
+                        }
+                        break;
+                    case LF:
+                        switch (state) {
+                            case 1:
+                                state = 2;
+                                break;
+                            case 3:
+                                state = 4;
+                                offset++;
+                                break row;
+                            default:
+                                state = 0;
+                        }
+                        break;
+                    default:
+                        state = 0;
+                }
+                offset++;
+            }
+            chunkBytesRead += chunk.byteLength;
+            chunkIndex++;
+        }
+        if (state !== 4) {
+            return undefined;
+        }
+        // The buffer contains the two CRLF at the end. So we will
+        // have two empty lines after the split at the end as well.
+        const buffer = this._read(chunkBytesRead + offset);
+        const result = new Map();
+        const headers = this.toString(buffer, 'ascii').split(CRLF);
+        if (headers.length < 2) {
+            return result;
+        }
+        for (let i = 0; i < headers.length - 2; i++) {
+            const header = headers[i];
+            const index = header.indexOf(':');
+            if (index === -1) {
+                throw new Error(`Message header must separate key and value using ':'\n${header}`);
+            }
+            const key = header.substr(0, index);
+            const value = header.substr(index + 1).trim();
+            result.set(lowerCaseKeys ? key.toLowerCase() : key, value);
+        }
+        return result;
+    }
+    tryReadBody(length) {
+        if (this._totalLength < length) {
+            return undefined;
+        }
+        return this._read(length);
+    }
+    get numberOfBytes() {
+        return this._totalLength;
+    }
+    _read(byteCount) {
+        if (byteCount === 0) {
+            return this.emptyBuffer();
+        }
+        if (byteCount > this._totalLength) {
+            throw new Error(`Cannot read so many bytes!`);
+        }
+        if (this._chunks[0].byteLength === byteCount) {
+            // super fast path, precisely first chunk must be returned
+            const chunk = this._chunks[0];
+            this._chunks.shift();
+            this._totalLength -= byteCount;
+            return this.asNative(chunk);
+        }
+        if (this._chunks[0].byteLength > byteCount) {
+            // fast path, the reading is entirely within the first chunk
+            const chunk = this._chunks[0];
+            const result = this.asNative(chunk, byteCount);
+            this._chunks[0] = chunk.slice(byteCount);
+            this._totalLength -= byteCount;
+            return result;
+        }
+        const result = this.allocNative(byteCount);
+        let resultOffset = 0;
+        let chunkIndex = 0;
+        while (byteCount > 0) {
+            const chunk = this._chunks[chunkIndex];
+            if (chunk.byteLength > byteCount) {
+                // this chunk will survive
+                const chunkPart = chunk.slice(0, byteCount);
+                result.set(chunkPart, resultOffset);
+                resultOffset += byteCount;
+                this._chunks[chunkIndex] = chunk.slice(byteCount);
+                this._totalLength -= byteCount;
+                byteCount -= byteCount;
+            }
+            else {
+                // this chunk will be entirely read
+                result.set(chunk, resultOffset);
+                resultOffset += chunk.byteLength;
+                this._chunks.shift();
+                this._totalLength -= chunk.byteLength;
+                byteCount -= chunk.byteLength;
+            }
+        }
+        return result;
+    }
+}
+exports.AbstractMessageBuffer = AbstractMessageBuffer;
+
+
+/***/ }),
+
+/***/ 6525:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ReadableStreamMessageReader = exports.AbstractMessageReader = exports.MessageReader = void 0;
+const ral_1 = __webpack_require__(147);
+const Is = __webpack_require__(7574);
+const events_1 = __webpack_require__(7135);
+const semaphore_1 = __webpack_require__(142);
+var MessageReader;
+(function (MessageReader) {
+    function is(value) {
+        let candidate = value;
+        return candidate && Is.func(candidate.listen) && Is.func(candidate.dispose) &&
+            Is.func(candidate.onError) && Is.func(candidate.onClose) && Is.func(candidate.onPartialMessage);
+    }
+    MessageReader.is = is;
+})(MessageReader || (exports.MessageReader = MessageReader = {}));
+class AbstractMessageReader {
+    constructor() {
+        this.errorEmitter = new events_1.Emitter();
+        this.closeEmitter = new events_1.Emitter();
+        this.partialMessageEmitter = new events_1.Emitter();
+    }
+    dispose() {
+        this.errorEmitter.dispose();
+        this.closeEmitter.dispose();
+    }
+    get onError() {
+        return this.errorEmitter.event;
+    }
+    fireError(error) {
+        this.errorEmitter.fire(this.asError(error));
+    }
+    get onClose() {
+        return this.closeEmitter.event;
+    }
+    fireClose() {
+        this.closeEmitter.fire(undefined);
+    }
+    get onPartialMessage() {
+        return this.partialMessageEmitter.event;
+    }
+    firePartialMessage(info) {
+        this.partialMessageEmitter.fire(info);
+    }
+    asError(error) {
+        if (error instanceof Error) {
+            return error;
+        }
+        else {
+            return new Error(`Reader received error. Reason: ${Is.string(error.message) ? error.message : 'unknown'}`);
+        }
+    }
+}
+exports.AbstractMessageReader = AbstractMessageReader;
+var ResolvedMessageReaderOptions;
+(function (ResolvedMessageReaderOptions) {
+    function fromOptions(options) {
+        let charset;
+        let result;
+        let contentDecoder;
+        const contentDecoders = new Map();
+        let contentTypeDecoder;
+        const contentTypeDecoders = new Map();
+        if (options === undefined || typeof options === 'string') {
+            charset = options ?? 'utf-8';
+        }
+        else {
+            charset = options.charset ?? 'utf-8';
+            if (options.contentDecoder !== undefined) {
+                contentDecoder = options.contentDecoder;
+                contentDecoders.set(contentDecoder.name, contentDecoder);
+            }
+            if (options.contentDecoders !== undefined) {
+                for (const decoder of options.contentDecoders) {
+                    contentDecoders.set(decoder.name, decoder);
+                }
+            }
+            if (options.contentTypeDecoder !== undefined) {
+                contentTypeDecoder = options.contentTypeDecoder;
+                contentTypeDecoders.set(contentTypeDecoder.name, contentTypeDecoder);
+            }
+            if (options.contentTypeDecoders !== undefined) {
+                for (const decoder of options.contentTypeDecoders) {
+                    contentTypeDecoders.set(decoder.name, decoder);
+                }
+            }
+        }
+        if (contentTypeDecoder === undefined) {
+            contentTypeDecoder = (0, ral_1.default)().applicationJson.decoder;
+            contentTypeDecoders.set(contentTypeDecoder.name, contentTypeDecoder);
+        }
+        return { charset, contentDecoder, contentDecoders, contentTypeDecoder, contentTypeDecoders };
+    }
+    ResolvedMessageReaderOptions.fromOptions = fromOptions;
+})(ResolvedMessageReaderOptions || (ResolvedMessageReaderOptions = {}));
+class ReadableStreamMessageReader extends AbstractMessageReader {
+    constructor(readable, options) {
+        super();
+        this.readable = readable;
+        this.options = ResolvedMessageReaderOptions.fromOptions(options);
+        this.buffer = (0, ral_1.default)().messageBuffer.create(this.options.charset);
+        this._partialMessageTimeout = 10000;
+        this.nextMessageLength = -1;
+        this.messageToken = 0;
+        this.readSemaphore = new semaphore_1.Semaphore(1);
+    }
+    set partialMessageTimeout(timeout) {
+        this._partialMessageTimeout = timeout;
+    }
+    get partialMessageTimeout() {
+        return this._partialMessageTimeout;
+    }
+    listen(callback) {
+        this.nextMessageLength = -1;
+        this.messageToken = 0;
+        this.partialMessageTimer = undefined;
+        this.callback = callback;
+        const result = this.readable.onData((data) => {
+            this.onData(data);
+        });
+        this.readable.onError((error) => this.fireError(error));
+        this.readable.onClose(() => this.fireClose());
+        return result;
+    }
+    onData(data) {
+        try {
+            this.buffer.append(data);
+            while (true) {
+                if (this.nextMessageLength === -1) {
+                    const headers = this.buffer.tryReadHeaders(true);
+                    if (!headers) {
+                        return;
+                    }
+                    const contentLength = headers.get('content-length');
+                    if (!contentLength) {
+                        this.fireError(new Error(`Header must provide a Content-Length property.\n${JSON.stringify(Object.fromEntries(headers))}`));
+                        return;
+                    }
+                    const length = parseInt(contentLength);
+                    if (isNaN(length)) {
+                        this.fireError(new Error(`Content-Length value must be a number. Got ${contentLength}`));
+                        return;
+                    }
+                    this.nextMessageLength = length;
+                }
+                const body = this.buffer.tryReadBody(this.nextMessageLength);
+                if (body === undefined) {
+                    /** We haven't received the full message yet. */
+                    this.setPartialMessageTimer();
+                    return;
+                }
+                this.clearPartialMessageTimer();
+                this.nextMessageLength = -1;
+                // Make sure that we convert one received message after the
+                // other. Otherwise it could happen that a decoding of a second
+                // smaller message finished before the decoding of a first larger
+                // message and then we would deliver the second message first.
+                this.readSemaphore.lock(async () => {
+                    const bytes = this.options.contentDecoder !== undefined
+                        ? await this.options.contentDecoder.decode(body)
+                        : body;
+                    const message = await this.options.contentTypeDecoder.decode(bytes, this.options);
+                    this.callback(message);
+                }).catch((error) => {
+                    this.fireError(error);
+                });
+            }
+        }
+        catch (error) {
+            this.fireError(error);
+        }
+    }
+    clearPartialMessageTimer() {
+        if (this.partialMessageTimer) {
+            this.partialMessageTimer.dispose();
+            this.partialMessageTimer = undefined;
+        }
+    }
+    setPartialMessageTimer() {
+        this.clearPartialMessageTimer();
+        if (this._partialMessageTimeout <= 0) {
+            return;
+        }
+        this.partialMessageTimer = (0, ral_1.default)().timer.setTimeout((token, timeout) => {
+            this.partialMessageTimer = undefined;
+            if (token === this.messageToken) {
+                this.firePartialMessage({ messageToken: token, waitingTime: timeout });
+                this.setPartialMessageTimer();
+            }
+        }, this._partialMessageTimeout, this.messageToken, this._partialMessageTimeout);
+    }
+}
+exports.ReadableStreamMessageReader = ReadableStreamMessageReader;
+
+
+/***/ }),
+
+/***/ 6654:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WriteableStreamMessageWriter = exports.AbstractMessageWriter = exports.MessageWriter = void 0;
+const ral_1 = __webpack_require__(147);
+const Is = __webpack_require__(7574);
+const semaphore_1 = __webpack_require__(142);
+const events_1 = __webpack_require__(7135);
+const ContentLength = 'Content-Length: ';
+const CRLF = '\r\n';
+var MessageWriter;
+(function (MessageWriter) {
+    function is(value) {
+        let candidate = value;
+        return candidate && Is.func(candidate.dispose) && Is.func(candidate.onClose) &&
+            Is.func(candidate.onError) && Is.func(candidate.write);
+    }
+    MessageWriter.is = is;
+})(MessageWriter || (exports.MessageWriter = MessageWriter = {}));
+class AbstractMessageWriter {
+    constructor() {
+        this.errorEmitter = new events_1.Emitter();
+        this.closeEmitter = new events_1.Emitter();
+    }
+    dispose() {
+        this.errorEmitter.dispose();
+        this.closeEmitter.dispose();
+    }
+    get onError() {
+        return this.errorEmitter.event;
+    }
+    fireError(error, message, count) {
+        this.errorEmitter.fire([this.asError(error), message, count]);
+    }
+    get onClose() {
+        return this.closeEmitter.event;
+    }
+    fireClose() {
+        this.closeEmitter.fire(undefined);
+    }
+    asError(error) {
+        if (error instanceof Error) {
+            return error;
+        }
+        else {
+            return new Error(`Writer received error. Reason: ${Is.string(error.message) ? error.message : 'unknown'}`);
+        }
+    }
+}
+exports.AbstractMessageWriter = AbstractMessageWriter;
+var ResolvedMessageWriterOptions;
+(function (ResolvedMessageWriterOptions) {
+    function fromOptions(options) {
+        if (options === undefined || typeof options === 'string') {
+            return { charset: options ?? 'utf-8', contentTypeEncoder: (0, ral_1.default)().applicationJson.encoder };
+        }
+        else {
+            return { charset: options.charset ?? 'utf-8', contentEncoder: options.contentEncoder, contentTypeEncoder: options.contentTypeEncoder ?? (0, ral_1.default)().applicationJson.encoder };
+        }
+    }
+    ResolvedMessageWriterOptions.fromOptions = fromOptions;
+})(ResolvedMessageWriterOptions || (ResolvedMessageWriterOptions = {}));
+class WriteableStreamMessageWriter extends AbstractMessageWriter {
+    constructor(writable, options) {
+        super();
+        this.writable = writable;
+        this.options = ResolvedMessageWriterOptions.fromOptions(options);
+        this.errorCount = 0;
+        this.writeSemaphore = new semaphore_1.Semaphore(1);
+        this.writable.onError((error) => this.fireError(error));
+        this.writable.onClose(() => this.fireClose());
+    }
+    async write(msg) {
+        return this.writeSemaphore.lock(async () => {
+            const payload = this.options.contentTypeEncoder.encode(msg, this.options).then((buffer) => {
+                if (this.options.contentEncoder !== undefined) {
+                    return this.options.contentEncoder.encode(buffer);
+                }
+                else {
+                    return buffer;
+                }
+            });
+            return payload.then((buffer) => {
+                const headers = [];
+                headers.push(ContentLength, buffer.byteLength.toString(), CRLF);
+                headers.push(CRLF);
+                return this.doWrite(msg, headers, buffer);
+            }, (error) => {
+                this.fireError(error);
+                throw error;
+            });
+        });
+    }
+    async doWrite(msg, headers, data) {
+        try {
+            await this.writable.write(headers.join(''), 'ascii');
+            return this.writable.write(data);
+        }
+        catch (error) {
+            this.handleError(error, msg);
+            return Promise.reject(error);
+        }
+    }
+    handleError(error, msg) {
+        this.errorCount++;
+        this.fireError(error, msg, this.errorCount);
+    }
+    end() {
+        this.writable.end();
+    }
+}
+exports.WriteableStreamMessageWriter = WriteableStreamMessageWriter;
+
+
+/***/ }),
+
+/***/ 839:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Message = exports.NotificationType9 = exports.NotificationType8 = exports.NotificationType7 = exports.NotificationType6 = exports.NotificationType5 = exports.NotificationType4 = exports.NotificationType3 = exports.NotificationType2 = exports.NotificationType1 = exports.NotificationType0 = exports.NotificationType = exports.RequestType9 = exports.RequestType8 = exports.RequestType7 = exports.RequestType6 = exports.RequestType5 = exports.RequestType4 = exports.RequestType3 = exports.RequestType2 = exports.RequestType1 = exports.RequestType = exports.RequestType0 = exports.AbstractMessageSignature = exports.ParameterStructures = exports.ResponseError = exports.ErrorCodes = void 0;
+const is = __webpack_require__(7574);
+/**
+ * Predefined error codes.
+ */
+var ErrorCodes;
+(function (ErrorCodes) {
+    // Defined by JSON RPC
+    ErrorCodes.ParseError = -32700;
+    ErrorCodes.InvalidRequest = -32600;
+    ErrorCodes.MethodNotFound = -32601;
+    ErrorCodes.InvalidParams = -32602;
+    ErrorCodes.InternalError = -32603;
+    /**
+     * This is the start range of JSON RPC reserved error codes.
+     * It doesn't denote a real error code. No application error codes should
+     * be defined between the start and end range. For backwards
+     * compatibility the `ServerNotInitialized` and the `UnknownErrorCode`
+     * are left in the range.
+     *
+     * @since 3.16.0
+    */
+    ErrorCodes.jsonrpcReservedErrorRangeStart = -32099;
+    /** @deprecated use  jsonrpcReservedErrorRangeStart */
+    ErrorCodes.serverErrorStart = -32099;
+    /**
+     * An error occurred when write a message to the transport layer.
+     */
+    ErrorCodes.MessageWriteError = -32099;
+    /**
+     * An error occurred when reading a message from the transport layer.
+     */
+    ErrorCodes.MessageReadError = -32098;
+    /**
+     * The connection got disposed or lost and all pending responses got
+     * rejected.
+     */
+    ErrorCodes.PendingResponseRejected = -32097;
+    /**
+     * The connection is inactive and a use of it failed.
+     */
+    ErrorCodes.ConnectionInactive = -32096;
+    /**
+     * Error code indicating that a server received a notification or
+     * request before the server has received the `initialize` request.
+     */
+    ErrorCodes.ServerNotInitialized = -32002;
+    ErrorCodes.UnknownErrorCode = -32001;
+    /**
+     * This is the end range of JSON RPC reserved error codes.
+     * It doesn't denote a real error code.
+     *
+     * @since 3.16.0
+    */
+    ErrorCodes.jsonrpcReservedErrorRangeEnd = -32000;
+    /** @deprecated use  jsonrpcReservedErrorRangeEnd */
+    ErrorCodes.serverErrorEnd = -32000;
+})(ErrorCodes || (exports.ErrorCodes = ErrorCodes = {}));
+/**
+ * An error object return in a response in case a request
+ * has failed.
+ */
+class ResponseError extends Error {
+    constructor(code, message, data) {
+        super(message);
+        this.code = is.number(code) ? code : ErrorCodes.UnknownErrorCode;
+        this.data = data;
+        Object.setPrototypeOf(this, ResponseError.prototype);
+    }
+    toJson() {
+        const result = {
+            code: this.code,
+            message: this.message
+        };
+        if (this.data !== undefined) {
+            result.data = this.data;
+        }
+        return result;
+    }
+}
+exports.ResponseError = ResponseError;
+class ParameterStructures {
+    constructor(kind) {
+        this.kind = kind;
+    }
+    static is(value) {
+        return value === ParameterStructures.auto || value === ParameterStructures.byName || value === ParameterStructures.byPosition;
+    }
+    toString() {
+        return this.kind;
+    }
+}
+exports.ParameterStructures = ParameterStructures;
+/**
+ * The parameter structure is automatically inferred on the number of parameters
+ * and the parameter type in case of a single param.
+ */
+ParameterStructures.auto = new ParameterStructures('auto');
+/**
+ * Forces `byPosition` parameter structure. This is useful if you have a single
+ * parameter which has a literal type.
+ */
+ParameterStructures.byPosition = new ParameterStructures('byPosition');
+/**
+ * Forces `byName` parameter structure. This is only useful when having a single
+ * parameter. The library will report errors if used with a different number of
+ * parameters.
+ */
+ParameterStructures.byName = new ParameterStructures('byName');
+/**
+ * An abstract implementation of a MessageType.
+ */
+class AbstractMessageSignature {
+    constructor(method, numberOfParams) {
+        this.method = method;
+        this.numberOfParams = numberOfParams;
+    }
+    get parameterStructures() {
+        return ParameterStructures.auto;
+    }
+}
+exports.AbstractMessageSignature = AbstractMessageSignature;
+/**
+ * Classes to type request response pairs
+ */
+class RequestType0 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 0);
+    }
+}
+exports.RequestType0 = RequestType0;
+class RequestType extends AbstractMessageSignature {
+    constructor(method, _parameterStructures = ParameterStructures.auto) {
+        super(method, 1);
+        this._parameterStructures = _parameterStructures;
+    }
+    get parameterStructures() {
+        return this._parameterStructures;
+    }
+}
+exports.RequestType = RequestType;
+class RequestType1 extends AbstractMessageSignature {
+    constructor(method, _parameterStructures = ParameterStructures.auto) {
+        super(method, 1);
+        this._parameterStructures = _parameterStructures;
+    }
+    get parameterStructures() {
+        return this._parameterStructures;
+    }
+}
+exports.RequestType1 = RequestType1;
+class RequestType2 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 2);
+    }
+}
+exports.RequestType2 = RequestType2;
+class RequestType3 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 3);
+    }
+}
+exports.RequestType3 = RequestType3;
+class RequestType4 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 4);
+    }
+}
+exports.RequestType4 = RequestType4;
+class RequestType5 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 5);
+    }
+}
+exports.RequestType5 = RequestType5;
+class RequestType6 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 6);
+    }
+}
+exports.RequestType6 = RequestType6;
+class RequestType7 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 7);
+    }
+}
+exports.RequestType7 = RequestType7;
+class RequestType8 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 8);
+    }
+}
+exports.RequestType8 = RequestType8;
+class RequestType9 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 9);
+    }
+}
+exports.RequestType9 = RequestType9;
+class NotificationType extends AbstractMessageSignature {
+    constructor(method, _parameterStructures = ParameterStructures.auto) {
+        super(method, 1);
+        this._parameterStructures = _parameterStructures;
+    }
+    get parameterStructures() {
+        return this._parameterStructures;
+    }
+}
+exports.NotificationType = NotificationType;
+class NotificationType0 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 0);
+    }
+}
+exports.NotificationType0 = NotificationType0;
+class NotificationType1 extends AbstractMessageSignature {
+    constructor(method, _parameterStructures = ParameterStructures.auto) {
+        super(method, 1);
+        this._parameterStructures = _parameterStructures;
+    }
+    get parameterStructures() {
+        return this._parameterStructures;
+    }
+}
+exports.NotificationType1 = NotificationType1;
+class NotificationType2 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 2);
+    }
+}
+exports.NotificationType2 = NotificationType2;
+class NotificationType3 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 3);
+    }
+}
+exports.NotificationType3 = NotificationType3;
+class NotificationType4 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 4);
+    }
+}
+exports.NotificationType4 = NotificationType4;
+class NotificationType5 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 5);
+    }
+}
+exports.NotificationType5 = NotificationType5;
+class NotificationType6 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 6);
+    }
+}
+exports.NotificationType6 = NotificationType6;
+class NotificationType7 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 7);
+    }
+}
+exports.NotificationType7 = NotificationType7;
+class NotificationType8 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 8);
+    }
+}
+exports.NotificationType8 = NotificationType8;
+class NotificationType9 extends AbstractMessageSignature {
+    constructor(method) {
+        super(method, 9);
+    }
+}
+exports.NotificationType9 = NotificationType9;
+var Message;
+(function (Message) {
+    /**
+     * Tests if the given message is a request message
+     */
+    function isRequest(message) {
+        const candidate = message;
+        return candidate && is.string(candidate.method) && (is.string(candidate.id) || is.number(candidate.id));
+    }
+    Message.isRequest = isRequest;
+    /**
+     * Tests if the given message is a notification message
+     */
+    function isNotification(message) {
+        const candidate = message;
+        return candidate && is.string(candidate.method) && message.id === void 0;
+    }
+    Message.isNotification = isNotification;
+    /**
+     * Tests if the given message is a response message
+     */
+    function isResponse(message) {
+        const candidate = message;
+        return candidate && (candidate.result !== void 0 || !!candidate.error) && (is.string(candidate.id) || is.number(candidate.id) || candidate.id === null);
+    }
+    Message.isResponse = isResponse;
+})(Message || (exports.Message = Message = {}));
+
+
+/***/ }),
+
+/***/ 147:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+let _ral;
+function RAL() {
+    if (_ral === undefined) {
+        throw new Error(`No runtime abstraction layer installed`);
+    }
+    return _ral;
+}
+(function (RAL) {
+    function install(ral) {
+        if (ral === undefined) {
+            throw new Error(`No runtime abstraction layer provided`);
+        }
+        _ral = ral;
+    }
+    RAL.install = install;
+})(RAL || (RAL = {}));
+exports["default"] = RAL;
+
+
+/***/ }),
+
+/***/ 142:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Semaphore = void 0;
+const ral_1 = __webpack_require__(147);
+class Semaphore {
+    constructor(capacity = 1) {
+        if (capacity <= 0) {
+            throw new Error('Capacity must be greater than 0');
+        }
+        this._capacity = capacity;
+        this._active = 0;
+        this._waiting = [];
+    }
+    lock(thunk) {
+        return new Promise((resolve, reject) => {
+            this._waiting.push({ thunk, resolve, reject });
+            this.runNext();
+        });
+    }
+    get active() {
+        return this._active;
+    }
+    runNext() {
+        if (this._waiting.length === 0 || this._active === this._capacity) {
+            return;
+        }
+        (0, ral_1.default)().timer.setImmediate(() => this.doRunNext());
+    }
+    doRunNext() {
+        if (this._waiting.length === 0 || this._active === this._capacity) {
+            return;
+        }
+        const next = this._waiting.shift();
+        this._active++;
+        if (this._active > this._capacity) {
+            throw new Error(`To many thunks active`);
+        }
+        try {
+            const result = next.thunk();
+            if (result instanceof Promise) {
+                result.then((value) => {
+                    this._active--;
+                    next.resolve(value);
+                    this.runNext();
+                }, (err) => {
+                    this._active--;
+                    next.reject(err);
+                    this.runNext();
+                });
+            }
+            else {
+                this._active--;
+                next.resolve(result);
+                this.runNext();
+            }
+        }
+        catch (err) {
+            this._active--;
+            next.reject(err);
+            this.runNext();
+        }
+    }
+}
+exports.Semaphore = Semaphore;
+
+
+/***/ }),
+
+/***/ 8211:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SharedArrayReceiverStrategy = exports.SharedArraySenderStrategy = void 0;
+const cancellation_1 = __webpack_require__(3881);
+var CancellationState;
+(function (CancellationState) {
+    CancellationState.Continue = 0;
+    CancellationState.Cancelled = 1;
+})(CancellationState || (CancellationState = {}));
+class SharedArraySenderStrategy {
+    constructor() {
+        this.buffers = new Map();
+    }
+    enableCancellation(request) {
+        if (request.id === null) {
+            return;
+        }
+        const buffer = new SharedArrayBuffer(4);
+        const data = new Int32Array(buffer, 0, 1);
+        data[0] = CancellationState.Continue;
+        this.buffers.set(request.id, buffer);
+        request.$cancellationData = buffer;
+    }
+    async sendCancellation(_conn, id) {
+        const buffer = this.buffers.get(id);
+        if (buffer === undefined) {
+            return;
+        }
+        const data = new Int32Array(buffer, 0, 1);
+        Atomics.store(data, 0, CancellationState.Cancelled);
+    }
+    cleanup(id) {
+        this.buffers.delete(id);
+    }
+    dispose() {
+        this.buffers.clear();
+    }
+}
+exports.SharedArraySenderStrategy = SharedArraySenderStrategy;
+class SharedArrayBufferCancellationToken {
+    constructor(buffer) {
+        this.data = new Int32Array(buffer, 0, 1);
+    }
+    get isCancellationRequested() {
+        return Atomics.load(this.data, 0) === CancellationState.Cancelled;
+    }
+    get onCancellationRequested() {
+        throw new Error(`Cancellation over SharedArrayBuffer doesn't support cancellation events`);
+    }
+}
+class SharedArrayBufferCancellationTokenSource {
+    constructor(buffer) {
+        this.token = new SharedArrayBufferCancellationToken(buffer);
+    }
+    cancel() {
+    }
+    dispose() {
+    }
+}
+class SharedArrayReceiverStrategy {
+    constructor() {
+        this.kind = 'request';
+    }
+    createCancellationTokenSource(request) {
+        const buffer = request.$cancellationData;
+        if (buffer === undefined) {
+            return new cancellation_1.CancellationTokenSource();
+        }
+        return new SharedArrayBufferCancellationTokenSource(buffer);
+    }
+}
+exports.SharedArrayReceiverStrategy = SharedArrayReceiverStrategy;
+
+
+/***/ }),
+
+/***/ 4389:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createMessageConnection = exports.createServerSocketTransport = exports.createClientSocketTransport = exports.createServerPipeTransport = exports.createClientPipeTransport = exports.generateRandomPipeName = exports.StreamMessageWriter = exports.StreamMessageReader = exports.SocketMessageWriter = exports.SocketMessageReader = exports.PortMessageWriter = exports.PortMessageReader = exports.IPCMessageWriter = exports.IPCMessageReader = void 0;
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ----------------------------------------------------------------------------------------- */
+const ril_1 = __webpack_require__(3034);
+// Install the node runtime abstract.
+ril_1.default.install();
+const path = __webpack_require__(1017);
+const os = __webpack_require__(2037);
+const crypto_1 = __webpack_require__(6113);
+const net_1 = __webpack_require__(1808);
+const api_1 = __webpack_require__(3870);
+__exportStar(__webpack_require__(3870), exports);
+class IPCMessageReader extends api_1.AbstractMessageReader {
+    constructor(process) {
+        super();
+        this.process = process;
+        let eventEmitter = this.process;
+        eventEmitter.on('error', (error) => this.fireError(error));
+        eventEmitter.on('close', () => this.fireClose());
+    }
+    listen(callback) {
+        this.process.on('message', callback);
+        return api_1.Disposable.create(() => this.process.off('message', callback));
+    }
+}
+exports.IPCMessageReader = IPCMessageReader;
+class IPCMessageWriter extends api_1.AbstractMessageWriter {
+    constructor(process) {
+        super();
+        this.process = process;
+        this.errorCount = 0;
+        const eventEmitter = this.process;
+        eventEmitter.on('error', (error) => this.fireError(error));
+        eventEmitter.on('close', () => this.fireClose);
+    }
+    write(msg) {
+        try {
+            if (typeof this.process.send === 'function') {
+                this.process.send(msg, undefined, undefined, (error) => {
+                    if (error) {
+                        this.errorCount++;
+                        this.handleError(error, msg);
+                    }
+                    else {
+                        this.errorCount = 0;
+                    }
+                });
+            }
+            return Promise.resolve();
+        }
+        catch (error) {
+            this.handleError(error, msg);
+            return Promise.reject(error);
+        }
+    }
+    handleError(error, msg) {
+        this.errorCount++;
+        this.fireError(error, msg, this.errorCount);
+    }
+    end() {
+    }
+}
+exports.IPCMessageWriter = IPCMessageWriter;
+class PortMessageReader extends api_1.AbstractMessageReader {
+    constructor(port) {
+        super();
+        this.onData = new api_1.Emitter;
+        port.on('close', () => this.fireClose);
+        port.on('error', (error) => this.fireError(error));
+        port.on('message', (message) => {
+            this.onData.fire(message);
+        });
+    }
+    listen(callback) {
+        return this.onData.event(callback);
+    }
+}
+exports.PortMessageReader = PortMessageReader;
+class PortMessageWriter extends api_1.AbstractMessageWriter {
+    constructor(port) {
+        super();
+        this.port = port;
+        this.errorCount = 0;
+        port.on('close', () => this.fireClose());
+        port.on('error', (error) => this.fireError(error));
+    }
+    write(msg) {
+        try {
+            this.port.postMessage(msg);
+            return Promise.resolve();
+        }
+        catch (error) {
+            this.handleError(error, msg);
+            return Promise.reject(error);
+        }
+    }
+    handleError(error, msg) {
+        this.errorCount++;
+        this.fireError(error, msg, this.errorCount);
+    }
+    end() {
+    }
+}
+exports.PortMessageWriter = PortMessageWriter;
+class SocketMessageReader extends api_1.ReadableStreamMessageReader {
+    constructor(socket, encoding = 'utf-8') {
+        super((0, ril_1.default)().stream.asReadableStream(socket), encoding);
+    }
+}
+exports.SocketMessageReader = SocketMessageReader;
+class SocketMessageWriter extends api_1.WriteableStreamMessageWriter {
+    constructor(socket, options) {
+        super((0, ril_1.default)().stream.asWritableStream(socket), options);
+        this.socket = socket;
+    }
+    dispose() {
+        super.dispose();
+        this.socket.destroy();
+    }
+}
+exports.SocketMessageWriter = SocketMessageWriter;
+class StreamMessageReader extends api_1.ReadableStreamMessageReader {
+    constructor(readable, encoding) {
+        super((0, ril_1.default)().stream.asReadableStream(readable), encoding);
+    }
+}
+exports.StreamMessageReader = StreamMessageReader;
+class StreamMessageWriter extends api_1.WriteableStreamMessageWriter {
+    constructor(writable, options) {
+        super((0, ril_1.default)().stream.asWritableStream(writable), options);
+    }
+}
+exports.StreamMessageWriter = StreamMessageWriter;
+const XDG_RUNTIME_DIR = process.env['XDG_RUNTIME_DIR'];
+const safeIpcPathLengths = new Map([
+    ['linux', 107],
+    ['darwin', 103]
+]);
+function generateRandomPipeName() {
+    const randomSuffix = (0, crypto_1.randomBytes)(21).toString('hex');
+    if (process.platform === 'win32') {
+        return `\\\\.\\pipe\\vscode-jsonrpc-${randomSuffix}-sock`;
+    }
+    let result;
+    if (XDG_RUNTIME_DIR) {
+        result = path.join(XDG_RUNTIME_DIR, `vscode-ipc-${randomSuffix}.sock`);
+    }
+    else {
+        result = path.join(os.tmpdir(), `vscode-${randomSuffix}.sock`);
+    }
+    const limit = safeIpcPathLengths.get(process.platform);
+    if (limit !== undefined && result.length > limit) {
+        (0, ril_1.default)().console.warn(`WARNING: IPC handle "${result}" is longer than ${limit} characters.`);
+    }
+    return result;
+}
+exports.generateRandomPipeName = generateRandomPipeName;
+function createClientPipeTransport(pipeName, encoding = 'utf-8') {
+    let connectResolve;
+    const connected = new Promise((resolve, _reject) => {
+        connectResolve = resolve;
+    });
+    return new Promise((resolve, reject) => {
+        let server = (0, net_1.createServer)((socket) => {
+            server.close();
+            connectResolve([
+                new SocketMessageReader(socket, encoding),
+                new SocketMessageWriter(socket, encoding)
+            ]);
+        });
+        server.on('error', reject);
+        server.listen(pipeName, () => {
+            server.removeListener('error', reject);
+            resolve({
+                onConnected: () => { return connected; }
+            });
+        });
+    });
+}
+exports.createClientPipeTransport = createClientPipeTransport;
+function createServerPipeTransport(pipeName, encoding = 'utf-8') {
+    const socket = (0, net_1.createConnection)(pipeName);
+    return [
+        new SocketMessageReader(socket, encoding),
+        new SocketMessageWriter(socket, encoding)
+    ];
+}
+exports.createServerPipeTransport = createServerPipeTransport;
+function createClientSocketTransport(port, encoding = 'utf-8') {
+    let connectResolve;
+    const connected = new Promise((resolve, _reject) => {
+        connectResolve = resolve;
+    });
+    return new Promise((resolve, reject) => {
+        const server = (0, net_1.createServer)((socket) => {
+            server.close();
+            connectResolve([
+                new SocketMessageReader(socket, encoding),
+                new SocketMessageWriter(socket, encoding)
+            ]);
+        });
+        server.on('error', reject);
+        server.listen(port, '127.0.0.1', () => {
+            server.removeListener('error', reject);
+            resolve({
+                onConnected: () => { return connected; }
+            });
+        });
+    });
+}
+exports.createClientSocketTransport = createClientSocketTransport;
+function createServerSocketTransport(port, encoding = 'utf-8') {
+    const socket = (0, net_1.createConnection)(port, '127.0.0.1');
+    return [
+        new SocketMessageReader(socket, encoding),
+        new SocketMessageWriter(socket, encoding)
+    ];
+}
+exports.createServerSocketTransport = createServerSocketTransport;
+function isReadableStream(value) {
+    const candidate = value;
+    return candidate.read !== undefined && candidate.addListener !== undefined;
+}
+function isWritableStream(value) {
+    const candidate = value;
+    return candidate.write !== undefined && candidate.addListener !== undefined;
+}
+function createMessageConnection(input, output, logger, options) {
+    if (!logger) {
+        logger = api_1.NullLogger;
+    }
+    const reader = isReadableStream(input) ? new StreamMessageReader(input) : input;
+    const writer = isWritableStream(output) ? new StreamMessageWriter(output) : output;
+    if (api_1.ConnectionStrategy.is(options)) {
+        options = { connectionStrategy: options };
+    }
+    return (0, api_1.createMessageConnection)(reader, writer, logger, options);
+}
+exports.createMessageConnection = createMessageConnection;
+
+
+/***/ }),
+
+/***/ 3034:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const util_1 = __webpack_require__(3837);
+const api_1 = __webpack_require__(3870);
+class MessageBuffer extends api_1.AbstractMessageBuffer {
+    constructor(encoding = 'utf-8') {
+        super(encoding);
+    }
+    emptyBuffer() {
+        return MessageBuffer.emptyBuffer;
+    }
+    fromString(value, encoding) {
+        return Buffer.from(value, encoding);
+    }
+    toString(value, encoding) {
+        if (value instanceof Buffer) {
+            return value.toString(encoding);
+        }
+        else {
+            return new util_1.TextDecoder(encoding).decode(value);
+        }
+    }
+    asNative(buffer, length) {
+        if (length === undefined) {
+            return buffer instanceof Buffer ? buffer : Buffer.from(buffer);
+        }
+        else {
+            return buffer instanceof Buffer ? buffer.slice(0, length) : Buffer.from(buffer, 0, length);
+        }
+    }
+    allocNative(length) {
+        return Buffer.allocUnsafe(length);
+    }
+}
+MessageBuffer.emptyBuffer = Buffer.allocUnsafe(0);
+class ReadableStreamWrapper {
+    constructor(stream) {
+        this.stream = stream;
+    }
+    onClose(listener) {
+        this.stream.on('close', listener);
+        return api_1.Disposable.create(() => this.stream.off('close', listener));
+    }
+    onError(listener) {
+        this.stream.on('error', listener);
+        return api_1.Disposable.create(() => this.stream.off('error', listener));
+    }
+    onEnd(listener) {
+        this.stream.on('end', listener);
+        return api_1.Disposable.create(() => this.stream.off('end', listener));
+    }
+    onData(listener) {
+        this.stream.on('data', listener);
+        return api_1.Disposable.create(() => this.stream.off('data', listener));
+    }
+}
+class WritableStreamWrapper {
+    constructor(stream) {
+        this.stream = stream;
+    }
+    onClose(listener) {
+        this.stream.on('close', listener);
+        return api_1.Disposable.create(() => this.stream.off('close', listener));
+    }
+    onError(listener) {
+        this.stream.on('error', listener);
+        return api_1.Disposable.create(() => this.stream.off('error', listener));
+    }
+    onEnd(listener) {
+        this.stream.on('end', listener);
+        return api_1.Disposable.create(() => this.stream.off('end', listener));
+    }
+    write(data, encoding) {
+        return new Promise((resolve, reject) => {
+            const callback = (error) => {
+                if (error === undefined || error === null) {
+                    resolve();
+                }
+                else {
+                    reject(error);
+                }
+            };
+            if (typeof data === 'string') {
+                this.stream.write(data, encoding, callback);
+            }
+            else {
+                this.stream.write(data, callback);
+            }
+        });
+    }
+    end() {
+        this.stream.end();
+    }
+}
+const _ril = Object.freeze({
+    messageBuffer: Object.freeze({
+        create: (encoding) => new MessageBuffer(encoding)
+    }),
+    applicationJson: Object.freeze({
+        encoder: Object.freeze({
+            name: 'application/json',
+            encode: (msg, options) => {
+                try {
+                    return Promise.resolve(Buffer.from(JSON.stringify(msg, undefined, 0), options.charset));
+                }
+                catch (err) {
+                    return Promise.reject(err);
+                }
+            }
+        }),
+        decoder: Object.freeze({
+            name: 'application/json',
+            decode: (buffer, options) => {
+                try {
+                    if (buffer instanceof Buffer) {
+                        return Promise.resolve(JSON.parse(buffer.toString(options.charset)));
+                    }
+                    else {
+                        return Promise.resolve(JSON.parse(new util_1.TextDecoder(options.charset).decode(buffer)));
+                    }
+                }
+                catch (err) {
+                    return Promise.reject(err);
+                }
+            }
+        })
+    }),
+    stream: Object.freeze({
+        asReadableStream: (stream) => new ReadableStreamWrapper(stream),
+        asWritableStream: (stream) => new WritableStreamWrapper(stream)
+    }),
+    console: console,
+    timer: Object.freeze({
+        setTimeout(callback, ms, ...args) {
+            const handle = setTimeout(callback, ms, ...args);
+            return { dispose: () => clearTimeout(handle) };
+        },
+        setImmediate(callback, ...args) {
+            const handle = setImmediate(callback, ...args);
+            return { dispose: () => clearImmediate(handle) };
+        },
+        setInterval(callback, ms, ...args) {
+            const handle = setInterval(callback, ms, ...args);
+            return { dispose: () => clearInterval(handle) };
+        }
+    })
+});
+function RIL() {
+    return _ril;
+}
+(function (RIL) {
+    function install() {
+        api_1.RAL.install(_ril);
+    }
+    RIL.install = install;
+})(RIL || (RIL = {}));
+exports["default"] = RIL;
+
+
+/***/ }),
+
+/***/ 5028:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ----------------------------------------------------------------------------------------- */
+
+
+module.exports = __webpack_require__(4389);
+
+/***/ }),
+
+/***/ 1661:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LSPErrorCodes = exports.createProtocolConnection = void 0;
+__exportStar(__webpack_require__(4389), exports);
+__exportStar(__webpack_require__(2118), exports);
+__exportStar(__webpack_require__(6140), exports);
+__exportStar(__webpack_require__(542), exports);
+var connection_1 = __webpack_require__(3767);
+Object.defineProperty(exports, "createProtocolConnection", ({ enumerable: true, get: function () { return connection_1.createProtocolConnection; } }));
+var LSPErrorCodes;
+(function (LSPErrorCodes) {
+    /**
+    * This is the start range of LSP reserved error codes.
+    * It doesn't denote a real error code.
+    *
+    * @since 3.16.0
+    */
+    LSPErrorCodes.lspReservedErrorRangeStart = -32899;
+    /**
+     * A request failed but it was syntactically correct, e.g the
+     * method name was known and the parameters were valid. The error
+     * message should contain human readable information about why
+     * the request failed.
+     *
+     * @since 3.17.0
+     */
+    LSPErrorCodes.RequestFailed = -32803;
+    /**
+     * The server cancelled the request. This error code should
+     * only be used for requests that explicitly support being
+     * server cancellable.
+     *
+     * @since 3.17.0
+     */
+    LSPErrorCodes.ServerCancelled = -32802;
+    /**
+     * The server detected that the content of a document got
+     * modified outside normal conditions. A server should
+     * NOT send this error code if it detects a content change
+     * in it unprocessed messages. The result even computed
+     * on an older state might still be useful for the client.
+     *
+     * If a client decides that a result is not of any use anymore
+     * the client should cancel the request.
+     */
+    LSPErrorCodes.ContentModified = -32801;
+    /**
+     * The client has canceled a request and a server as detected
+     * the cancel.
+     */
+    LSPErrorCodes.RequestCancelled = -32800;
+    /**
+    * This is the end range of LSP reserved error codes.
+    * It doesn't denote a real error code.
+    *
+    * @since 3.16.0
+    */
+    LSPErrorCodes.lspReservedErrorRangeEnd = -32800;
+})(LSPErrorCodes || (exports.LSPErrorCodes = LSPErrorCodes = {}));
+
+
+/***/ }),
+
+/***/ 3767:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createProtocolConnection = void 0;
+const vscode_jsonrpc_1 = __webpack_require__(4389);
+function createProtocolConnection(input, output, logger, options) {
+    if (vscode_jsonrpc_1.ConnectionStrategy.is(options)) {
+        options = { connectionStrategy: options };
+    }
+    return (0, vscode_jsonrpc_1.createMessageConnection)(input, output, logger, options);
+}
+exports.createProtocolConnection = createProtocolConnection;
+
+
+/***/ }),
+
+/***/ 6140:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProtocolNotificationType = exports.ProtocolNotificationType0 = exports.ProtocolRequestType = exports.ProtocolRequestType0 = exports.RegistrationType = exports.MessageDirection = void 0;
+const vscode_jsonrpc_1 = __webpack_require__(4389);
+var MessageDirection;
+(function (MessageDirection) {
+    MessageDirection["clientToServer"] = "clientToServer";
+    MessageDirection["serverToClient"] = "serverToClient";
+    MessageDirection["both"] = "both";
+})(MessageDirection || (exports.MessageDirection = MessageDirection = {}));
+class RegistrationType {
+    constructor(method) {
+        this.method = method;
+    }
+}
+exports.RegistrationType = RegistrationType;
+class ProtocolRequestType0 extends vscode_jsonrpc_1.RequestType0 {
+    constructor(method) {
+        super(method);
+    }
+}
+exports.ProtocolRequestType0 = ProtocolRequestType0;
+class ProtocolRequestType extends vscode_jsonrpc_1.RequestType {
+    constructor(method) {
+        super(method, vscode_jsonrpc_1.ParameterStructures.byName);
+    }
+}
+exports.ProtocolRequestType = ProtocolRequestType;
+class ProtocolNotificationType0 extends vscode_jsonrpc_1.NotificationType0 {
+    constructor(method) {
+        super(method);
+    }
+}
+exports.ProtocolNotificationType0 = ProtocolNotificationType0;
+class ProtocolNotificationType extends vscode_jsonrpc_1.NotificationType {
+    constructor(method) {
+        super(method, vscode_jsonrpc_1.ParameterStructures.byName);
+    }
+}
+exports.ProtocolNotificationType = ProtocolNotificationType;
+
+
+/***/ }),
+
+/***/ 2918:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) TypeFox, Microsoft and others. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CallHierarchyOutgoingCallsRequest = exports.CallHierarchyIncomingCallsRequest = exports.CallHierarchyPrepareRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to result a `CallHierarchyItem` in a document at a given position.
+ * Can be used as an input to an incoming or outgoing call hierarchy.
+ *
+ * @since 3.16.0
+ */
+var CallHierarchyPrepareRequest;
+(function (CallHierarchyPrepareRequest) {
+    CallHierarchyPrepareRequest.method = 'textDocument/prepareCallHierarchy';
+    CallHierarchyPrepareRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CallHierarchyPrepareRequest.type = new messages_1.ProtocolRequestType(CallHierarchyPrepareRequest.method);
+})(CallHierarchyPrepareRequest || (exports.CallHierarchyPrepareRequest = CallHierarchyPrepareRequest = {}));
+/**
+ * A request to resolve the incoming calls for a given `CallHierarchyItem`.
+ *
+ * @since 3.16.0
+ */
+var CallHierarchyIncomingCallsRequest;
+(function (CallHierarchyIncomingCallsRequest) {
+    CallHierarchyIncomingCallsRequest.method = 'callHierarchy/incomingCalls';
+    CallHierarchyIncomingCallsRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CallHierarchyIncomingCallsRequest.type = new messages_1.ProtocolRequestType(CallHierarchyIncomingCallsRequest.method);
+})(CallHierarchyIncomingCallsRequest || (exports.CallHierarchyIncomingCallsRequest = CallHierarchyIncomingCallsRequest = {}));
+/**
+ * A request to resolve the outgoing calls for a given `CallHierarchyItem`.
+ *
+ * @since 3.16.0
+ */
+var CallHierarchyOutgoingCallsRequest;
+(function (CallHierarchyOutgoingCallsRequest) {
+    CallHierarchyOutgoingCallsRequest.method = 'callHierarchy/outgoingCalls';
+    CallHierarchyOutgoingCallsRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CallHierarchyOutgoingCallsRequest.type = new messages_1.ProtocolRequestType(CallHierarchyOutgoingCallsRequest.method);
+})(CallHierarchyOutgoingCallsRequest || (exports.CallHierarchyOutgoingCallsRequest = CallHierarchyOutgoingCallsRequest = {}));
+
+
+/***/ }),
+
+/***/ 3390:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ColorPresentationRequest = exports.DocumentColorRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to list all color symbols found in a given text document. The request's
+ * parameter is of type {@link DocumentColorParams} the
+ * response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+ * that resolves to such.
+ */
+var DocumentColorRequest;
+(function (DocumentColorRequest) {
+    DocumentColorRequest.method = 'textDocument/documentColor';
+    DocumentColorRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentColorRequest.type = new messages_1.ProtocolRequestType(DocumentColorRequest.method);
+})(DocumentColorRequest || (exports.DocumentColorRequest = DocumentColorRequest = {}));
+/**
+ * A request to list all presentation for a color. The request's
+ * parameter is of type {@link ColorPresentationParams} the
+ * response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+ * that resolves to such.
+ */
+var ColorPresentationRequest;
+(function (ColorPresentationRequest) {
+    ColorPresentationRequest.method = 'textDocument/colorPresentation';
+    ColorPresentationRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    ColorPresentationRequest.type = new messages_1.ProtocolRequestType(ColorPresentationRequest.method);
+})(ColorPresentationRequest || (exports.ColorPresentationRequest = ColorPresentationRequest = {}));
+
+
+/***/ }),
+
+/***/ 5934:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ConfigurationRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+//---- Get Configuration request ----
+/**
+ * The 'workspace/configuration' request is sent from the server to the client to fetch a certain
+ * configuration setting.
+ *
+ * This pull model replaces the old push model were the client signaled configuration change via an
+ * event. If the server still needs to react to configuration changes (since the server caches the
+ * result of `workspace/configuration` requests) the server should register for an empty configuration
+ * change event and empty the cache if such an event is received.
+ */
+var ConfigurationRequest;
+(function (ConfigurationRequest) {
+    ConfigurationRequest.method = 'workspace/configuration';
+    ConfigurationRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    ConfigurationRequest.type = new messages_1.ProtocolRequestType(ConfigurationRequest.method);
+})(ConfigurationRequest || (exports.ConfigurationRequest = ConfigurationRequest = {}));
+
+
+/***/ }),
+
+/***/ 764:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DeclarationRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+// @ts-ignore: to avoid inlining LocationLink as dynamic import
+let __noDynamicImport;
+/**
+ * A request to resolve the type definition locations of a symbol at a given text
+ * document position. The request's parameter is of type {@link TextDocumentPositionParams}
+ * the response is of type {@link Declaration} or a typed array of {@link DeclarationLink}
+ * or a Thenable that resolves to such.
+ */
+var DeclarationRequest;
+(function (DeclarationRequest) {
+    DeclarationRequest.method = 'textDocument/declaration';
+    DeclarationRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DeclarationRequest.type = new messages_1.ProtocolRequestType(DeclarationRequest.method);
+})(DeclarationRequest || (exports.DeclarationRequest = DeclarationRequest = {}));
+
+
+/***/ }),
+
+/***/ 9824:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DiagnosticRefreshRequest = exports.WorkspaceDiagnosticRequest = exports.DocumentDiagnosticRequest = exports.DocumentDiagnosticReportKind = exports.DiagnosticServerCancellationData = void 0;
+const vscode_jsonrpc_1 = __webpack_require__(4389);
+const Is = __webpack_require__(9533);
+const messages_1 = __webpack_require__(6140);
+/**
+ * @since 3.17.0
+ */
+var DiagnosticServerCancellationData;
+(function (DiagnosticServerCancellationData) {
+    function is(value) {
+        const candidate = value;
+        return candidate && Is.boolean(candidate.retriggerRequest);
+    }
+    DiagnosticServerCancellationData.is = is;
+})(DiagnosticServerCancellationData || (exports.DiagnosticServerCancellationData = DiagnosticServerCancellationData = {}));
+/**
+ * The document diagnostic report kinds.
+ *
+ * @since 3.17.0
+ */
+var DocumentDiagnosticReportKind;
+(function (DocumentDiagnosticReportKind) {
+    /**
+     * A diagnostic report with a full
+     * set of problems.
+     */
+    DocumentDiagnosticReportKind.Full = 'full';
+    /**
+     * A report indicating that the last
+     * returned report is still accurate.
+     */
+    DocumentDiagnosticReportKind.Unchanged = 'unchanged';
+})(DocumentDiagnosticReportKind || (exports.DocumentDiagnosticReportKind = DocumentDiagnosticReportKind = {}));
+/**
+ * The document diagnostic request definition.
+ *
+ * @since 3.17.0
+ */
+var DocumentDiagnosticRequest;
+(function (DocumentDiagnosticRequest) {
+    DocumentDiagnosticRequest.method = 'textDocument/diagnostic';
+    DocumentDiagnosticRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentDiagnosticRequest.type = new messages_1.ProtocolRequestType(DocumentDiagnosticRequest.method);
+    DocumentDiagnosticRequest.partialResult = new vscode_jsonrpc_1.ProgressType();
+})(DocumentDiagnosticRequest || (exports.DocumentDiagnosticRequest = DocumentDiagnosticRequest = {}));
+/**
+ * The workspace diagnostic request definition.
+ *
+ * @since 3.17.0
+ */
+var WorkspaceDiagnosticRequest;
+(function (WorkspaceDiagnosticRequest) {
+    WorkspaceDiagnosticRequest.method = 'workspace/diagnostic';
+    WorkspaceDiagnosticRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    WorkspaceDiagnosticRequest.type = new messages_1.ProtocolRequestType(WorkspaceDiagnosticRequest.method);
+    WorkspaceDiagnosticRequest.partialResult = new vscode_jsonrpc_1.ProgressType();
+})(WorkspaceDiagnosticRequest || (exports.WorkspaceDiagnosticRequest = WorkspaceDiagnosticRequest = {}));
+/**
+ * The diagnostic refresh request definition.
+ *
+ * @since 3.17.0
+ */
+var DiagnosticRefreshRequest;
+(function (DiagnosticRefreshRequest) {
+    DiagnosticRefreshRequest.method = `workspace/diagnostic/refresh`;
+    DiagnosticRefreshRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    DiagnosticRefreshRequest.type = new messages_1.ProtocolRequestType0(DiagnosticRefreshRequest.method);
+})(DiagnosticRefreshRequest || (exports.DiagnosticRefreshRequest = DiagnosticRefreshRequest = {}));
+
+
+/***/ }),
+
+/***/ 7846:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WillDeleteFilesRequest = exports.DidDeleteFilesNotification = exports.DidRenameFilesNotification = exports.WillRenameFilesRequest = exports.DidCreateFilesNotification = exports.WillCreateFilesRequest = exports.FileOperationPatternKind = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A pattern kind describing if a glob pattern matches a file a folder or
+ * both.
+ *
+ * @since 3.16.0
+ */
+var FileOperationPatternKind;
+(function (FileOperationPatternKind) {
+    /**
+     * The pattern matches a file only.
+     */
+    FileOperationPatternKind.file = 'file';
+    /**
+     * The pattern matches a folder only.
+     */
+    FileOperationPatternKind.folder = 'folder';
+})(FileOperationPatternKind || (exports.FileOperationPatternKind = FileOperationPatternKind = {}));
+/**
+ * The will create files request is sent from the client to the server before files are actually
+ * created as long as the creation is triggered from within the client.
+ *
+ * The request can return a `WorkspaceEdit` which will be applied to workspace before the
+ * files are created. Hence the `WorkspaceEdit` can not manipulate the content of the file
+ * to be created.
+ *
+ * @since 3.16.0
+ */
+var WillCreateFilesRequest;
+(function (WillCreateFilesRequest) {
+    WillCreateFilesRequest.method = 'workspace/willCreateFiles';
+    WillCreateFilesRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    WillCreateFilesRequest.type = new messages_1.ProtocolRequestType(WillCreateFilesRequest.method);
+})(WillCreateFilesRequest || (exports.WillCreateFilesRequest = WillCreateFilesRequest = {}));
+/**
+ * The did create files notification is sent from the client to the server when
+ * files were created from within the client.
+ *
+ * @since 3.16.0
+ */
+var DidCreateFilesNotification;
+(function (DidCreateFilesNotification) {
+    DidCreateFilesNotification.method = 'workspace/didCreateFiles';
+    DidCreateFilesNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidCreateFilesNotification.type = new messages_1.ProtocolNotificationType(DidCreateFilesNotification.method);
+})(DidCreateFilesNotification || (exports.DidCreateFilesNotification = DidCreateFilesNotification = {}));
+/**
+ * The will rename files request is sent from the client to the server before files are actually
+ * renamed as long as the rename is triggered from within the client.
+ *
+ * @since 3.16.0
+ */
+var WillRenameFilesRequest;
+(function (WillRenameFilesRequest) {
+    WillRenameFilesRequest.method = 'workspace/willRenameFiles';
+    WillRenameFilesRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    WillRenameFilesRequest.type = new messages_1.ProtocolRequestType(WillRenameFilesRequest.method);
+})(WillRenameFilesRequest || (exports.WillRenameFilesRequest = WillRenameFilesRequest = {}));
+/**
+ * The did rename files notification is sent from the client to the server when
+ * files were renamed from within the client.
+ *
+ * @since 3.16.0
+ */
+var DidRenameFilesNotification;
+(function (DidRenameFilesNotification) {
+    DidRenameFilesNotification.method = 'workspace/didRenameFiles';
+    DidRenameFilesNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidRenameFilesNotification.type = new messages_1.ProtocolNotificationType(DidRenameFilesNotification.method);
+})(DidRenameFilesNotification || (exports.DidRenameFilesNotification = DidRenameFilesNotification = {}));
+/**
+ * The will delete files request is sent from the client to the server before files are actually
+ * deleted as long as the deletion is triggered from within the client.
+ *
+ * @since 3.16.0
+ */
+var DidDeleteFilesNotification;
+(function (DidDeleteFilesNotification) {
+    DidDeleteFilesNotification.method = 'workspace/didDeleteFiles';
+    DidDeleteFilesNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidDeleteFilesNotification.type = new messages_1.ProtocolNotificationType(DidDeleteFilesNotification.method);
+})(DidDeleteFilesNotification || (exports.DidDeleteFilesNotification = DidDeleteFilesNotification = {}));
+/**
+ * The did delete files notification is sent from the client to the server when
+ * files were deleted from within the client.
+ *
+ * @since 3.16.0
+ */
+var WillDeleteFilesRequest;
+(function (WillDeleteFilesRequest) {
+    WillDeleteFilesRequest.method = 'workspace/willDeleteFiles';
+    WillDeleteFilesRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    WillDeleteFilesRequest.type = new messages_1.ProtocolRequestType(WillDeleteFilesRequest.method);
+})(WillDeleteFilesRequest || (exports.WillDeleteFilesRequest = WillDeleteFilesRequest = {}));
+
+
+/***/ }),
+
+/***/ 3394:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FoldingRangeRefreshRequest = exports.FoldingRangeRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to provide folding ranges in a document. The request's
+ * parameter is of type {@link FoldingRangeParams}, the
+ * response is of type {@link FoldingRangeList} or a Thenable
+ * that resolves to such.
+ */
+var FoldingRangeRequest;
+(function (FoldingRangeRequest) {
+    FoldingRangeRequest.method = 'textDocument/foldingRange';
+    FoldingRangeRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    FoldingRangeRequest.type = new messages_1.ProtocolRequestType(FoldingRangeRequest.method);
+})(FoldingRangeRequest || (exports.FoldingRangeRequest = FoldingRangeRequest = {}));
+/**
+ * @since 3.18.0
+ * @proposed
+ */
+var FoldingRangeRefreshRequest;
+(function (FoldingRangeRefreshRequest) {
+    FoldingRangeRefreshRequest.method = `workspace/foldingRange/refresh`;
+    FoldingRangeRefreshRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    FoldingRangeRefreshRequest.type = new messages_1.ProtocolRequestType0(FoldingRangeRefreshRequest.method);
+})(FoldingRangeRefreshRequest || (exports.FoldingRangeRefreshRequest = FoldingRangeRefreshRequest = {}));
+
+
+/***/ }),
+
+/***/ 2122:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ImplementationRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+// @ts-ignore: to avoid inlining LocationLink as dynamic import
+let __noDynamicImport;
+/**
+ * A request to resolve the implementation locations of a symbol at a given text
+ * document position. The request's parameter is of type {@link TextDocumentPositionParams}
+ * the response is of type {@link Definition} or a Thenable that resolves to such.
+ */
+var ImplementationRequest;
+(function (ImplementationRequest) {
+    ImplementationRequest.method = 'textDocument/implementation';
+    ImplementationRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    ImplementationRequest.type = new messages_1.ProtocolRequestType(ImplementationRequest.method);
+})(ImplementationRequest || (exports.ImplementationRequest = ImplementationRequest = {}));
+
+
+/***/ }),
+
+/***/ 9999:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.InlayHintRefreshRequest = exports.InlayHintResolveRequest = exports.InlayHintRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to provide inlay hints in a document. The request's parameter is of
+ * type {@link InlayHintsParams}, the response is of type
+ * {@link InlayHint InlayHint[]} or a Thenable that resolves to such.
+ *
+ * @since 3.17.0
+ */
+var InlayHintRequest;
+(function (InlayHintRequest) {
+    InlayHintRequest.method = 'textDocument/inlayHint';
+    InlayHintRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    InlayHintRequest.type = new messages_1.ProtocolRequestType(InlayHintRequest.method);
+})(InlayHintRequest || (exports.InlayHintRequest = InlayHintRequest = {}));
+/**
+ * A request to resolve additional properties for an inlay hint.
+ * The request's parameter is of type {@link InlayHint}, the response is
+ * of type {@link InlayHint} or a Thenable that resolves to such.
+ *
+ * @since 3.17.0
+ */
+var InlayHintResolveRequest;
+(function (InlayHintResolveRequest) {
+    InlayHintResolveRequest.method = 'inlayHint/resolve';
+    InlayHintResolveRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    InlayHintResolveRequest.type = new messages_1.ProtocolRequestType(InlayHintResolveRequest.method);
+})(InlayHintResolveRequest || (exports.InlayHintResolveRequest = InlayHintResolveRequest = {}));
+/**
+ * @since 3.17.0
+ */
+var InlayHintRefreshRequest;
+(function (InlayHintRefreshRequest) {
+    InlayHintRefreshRequest.method = `workspace/inlayHint/refresh`;
+    InlayHintRefreshRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    InlayHintRefreshRequest.type = new messages_1.ProtocolRequestType0(InlayHintRefreshRequest.method);
+})(InlayHintRefreshRequest || (exports.InlayHintRefreshRequest = InlayHintRefreshRequest = {}));
+
+
+/***/ }),
+
+/***/ 7081:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.InlineCompletionRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to provide inline completions in a document. The request's parameter is of
+ * type {@link InlineCompletionParams}, the response is of type
+ * {@link InlineCompletion InlineCompletion[]} or a Thenable that resolves to such.
+ *
+ * @since 3.18.0
+ * @proposed
+ */
+var InlineCompletionRequest;
+(function (InlineCompletionRequest) {
+    InlineCompletionRequest.method = 'textDocument/inlineCompletion';
+    InlineCompletionRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    InlineCompletionRequest.type = new messages_1.ProtocolRequestType(InlineCompletionRequest.method);
+})(InlineCompletionRequest || (exports.InlineCompletionRequest = InlineCompletionRequest = {}));
+
+
+/***/ }),
+
+/***/ 5246:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.InlineValueRefreshRequest = exports.InlineValueRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to provide inline values in a document. The request's parameter is of
+ * type {@link InlineValueParams}, the response is of type
+ * {@link InlineValue InlineValue[]} or a Thenable that resolves to such.
+ *
+ * @since 3.17.0
+ */
+var InlineValueRequest;
+(function (InlineValueRequest) {
+    InlineValueRequest.method = 'textDocument/inlineValue';
+    InlineValueRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    InlineValueRequest.type = new messages_1.ProtocolRequestType(InlineValueRequest.method);
+})(InlineValueRequest || (exports.InlineValueRequest = InlineValueRequest = {}));
+/**
+ * @since 3.17.0
+ */
+var InlineValueRefreshRequest;
+(function (InlineValueRefreshRequest) {
+    InlineValueRefreshRequest.method = `workspace/inlineValue/refresh`;
+    InlineValueRefreshRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    InlineValueRefreshRequest.type = new messages_1.ProtocolRequestType0(InlineValueRefreshRequest.method);
+})(InlineValueRefreshRequest || (exports.InlineValueRefreshRequest = InlineValueRefreshRequest = {}));
+
+
+/***/ }),
+
+/***/ 542:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WorkspaceSymbolRequest = exports.CodeActionResolveRequest = exports.CodeActionRequest = exports.DocumentSymbolRequest = exports.DocumentHighlightRequest = exports.ReferencesRequest = exports.DefinitionRequest = exports.SignatureHelpRequest = exports.SignatureHelpTriggerKind = exports.HoverRequest = exports.CompletionResolveRequest = exports.CompletionRequest = exports.CompletionTriggerKind = exports.PublishDiagnosticsNotification = exports.WatchKind = exports.RelativePattern = exports.FileChangeType = exports.DidChangeWatchedFilesNotification = exports.WillSaveTextDocumentWaitUntilRequest = exports.WillSaveTextDocumentNotification = exports.TextDocumentSaveReason = exports.DidSaveTextDocumentNotification = exports.DidCloseTextDocumentNotification = exports.DidChangeTextDocumentNotification = exports.TextDocumentContentChangeEvent = exports.DidOpenTextDocumentNotification = exports.TextDocumentSyncKind = exports.TelemetryEventNotification = exports.LogMessageNotification = exports.ShowMessageRequest = exports.ShowMessageNotification = exports.MessageType = exports.DidChangeConfigurationNotification = exports.ExitNotification = exports.ShutdownRequest = exports.InitializedNotification = exports.InitializeErrorCodes = exports.InitializeRequest = exports.WorkDoneProgressOptions = exports.TextDocumentRegistrationOptions = exports.StaticRegistrationOptions = exports.PositionEncodingKind = exports.FailureHandlingKind = exports.ResourceOperationKind = exports.UnregistrationRequest = exports.RegistrationRequest = exports.DocumentSelector = exports.NotebookCellTextDocumentFilter = exports.NotebookDocumentFilter = exports.TextDocumentFilter = void 0;
+exports.MonikerRequest = exports.MonikerKind = exports.UniquenessLevel = exports.WillDeleteFilesRequest = exports.DidDeleteFilesNotification = exports.WillRenameFilesRequest = exports.DidRenameFilesNotification = exports.WillCreateFilesRequest = exports.DidCreateFilesNotification = exports.FileOperationPatternKind = exports.LinkedEditingRangeRequest = exports.ShowDocumentRequest = exports.SemanticTokensRegistrationType = exports.SemanticTokensRefreshRequest = exports.SemanticTokensRangeRequest = exports.SemanticTokensDeltaRequest = exports.SemanticTokensRequest = exports.TokenFormat = exports.CallHierarchyPrepareRequest = exports.CallHierarchyOutgoingCallsRequest = exports.CallHierarchyIncomingCallsRequest = exports.WorkDoneProgressCancelNotification = exports.WorkDoneProgressCreateRequest = exports.WorkDoneProgress = exports.SelectionRangeRequest = exports.DeclarationRequest = exports.FoldingRangeRefreshRequest = exports.FoldingRangeRequest = exports.ColorPresentationRequest = exports.DocumentColorRequest = exports.ConfigurationRequest = exports.DidChangeWorkspaceFoldersNotification = exports.WorkspaceFoldersRequest = exports.TypeDefinitionRequest = exports.ImplementationRequest = exports.ApplyWorkspaceEditRequest = exports.ExecuteCommandRequest = exports.PrepareRenameRequest = exports.RenameRequest = exports.PrepareSupportDefaultBehavior = exports.DocumentOnTypeFormattingRequest = exports.DocumentRangesFormattingRequest = exports.DocumentRangeFormattingRequest = exports.DocumentFormattingRequest = exports.DocumentLinkResolveRequest = exports.DocumentLinkRequest = exports.CodeLensRefreshRequest = exports.CodeLensResolveRequest = exports.CodeLensRequest = exports.WorkspaceSymbolResolveRequest = void 0;
+exports.InlineCompletionRequest = exports.DidCloseNotebookDocumentNotification = exports.DidSaveNotebookDocumentNotification = exports.DidChangeNotebookDocumentNotification = exports.NotebookCellArrayChange = exports.DidOpenNotebookDocumentNotification = exports.NotebookDocumentSyncRegistrationType = exports.NotebookDocument = exports.NotebookCell = exports.ExecutionSummary = exports.NotebookCellKind = exports.DiagnosticRefreshRequest = exports.WorkspaceDiagnosticRequest = exports.DocumentDiagnosticRequest = exports.DocumentDiagnosticReportKind = exports.DiagnosticServerCancellationData = exports.InlayHintRefreshRequest = exports.InlayHintResolveRequest = exports.InlayHintRequest = exports.InlineValueRefreshRequest = exports.InlineValueRequest = exports.TypeHierarchySupertypesRequest = exports.TypeHierarchySubtypesRequest = exports.TypeHierarchyPrepareRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+const vscode_languageserver_types_1 = __webpack_require__(2118);
+const Is = __webpack_require__(9533);
+const protocol_implementation_1 = __webpack_require__(2122);
+Object.defineProperty(exports, "ImplementationRequest", ({ enumerable: true, get: function () { return protocol_implementation_1.ImplementationRequest; } }));
+const protocol_typeDefinition_1 = __webpack_require__(1589);
+Object.defineProperty(exports, "TypeDefinitionRequest", ({ enumerable: true, get: function () { return protocol_typeDefinition_1.TypeDefinitionRequest; } }));
+const protocol_workspaceFolder_1 = __webpack_require__(8744);
+Object.defineProperty(exports, "WorkspaceFoldersRequest", ({ enumerable: true, get: function () { return protocol_workspaceFolder_1.WorkspaceFoldersRequest; } }));
+Object.defineProperty(exports, "DidChangeWorkspaceFoldersNotification", ({ enumerable: true, get: function () { return protocol_workspaceFolder_1.DidChangeWorkspaceFoldersNotification; } }));
+const protocol_configuration_1 = __webpack_require__(5934);
+Object.defineProperty(exports, "ConfigurationRequest", ({ enumerable: true, get: function () { return protocol_configuration_1.ConfigurationRequest; } }));
+const protocol_colorProvider_1 = __webpack_require__(3390);
+Object.defineProperty(exports, "DocumentColorRequest", ({ enumerable: true, get: function () { return protocol_colorProvider_1.DocumentColorRequest; } }));
+Object.defineProperty(exports, "ColorPresentationRequest", ({ enumerable: true, get: function () { return protocol_colorProvider_1.ColorPresentationRequest; } }));
+const protocol_foldingRange_1 = __webpack_require__(3394);
+Object.defineProperty(exports, "FoldingRangeRequest", ({ enumerable: true, get: function () { return protocol_foldingRange_1.FoldingRangeRequest; } }));
+Object.defineProperty(exports, "FoldingRangeRefreshRequest", ({ enumerable: true, get: function () { return protocol_foldingRange_1.FoldingRangeRefreshRequest; } }));
+const protocol_declaration_1 = __webpack_require__(764);
+Object.defineProperty(exports, "DeclarationRequest", ({ enumerable: true, get: function () { return protocol_declaration_1.DeclarationRequest; } }));
+const protocol_selectionRange_1 = __webpack_require__(5206);
+Object.defineProperty(exports, "SelectionRangeRequest", ({ enumerable: true, get: function () { return protocol_selectionRange_1.SelectionRangeRequest; } }));
+const protocol_progress_1 = __webpack_require__(1862);
+Object.defineProperty(exports, "WorkDoneProgress", ({ enumerable: true, get: function () { return protocol_progress_1.WorkDoneProgress; } }));
+Object.defineProperty(exports, "WorkDoneProgressCreateRequest", ({ enumerable: true, get: function () { return protocol_progress_1.WorkDoneProgressCreateRequest; } }));
+Object.defineProperty(exports, "WorkDoneProgressCancelNotification", ({ enumerable: true, get: function () { return protocol_progress_1.WorkDoneProgressCancelNotification; } }));
+const protocol_callHierarchy_1 = __webpack_require__(2918);
+Object.defineProperty(exports, "CallHierarchyIncomingCallsRequest", ({ enumerable: true, get: function () { return protocol_callHierarchy_1.CallHierarchyIncomingCallsRequest; } }));
+Object.defineProperty(exports, "CallHierarchyOutgoingCallsRequest", ({ enumerable: true, get: function () { return protocol_callHierarchy_1.CallHierarchyOutgoingCallsRequest; } }));
+Object.defineProperty(exports, "CallHierarchyPrepareRequest", ({ enumerable: true, get: function () { return protocol_callHierarchy_1.CallHierarchyPrepareRequest; } }));
+const protocol_semanticTokens_1 = __webpack_require__(9434);
+Object.defineProperty(exports, "TokenFormat", ({ enumerable: true, get: function () { return protocol_semanticTokens_1.TokenFormat; } }));
+Object.defineProperty(exports, "SemanticTokensRequest", ({ enumerable: true, get: function () { return protocol_semanticTokens_1.SemanticTokensRequest; } }));
+Object.defineProperty(exports, "SemanticTokensDeltaRequest", ({ enumerable: true, get: function () { return protocol_semanticTokens_1.SemanticTokensDeltaRequest; } }));
+Object.defineProperty(exports, "SemanticTokensRangeRequest", ({ enumerable: true, get: function () { return protocol_semanticTokens_1.SemanticTokensRangeRequest; } }));
+Object.defineProperty(exports, "SemanticTokensRefreshRequest", ({ enumerable: true, get: function () { return protocol_semanticTokens_1.SemanticTokensRefreshRequest; } }));
+Object.defineProperty(exports, "SemanticTokensRegistrationType", ({ enumerable: true, get: function () { return protocol_semanticTokens_1.SemanticTokensRegistrationType; } }));
+const protocol_showDocument_1 = __webpack_require__(5726);
+Object.defineProperty(exports, "ShowDocumentRequest", ({ enumerable: true, get: function () { return protocol_showDocument_1.ShowDocumentRequest; } }));
+const protocol_linkedEditingRange_1 = __webpack_require__(6305);
+Object.defineProperty(exports, "LinkedEditingRangeRequest", ({ enumerable: true, get: function () { return protocol_linkedEditingRange_1.LinkedEditingRangeRequest; } }));
+const protocol_fileOperations_1 = __webpack_require__(7846);
+Object.defineProperty(exports, "FileOperationPatternKind", ({ enumerable: true, get: function () { return protocol_fileOperations_1.FileOperationPatternKind; } }));
+Object.defineProperty(exports, "DidCreateFilesNotification", ({ enumerable: true, get: function () { return protocol_fileOperations_1.DidCreateFilesNotification; } }));
+Object.defineProperty(exports, "WillCreateFilesRequest", ({ enumerable: true, get: function () { return protocol_fileOperations_1.WillCreateFilesRequest; } }));
+Object.defineProperty(exports, "DidRenameFilesNotification", ({ enumerable: true, get: function () { return protocol_fileOperations_1.DidRenameFilesNotification; } }));
+Object.defineProperty(exports, "WillRenameFilesRequest", ({ enumerable: true, get: function () { return protocol_fileOperations_1.WillRenameFilesRequest; } }));
+Object.defineProperty(exports, "DidDeleteFilesNotification", ({ enumerable: true, get: function () { return protocol_fileOperations_1.DidDeleteFilesNotification; } }));
+Object.defineProperty(exports, "WillDeleteFilesRequest", ({ enumerable: true, get: function () { return protocol_fileOperations_1.WillDeleteFilesRequest; } }));
+const protocol_moniker_1 = __webpack_require__(3443);
+Object.defineProperty(exports, "UniquenessLevel", ({ enumerable: true, get: function () { return protocol_moniker_1.UniquenessLevel; } }));
+Object.defineProperty(exports, "MonikerKind", ({ enumerable: true, get: function () { return protocol_moniker_1.MonikerKind; } }));
+Object.defineProperty(exports, "MonikerRequest", ({ enumerable: true, get: function () { return protocol_moniker_1.MonikerRequest; } }));
+const protocol_typeHierarchy_1 = __webpack_require__(3693);
+Object.defineProperty(exports, "TypeHierarchyPrepareRequest", ({ enumerable: true, get: function () { return protocol_typeHierarchy_1.TypeHierarchyPrepareRequest; } }));
+Object.defineProperty(exports, "TypeHierarchySubtypesRequest", ({ enumerable: true, get: function () { return protocol_typeHierarchy_1.TypeHierarchySubtypesRequest; } }));
+Object.defineProperty(exports, "TypeHierarchySupertypesRequest", ({ enumerable: true, get: function () { return protocol_typeHierarchy_1.TypeHierarchySupertypesRequest; } }));
+const protocol_inlineValue_1 = __webpack_require__(5246);
+Object.defineProperty(exports, "InlineValueRequest", ({ enumerable: true, get: function () { return protocol_inlineValue_1.InlineValueRequest; } }));
+Object.defineProperty(exports, "InlineValueRefreshRequest", ({ enumerable: true, get: function () { return protocol_inlineValue_1.InlineValueRefreshRequest; } }));
+const protocol_inlayHint_1 = __webpack_require__(9999);
+Object.defineProperty(exports, "InlayHintRequest", ({ enumerable: true, get: function () { return protocol_inlayHint_1.InlayHintRequest; } }));
+Object.defineProperty(exports, "InlayHintResolveRequest", ({ enumerable: true, get: function () { return protocol_inlayHint_1.InlayHintResolveRequest; } }));
+Object.defineProperty(exports, "InlayHintRefreshRequest", ({ enumerable: true, get: function () { return protocol_inlayHint_1.InlayHintRefreshRequest; } }));
+const protocol_diagnostic_1 = __webpack_require__(9824);
+Object.defineProperty(exports, "DiagnosticServerCancellationData", ({ enumerable: true, get: function () { return protocol_diagnostic_1.DiagnosticServerCancellationData; } }));
+Object.defineProperty(exports, "DocumentDiagnosticReportKind", ({ enumerable: true, get: function () { return protocol_diagnostic_1.DocumentDiagnosticReportKind; } }));
+Object.defineProperty(exports, "DocumentDiagnosticRequest", ({ enumerable: true, get: function () { return protocol_diagnostic_1.DocumentDiagnosticRequest; } }));
+Object.defineProperty(exports, "WorkspaceDiagnosticRequest", ({ enumerable: true, get: function () { return protocol_diagnostic_1.WorkspaceDiagnosticRequest; } }));
+Object.defineProperty(exports, "DiagnosticRefreshRequest", ({ enumerable: true, get: function () { return protocol_diagnostic_1.DiagnosticRefreshRequest; } }));
+const protocol_notebook_1 = __webpack_require__(7169);
+Object.defineProperty(exports, "NotebookCellKind", ({ enumerable: true, get: function () { return protocol_notebook_1.NotebookCellKind; } }));
+Object.defineProperty(exports, "ExecutionSummary", ({ enumerable: true, get: function () { return protocol_notebook_1.ExecutionSummary; } }));
+Object.defineProperty(exports, "NotebookCell", ({ enumerable: true, get: function () { return protocol_notebook_1.NotebookCell; } }));
+Object.defineProperty(exports, "NotebookDocument", ({ enumerable: true, get: function () { return protocol_notebook_1.NotebookDocument; } }));
+Object.defineProperty(exports, "NotebookDocumentSyncRegistrationType", ({ enumerable: true, get: function () { return protocol_notebook_1.NotebookDocumentSyncRegistrationType; } }));
+Object.defineProperty(exports, "DidOpenNotebookDocumentNotification", ({ enumerable: true, get: function () { return protocol_notebook_1.DidOpenNotebookDocumentNotification; } }));
+Object.defineProperty(exports, "NotebookCellArrayChange", ({ enumerable: true, get: function () { return protocol_notebook_1.NotebookCellArrayChange; } }));
+Object.defineProperty(exports, "DidChangeNotebookDocumentNotification", ({ enumerable: true, get: function () { return protocol_notebook_1.DidChangeNotebookDocumentNotification; } }));
+Object.defineProperty(exports, "DidSaveNotebookDocumentNotification", ({ enumerable: true, get: function () { return protocol_notebook_1.DidSaveNotebookDocumentNotification; } }));
+Object.defineProperty(exports, "DidCloseNotebookDocumentNotification", ({ enumerable: true, get: function () { return protocol_notebook_1.DidCloseNotebookDocumentNotification; } }));
+const protocol_inlineCompletion_1 = __webpack_require__(7081);
+Object.defineProperty(exports, "InlineCompletionRequest", ({ enumerable: true, get: function () { return protocol_inlineCompletion_1.InlineCompletionRequest; } }));
+// @ts-ignore: to avoid inlining LocationLink as dynamic import
+let __noDynamicImport;
+/**
+ * The TextDocumentFilter namespace provides helper functions to work with
+ * {@link TextDocumentFilter} literals.
+ *
+ * @since 3.17.0
+ */
+var TextDocumentFilter;
+(function (TextDocumentFilter) {
+    function is(value) {
+        const candidate = value;
+        return Is.string(candidate) || (Is.string(candidate.language) || Is.string(candidate.scheme) || Is.string(candidate.pattern));
+    }
+    TextDocumentFilter.is = is;
+})(TextDocumentFilter || (exports.TextDocumentFilter = TextDocumentFilter = {}));
+/**
+ * The NotebookDocumentFilter namespace provides helper functions to work with
+ * {@link NotebookDocumentFilter} literals.
+ *
+ * @since 3.17.0
+ */
+var NotebookDocumentFilter;
+(function (NotebookDocumentFilter) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && (Is.string(candidate.notebookType) || Is.string(candidate.scheme) || Is.string(candidate.pattern));
+    }
+    NotebookDocumentFilter.is = is;
+})(NotebookDocumentFilter || (exports.NotebookDocumentFilter = NotebookDocumentFilter = {}));
+/**
+ * The NotebookCellTextDocumentFilter namespace provides helper functions to work with
+ * {@link NotebookCellTextDocumentFilter} literals.
+ *
+ * @since 3.17.0
+ */
+var NotebookCellTextDocumentFilter;
+(function (NotebookCellTextDocumentFilter) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate)
+            && (Is.string(candidate.notebook) || NotebookDocumentFilter.is(candidate.notebook))
+            && (candidate.language === undefined || Is.string(candidate.language));
+    }
+    NotebookCellTextDocumentFilter.is = is;
+})(NotebookCellTextDocumentFilter || (exports.NotebookCellTextDocumentFilter = NotebookCellTextDocumentFilter = {}));
+/**
+ * The DocumentSelector namespace provides helper functions to work with
+ * {@link DocumentSelector}s.
+ */
+var DocumentSelector;
+(function (DocumentSelector) {
+    function is(value) {
+        if (!Array.isArray(value)) {
+            return false;
+        }
+        for (let elem of value) {
+            if (!Is.string(elem) && !TextDocumentFilter.is(elem) && !NotebookCellTextDocumentFilter.is(elem)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    DocumentSelector.is = is;
+})(DocumentSelector || (exports.DocumentSelector = DocumentSelector = {}));
+/**
+ * The `client/registerCapability` request is sent from the server to the client to register a new capability
+ * handler on the client side.
+ */
+var RegistrationRequest;
+(function (RegistrationRequest) {
+    RegistrationRequest.method = 'client/registerCapability';
+    RegistrationRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    RegistrationRequest.type = new messages_1.ProtocolRequestType(RegistrationRequest.method);
+})(RegistrationRequest || (exports.RegistrationRequest = RegistrationRequest = {}));
+/**
+ * The `client/unregisterCapability` request is sent from the server to the client to unregister a previously registered capability
+ * handler on the client side.
+ */
+var UnregistrationRequest;
+(function (UnregistrationRequest) {
+    UnregistrationRequest.method = 'client/unregisterCapability';
+    UnregistrationRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    UnregistrationRequest.type = new messages_1.ProtocolRequestType(UnregistrationRequest.method);
+})(UnregistrationRequest || (exports.UnregistrationRequest = UnregistrationRequest = {}));
+var ResourceOperationKind;
+(function (ResourceOperationKind) {
+    /**
+     * Supports creating new files and folders.
+     */
+    ResourceOperationKind.Create = 'create';
+    /**
+     * Supports renaming existing files and folders.
+     */
+    ResourceOperationKind.Rename = 'rename';
+    /**
+     * Supports deleting existing files and folders.
+     */
+    ResourceOperationKind.Delete = 'delete';
+})(ResourceOperationKind || (exports.ResourceOperationKind = ResourceOperationKind = {}));
+var FailureHandlingKind;
+(function (FailureHandlingKind) {
+    /**
+     * Applying the workspace change is simply aborted if one of the changes provided
+     * fails. All operations executed before the failing operation stay executed.
+     */
+    FailureHandlingKind.Abort = 'abort';
+    /**
+     * All operations are executed transactional. That means they either all
+     * succeed or no changes at all are applied to the workspace.
+     */
+    FailureHandlingKind.Transactional = 'transactional';
+    /**
+     * If the workspace edit contains only textual file changes they are executed transactional.
+     * If resource changes (create, rename or delete file) are part of the change the failure
+     * handling strategy is abort.
+     */
+    FailureHandlingKind.TextOnlyTransactional = 'textOnlyTransactional';
+    /**
+     * The client tries to undo the operations already executed. But there is no
+     * guarantee that this is succeeding.
+     */
+    FailureHandlingKind.Undo = 'undo';
+})(FailureHandlingKind || (exports.FailureHandlingKind = FailureHandlingKind = {}));
+/**
+ * A set of predefined position encoding kinds.
+ *
+ * @since 3.17.0
+ */
+var PositionEncodingKind;
+(function (PositionEncodingKind) {
+    /**
+     * Character offsets count UTF-8 code units (e.g. bytes).
+     */
+    PositionEncodingKind.UTF8 = 'utf-8';
+    /**
+     * Character offsets count UTF-16 code units.
+     *
+     * This is the default and must always be supported
+     * by servers
+     */
+    PositionEncodingKind.UTF16 = 'utf-16';
+    /**
+     * Character offsets count UTF-32 code units.
+     *
+     * Implementation note: these are the same as Unicode codepoints,
+     * so this `PositionEncodingKind` may also be used for an
+     * encoding-agnostic representation of character offsets.
+     */
+    PositionEncodingKind.UTF32 = 'utf-32';
+})(PositionEncodingKind || (exports.PositionEncodingKind = PositionEncodingKind = {}));
+/**
+ * The StaticRegistrationOptions namespace provides helper functions to work with
+ * {@link StaticRegistrationOptions} literals.
+ */
+var StaticRegistrationOptions;
+(function (StaticRegistrationOptions) {
+    function hasId(value) {
+        const candidate = value;
+        return candidate && Is.string(candidate.id) && candidate.id.length > 0;
+    }
+    StaticRegistrationOptions.hasId = hasId;
+})(StaticRegistrationOptions || (exports.StaticRegistrationOptions = StaticRegistrationOptions = {}));
+/**
+ * The TextDocumentRegistrationOptions namespace provides helper functions to work with
+ * {@link TextDocumentRegistrationOptions} literals.
+ */
+var TextDocumentRegistrationOptions;
+(function (TextDocumentRegistrationOptions) {
+    function is(value) {
+        const candidate = value;
+        return candidate && (candidate.documentSelector === null || DocumentSelector.is(candidate.documentSelector));
+    }
+    TextDocumentRegistrationOptions.is = is;
+})(TextDocumentRegistrationOptions || (exports.TextDocumentRegistrationOptions = TextDocumentRegistrationOptions = {}));
+/**
+ * The WorkDoneProgressOptions namespace provides helper functions to work with
+ * {@link WorkDoneProgressOptions} literals.
+ */
+var WorkDoneProgressOptions;
+(function (WorkDoneProgressOptions) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && (candidate.workDoneProgress === undefined || Is.boolean(candidate.workDoneProgress));
+    }
+    WorkDoneProgressOptions.is = is;
+    function hasWorkDoneProgress(value) {
+        const candidate = value;
+        return candidate && Is.boolean(candidate.workDoneProgress);
+    }
+    WorkDoneProgressOptions.hasWorkDoneProgress = hasWorkDoneProgress;
+})(WorkDoneProgressOptions || (exports.WorkDoneProgressOptions = WorkDoneProgressOptions = {}));
+/**
+ * The initialize request is sent from the client to the server.
+ * It is sent once as the request after starting up the server.
+ * The requests parameter is of type {@link InitializeParams}
+ * the response if of type {@link InitializeResult} of a Thenable that
+ * resolves to such.
+ */
+var InitializeRequest;
+(function (InitializeRequest) {
+    InitializeRequest.method = 'initialize';
+    InitializeRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    InitializeRequest.type = new messages_1.ProtocolRequestType(InitializeRequest.method);
+})(InitializeRequest || (exports.InitializeRequest = InitializeRequest = {}));
+/**
+ * Known error codes for an `InitializeErrorCodes`;
+ */
+var InitializeErrorCodes;
+(function (InitializeErrorCodes) {
+    /**
+     * If the protocol version provided by the client can't be handled by the server.
+     *
+     * @deprecated This initialize error got replaced by client capabilities. There is
+     * no version handshake in version 3.0x
+     */
+    InitializeErrorCodes.unknownProtocolVersion = 1;
+})(InitializeErrorCodes || (exports.InitializeErrorCodes = InitializeErrorCodes = {}));
+/**
+ * The initialized notification is sent from the client to the
+ * server after the client is fully initialized and the server
+ * is allowed to send requests from the server to the client.
+ */
+var InitializedNotification;
+(function (InitializedNotification) {
+    InitializedNotification.method = 'initialized';
+    InitializedNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    InitializedNotification.type = new messages_1.ProtocolNotificationType(InitializedNotification.method);
+})(InitializedNotification || (exports.InitializedNotification = InitializedNotification = {}));
+//---- Shutdown Method ----
+/**
+ * A shutdown request is sent from the client to the server.
+ * It is sent once when the client decides to shutdown the
+ * server. The only notification that is sent after a shutdown request
+ * is the exit event.
+ */
+var ShutdownRequest;
+(function (ShutdownRequest) {
+    ShutdownRequest.method = 'shutdown';
+    ShutdownRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    ShutdownRequest.type = new messages_1.ProtocolRequestType0(ShutdownRequest.method);
+})(ShutdownRequest || (exports.ShutdownRequest = ShutdownRequest = {}));
+//---- Exit Notification ----
+/**
+ * The exit event is sent from the client to the server to
+ * ask the server to exit its process.
+ */
+var ExitNotification;
+(function (ExitNotification) {
+    ExitNotification.method = 'exit';
+    ExitNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    ExitNotification.type = new messages_1.ProtocolNotificationType0(ExitNotification.method);
+})(ExitNotification || (exports.ExitNotification = ExitNotification = {}));
+/**
+ * The configuration change notification is sent from the client to the server
+ * when the client's configuration has changed. The notification contains
+ * the changed configuration as defined by the language client.
+ */
+var DidChangeConfigurationNotification;
+(function (DidChangeConfigurationNotification) {
+    DidChangeConfigurationNotification.method = 'workspace/didChangeConfiguration';
+    DidChangeConfigurationNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidChangeConfigurationNotification.type = new messages_1.ProtocolNotificationType(DidChangeConfigurationNotification.method);
+})(DidChangeConfigurationNotification || (exports.DidChangeConfigurationNotification = DidChangeConfigurationNotification = {}));
+//---- Message show and log notifications ----
+/**
+ * The message type
+ */
+var MessageType;
+(function (MessageType) {
+    /**
+     * An error message.
+     */
+    MessageType.Error = 1;
+    /**
+     * A warning message.
+     */
+    MessageType.Warning = 2;
+    /**
+     * An information message.
+     */
+    MessageType.Info = 3;
+    /**
+     * A log message.
+     */
+    MessageType.Log = 4;
+    /**
+     * A debug message.
+     *
+     * @since 3.18.0
+     */
+    MessageType.Debug = 5;
+})(MessageType || (exports.MessageType = MessageType = {}));
+/**
+ * The show message notification is sent from a server to a client to ask
+ * the client to display a particular message in the user interface.
+ */
+var ShowMessageNotification;
+(function (ShowMessageNotification) {
+    ShowMessageNotification.method = 'window/showMessage';
+    ShowMessageNotification.messageDirection = messages_1.MessageDirection.serverToClient;
+    ShowMessageNotification.type = new messages_1.ProtocolNotificationType(ShowMessageNotification.method);
+})(ShowMessageNotification || (exports.ShowMessageNotification = ShowMessageNotification = {}));
+/**
+ * The show message request is sent from the server to the client to show a message
+ * and a set of options actions to the user.
+ */
+var ShowMessageRequest;
+(function (ShowMessageRequest) {
+    ShowMessageRequest.method = 'window/showMessageRequest';
+    ShowMessageRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    ShowMessageRequest.type = new messages_1.ProtocolRequestType(ShowMessageRequest.method);
+})(ShowMessageRequest || (exports.ShowMessageRequest = ShowMessageRequest = {}));
+/**
+ * The log message notification is sent from the server to the client to ask
+ * the client to log a particular message.
+ */
+var LogMessageNotification;
+(function (LogMessageNotification) {
+    LogMessageNotification.method = 'window/logMessage';
+    LogMessageNotification.messageDirection = messages_1.MessageDirection.serverToClient;
+    LogMessageNotification.type = new messages_1.ProtocolNotificationType(LogMessageNotification.method);
+})(LogMessageNotification || (exports.LogMessageNotification = LogMessageNotification = {}));
+//---- Telemetry notification
+/**
+ * The telemetry event notification is sent from the server to the client to ask
+ * the client to log telemetry data.
+ */
+var TelemetryEventNotification;
+(function (TelemetryEventNotification) {
+    TelemetryEventNotification.method = 'telemetry/event';
+    TelemetryEventNotification.messageDirection = messages_1.MessageDirection.serverToClient;
+    TelemetryEventNotification.type = new messages_1.ProtocolNotificationType(TelemetryEventNotification.method);
+})(TelemetryEventNotification || (exports.TelemetryEventNotification = TelemetryEventNotification = {}));
+/**
+ * Defines how the host (editor) should sync
+ * document changes to the language server.
+ */
+var TextDocumentSyncKind;
+(function (TextDocumentSyncKind) {
+    /**
+     * Documents should not be synced at all.
+     */
+    TextDocumentSyncKind.None = 0;
+    /**
+     * Documents are synced by always sending the full content
+     * of the document.
+     */
+    TextDocumentSyncKind.Full = 1;
+    /**
+     * Documents are synced by sending the full content on open.
+     * After that only incremental updates to the document are
+     * send.
+     */
+    TextDocumentSyncKind.Incremental = 2;
+})(TextDocumentSyncKind || (exports.TextDocumentSyncKind = TextDocumentSyncKind = {}));
+/**
+ * The document open notification is sent from the client to the server to signal
+ * newly opened text documents. The document's truth is now managed by the client
+ * and the server must not try to read the document's truth using the document's
+ * uri. Open in this sense means it is managed by the client. It doesn't necessarily
+ * mean that its content is presented in an editor. An open notification must not
+ * be sent more than once without a corresponding close notification send before.
+ * This means open and close notification must be balanced and the max open count
+ * is one.
+ */
+var DidOpenTextDocumentNotification;
+(function (DidOpenTextDocumentNotification) {
+    DidOpenTextDocumentNotification.method = 'textDocument/didOpen';
+    DidOpenTextDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidOpenTextDocumentNotification.type = new messages_1.ProtocolNotificationType(DidOpenTextDocumentNotification.method);
+})(DidOpenTextDocumentNotification || (exports.DidOpenTextDocumentNotification = DidOpenTextDocumentNotification = {}));
+var TextDocumentContentChangeEvent;
+(function (TextDocumentContentChangeEvent) {
+    /**
+     * Checks whether the information describes a delta event.
+     */
+    function isIncremental(event) {
+        let candidate = event;
+        return candidate !== undefined && candidate !== null &&
+            typeof candidate.text === 'string' && candidate.range !== undefined &&
+            (candidate.rangeLength === undefined || typeof candidate.rangeLength === 'number');
+    }
+    TextDocumentContentChangeEvent.isIncremental = isIncremental;
+    /**
+     * Checks whether the information describes a full replacement event.
+     */
+    function isFull(event) {
+        let candidate = event;
+        return candidate !== undefined && candidate !== null &&
+            typeof candidate.text === 'string' && candidate.range === undefined && candidate.rangeLength === undefined;
+    }
+    TextDocumentContentChangeEvent.isFull = isFull;
+})(TextDocumentContentChangeEvent || (exports.TextDocumentContentChangeEvent = TextDocumentContentChangeEvent = {}));
+/**
+ * The document change notification is sent from the client to the server to signal
+ * changes to a text document.
+ */
+var DidChangeTextDocumentNotification;
+(function (DidChangeTextDocumentNotification) {
+    DidChangeTextDocumentNotification.method = 'textDocument/didChange';
+    DidChangeTextDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidChangeTextDocumentNotification.type = new messages_1.ProtocolNotificationType(DidChangeTextDocumentNotification.method);
+})(DidChangeTextDocumentNotification || (exports.DidChangeTextDocumentNotification = DidChangeTextDocumentNotification = {}));
+/**
+ * The document close notification is sent from the client to the server when
+ * the document got closed in the client. The document's truth now exists where
+ * the document's uri points to (e.g. if the document's uri is a file uri the
+ * truth now exists on disk). As with the open notification the close notification
+ * is about managing the document's content. Receiving a close notification
+ * doesn't mean that the document was open in an editor before. A close
+ * notification requires a previous open notification to be sent.
+ */
+var DidCloseTextDocumentNotification;
+(function (DidCloseTextDocumentNotification) {
+    DidCloseTextDocumentNotification.method = 'textDocument/didClose';
+    DidCloseTextDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidCloseTextDocumentNotification.type = new messages_1.ProtocolNotificationType(DidCloseTextDocumentNotification.method);
+})(DidCloseTextDocumentNotification || (exports.DidCloseTextDocumentNotification = DidCloseTextDocumentNotification = {}));
+/**
+ * The document save notification is sent from the client to the server when
+ * the document got saved in the client.
+ */
+var DidSaveTextDocumentNotification;
+(function (DidSaveTextDocumentNotification) {
+    DidSaveTextDocumentNotification.method = 'textDocument/didSave';
+    DidSaveTextDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidSaveTextDocumentNotification.type = new messages_1.ProtocolNotificationType(DidSaveTextDocumentNotification.method);
+})(DidSaveTextDocumentNotification || (exports.DidSaveTextDocumentNotification = DidSaveTextDocumentNotification = {}));
+/**
+ * Represents reasons why a text document is saved.
+ */
+var TextDocumentSaveReason;
+(function (TextDocumentSaveReason) {
+    /**
+     * Manually triggered, e.g. by the user pressing save, by starting debugging,
+     * or by an API call.
+     */
+    TextDocumentSaveReason.Manual = 1;
+    /**
+     * Automatic after a delay.
+     */
+    TextDocumentSaveReason.AfterDelay = 2;
+    /**
+     * When the editor lost focus.
+     */
+    TextDocumentSaveReason.FocusOut = 3;
+})(TextDocumentSaveReason || (exports.TextDocumentSaveReason = TextDocumentSaveReason = {}));
+/**
+ * A document will save notification is sent from the client to the server before
+ * the document is actually saved.
+ */
+var WillSaveTextDocumentNotification;
+(function (WillSaveTextDocumentNotification) {
+    WillSaveTextDocumentNotification.method = 'textDocument/willSave';
+    WillSaveTextDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    WillSaveTextDocumentNotification.type = new messages_1.ProtocolNotificationType(WillSaveTextDocumentNotification.method);
+})(WillSaveTextDocumentNotification || (exports.WillSaveTextDocumentNotification = WillSaveTextDocumentNotification = {}));
+/**
+ * A document will save request is sent from the client to the server before
+ * the document is actually saved. The request can return an array of TextEdits
+ * which will be applied to the text document before it is saved. Please note that
+ * clients might drop results if computing the text edits took too long or if a
+ * server constantly fails on this request. This is done to keep the save fast and
+ * reliable.
+ */
+var WillSaveTextDocumentWaitUntilRequest;
+(function (WillSaveTextDocumentWaitUntilRequest) {
+    WillSaveTextDocumentWaitUntilRequest.method = 'textDocument/willSaveWaitUntil';
+    WillSaveTextDocumentWaitUntilRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    WillSaveTextDocumentWaitUntilRequest.type = new messages_1.ProtocolRequestType(WillSaveTextDocumentWaitUntilRequest.method);
+})(WillSaveTextDocumentWaitUntilRequest || (exports.WillSaveTextDocumentWaitUntilRequest = WillSaveTextDocumentWaitUntilRequest = {}));
+/**
+ * The watched files notification is sent from the client to the server when
+ * the client detects changes to file watched by the language client.
+ */
+var DidChangeWatchedFilesNotification;
+(function (DidChangeWatchedFilesNotification) {
+    DidChangeWatchedFilesNotification.method = 'workspace/didChangeWatchedFiles';
+    DidChangeWatchedFilesNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidChangeWatchedFilesNotification.type = new messages_1.ProtocolNotificationType(DidChangeWatchedFilesNotification.method);
+})(DidChangeWatchedFilesNotification || (exports.DidChangeWatchedFilesNotification = DidChangeWatchedFilesNotification = {}));
+/**
+ * The file event type
+ */
+var FileChangeType;
+(function (FileChangeType) {
+    /**
+     * The file got created.
+     */
+    FileChangeType.Created = 1;
+    /**
+     * The file got changed.
+     */
+    FileChangeType.Changed = 2;
+    /**
+     * The file got deleted.
+     */
+    FileChangeType.Deleted = 3;
+})(FileChangeType || (exports.FileChangeType = FileChangeType = {}));
+var RelativePattern;
+(function (RelativePattern) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && (vscode_languageserver_types_1.URI.is(candidate.baseUri) || vscode_languageserver_types_1.WorkspaceFolder.is(candidate.baseUri)) && Is.string(candidate.pattern);
+    }
+    RelativePattern.is = is;
+})(RelativePattern || (exports.RelativePattern = RelativePattern = {}));
+var WatchKind;
+(function (WatchKind) {
+    /**
+     * Interested in create events.
+     */
+    WatchKind.Create = 1;
+    /**
+     * Interested in change events
+     */
+    WatchKind.Change = 2;
+    /**
+     * Interested in delete events
+     */
+    WatchKind.Delete = 4;
+})(WatchKind || (exports.WatchKind = WatchKind = {}));
+/**
+ * Diagnostics notification are sent from the server to the client to signal
+ * results of validation runs.
+ */
+var PublishDiagnosticsNotification;
+(function (PublishDiagnosticsNotification) {
+    PublishDiagnosticsNotification.method = 'textDocument/publishDiagnostics';
+    PublishDiagnosticsNotification.messageDirection = messages_1.MessageDirection.serverToClient;
+    PublishDiagnosticsNotification.type = new messages_1.ProtocolNotificationType(PublishDiagnosticsNotification.method);
+})(PublishDiagnosticsNotification || (exports.PublishDiagnosticsNotification = PublishDiagnosticsNotification = {}));
+/**
+ * How a completion was triggered
+ */
+var CompletionTriggerKind;
+(function (CompletionTriggerKind) {
+    /**
+     * Completion was triggered by typing an identifier (24x7 code
+     * complete), manual invocation (e.g Ctrl+Space) or via API.
+     */
+    CompletionTriggerKind.Invoked = 1;
+    /**
+     * Completion was triggered by a trigger character specified by
+     * the `triggerCharacters` properties of the `CompletionRegistrationOptions`.
+     */
+    CompletionTriggerKind.TriggerCharacter = 2;
+    /**
+     * Completion was re-triggered as current completion list is incomplete
+     */
+    CompletionTriggerKind.TriggerForIncompleteCompletions = 3;
+})(CompletionTriggerKind || (exports.CompletionTriggerKind = CompletionTriggerKind = {}));
+/**
+ * Request to request completion at a given text document position. The request's
+ * parameter is of type {@link TextDocumentPosition} the response
+ * is of type {@link CompletionItem CompletionItem[]} or {@link CompletionList}
+ * or a Thenable that resolves to such.
+ *
+ * The request can delay the computation of the {@link CompletionItem.detail `detail`}
+ * and {@link CompletionItem.documentation `documentation`} properties to the `completionItem/resolve`
+ * request. However, properties that are needed for the initial sorting and filtering, like `sortText`,
+ * `filterText`, `insertText`, and `textEdit`, must not be changed during resolve.
+ */
+var CompletionRequest;
+(function (CompletionRequest) {
+    CompletionRequest.method = 'textDocument/completion';
+    CompletionRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CompletionRequest.type = new messages_1.ProtocolRequestType(CompletionRequest.method);
+})(CompletionRequest || (exports.CompletionRequest = CompletionRequest = {}));
+/**
+ * Request to resolve additional information for a given completion item.The request's
+ * parameter is of type {@link CompletionItem} the response
+ * is of type {@link CompletionItem} or a Thenable that resolves to such.
+ */
+var CompletionResolveRequest;
+(function (CompletionResolveRequest) {
+    CompletionResolveRequest.method = 'completionItem/resolve';
+    CompletionResolveRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CompletionResolveRequest.type = new messages_1.ProtocolRequestType(CompletionResolveRequest.method);
+})(CompletionResolveRequest || (exports.CompletionResolveRequest = CompletionResolveRequest = {}));
+/**
+ * Request to request hover information at a given text document position. The request's
+ * parameter is of type {@link TextDocumentPosition} the response is of
+ * type {@link Hover} or a Thenable that resolves to such.
+ */
+var HoverRequest;
+(function (HoverRequest) {
+    HoverRequest.method = 'textDocument/hover';
+    HoverRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    HoverRequest.type = new messages_1.ProtocolRequestType(HoverRequest.method);
+})(HoverRequest || (exports.HoverRequest = HoverRequest = {}));
+/**
+ * How a signature help was triggered.
+ *
+ * @since 3.15.0
+ */
+var SignatureHelpTriggerKind;
+(function (SignatureHelpTriggerKind) {
+    /**
+     * Signature help was invoked manually by the user or by a command.
+     */
+    SignatureHelpTriggerKind.Invoked = 1;
+    /**
+     * Signature help was triggered by a trigger character.
+     */
+    SignatureHelpTriggerKind.TriggerCharacter = 2;
+    /**
+     * Signature help was triggered by the cursor moving or by the document content changing.
+     */
+    SignatureHelpTriggerKind.ContentChange = 3;
+})(SignatureHelpTriggerKind || (exports.SignatureHelpTriggerKind = SignatureHelpTriggerKind = {}));
+var SignatureHelpRequest;
+(function (SignatureHelpRequest) {
+    SignatureHelpRequest.method = 'textDocument/signatureHelp';
+    SignatureHelpRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    SignatureHelpRequest.type = new messages_1.ProtocolRequestType(SignatureHelpRequest.method);
+})(SignatureHelpRequest || (exports.SignatureHelpRequest = SignatureHelpRequest = {}));
+/**
+ * A request to resolve the definition location of a symbol at a given text
+ * document position. The request's parameter is of type {@link TextDocumentPosition}
+ * the response is of either type {@link Definition} or a typed array of
+ * {@link DefinitionLink} or a Thenable that resolves to such.
+ */
+var DefinitionRequest;
+(function (DefinitionRequest) {
+    DefinitionRequest.method = 'textDocument/definition';
+    DefinitionRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DefinitionRequest.type = new messages_1.ProtocolRequestType(DefinitionRequest.method);
+})(DefinitionRequest || (exports.DefinitionRequest = DefinitionRequest = {}));
+/**
+ * A request to resolve project-wide references for the symbol denoted
+ * by the given text document position. The request's parameter is of
+ * type {@link ReferenceParams} the response is of type
+ * {@link Location Location[]} or a Thenable that resolves to such.
+ */
+var ReferencesRequest;
+(function (ReferencesRequest) {
+    ReferencesRequest.method = 'textDocument/references';
+    ReferencesRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    ReferencesRequest.type = new messages_1.ProtocolRequestType(ReferencesRequest.method);
+})(ReferencesRequest || (exports.ReferencesRequest = ReferencesRequest = {}));
+/**
+ * Request to resolve a {@link DocumentHighlight} for a given
+ * text document position. The request's parameter is of type {@link TextDocumentPosition}
+ * the request response is an array of type {@link DocumentHighlight}
+ * or a Thenable that resolves to such.
+ */
+var DocumentHighlightRequest;
+(function (DocumentHighlightRequest) {
+    DocumentHighlightRequest.method = 'textDocument/documentHighlight';
+    DocumentHighlightRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentHighlightRequest.type = new messages_1.ProtocolRequestType(DocumentHighlightRequest.method);
+})(DocumentHighlightRequest || (exports.DocumentHighlightRequest = DocumentHighlightRequest = {}));
+/**
+ * A request to list all symbols found in a given text document. The request's
+ * parameter is of type {@link TextDocumentIdentifier} the
+ * response is of type {@link SymbolInformation SymbolInformation[]} or a Thenable
+ * that resolves to such.
+ */
+var DocumentSymbolRequest;
+(function (DocumentSymbolRequest) {
+    DocumentSymbolRequest.method = 'textDocument/documentSymbol';
+    DocumentSymbolRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentSymbolRequest.type = new messages_1.ProtocolRequestType(DocumentSymbolRequest.method);
+})(DocumentSymbolRequest || (exports.DocumentSymbolRequest = DocumentSymbolRequest = {}));
+/**
+ * A request to provide commands for the given text document and range.
+ */
+var CodeActionRequest;
+(function (CodeActionRequest) {
+    CodeActionRequest.method = 'textDocument/codeAction';
+    CodeActionRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CodeActionRequest.type = new messages_1.ProtocolRequestType(CodeActionRequest.method);
+})(CodeActionRequest || (exports.CodeActionRequest = CodeActionRequest = {}));
+/**
+ * Request to resolve additional information for a given code action.The request's
+ * parameter is of type {@link CodeAction} the response
+ * is of type {@link CodeAction} or a Thenable that resolves to such.
+ */
+var CodeActionResolveRequest;
+(function (CodeActionResolveRequest) {
+    CodeActionResolveRequest.method = 'codeAction/resolve';
+    CodeActionResolveRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CodeActionResolveRequest.type = new messages_1.ProtocolRequestType(CodeActionResolveRequest.method);
+})(CodeActionResolveRequest || (exports.CodeActionResolveRequest = CodeActionResolveRequest = {}));
+/**
+ * A request to list project-wide symbols matching the query string given
+ * by the {@link WorkspaceSymbolParams}. The response is
+ * of type {@link SymbolInformation SymbolInformation[]} or a Thenable that
+ * resolves to such.
+ *
+ * @since 3.17.0 - support for WorkspaceSymbol in the returned data. Clients
+ *  need to advertise support for WorkspaceSymbols via the client capability
+ *  `workspace.symbol.resolveSupport`.
+ *
+ */
+var WorkspaceSymbolRequest;
+(function (WorkspaceSymbolRequest) {
+    WorkspaceSymbolRequest.method = 'workspace/symbol';
+    WorkspaceSymbolRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    WorkspaceSymbolRequest.type = new messages_1.ProtocolRequestType(WorkspaceSymbolRequest.method);
+})(WorkspaceSymbolRequest || (exports.WorkspaceSymbolRequest = WorkspaceSymbolRequest = {}));
+/**
+ * A request to resolve the range inside the workspace
+ * symbol's location.
+ *
+ * @since 3.17.0
+ */
+var WorkspaceSymbolResolveRequest;
+(function (WorkspaceSymbolResolveRequest) {
+    WorkspaceSymbolResolveRequest.method = 'workspaceSymbol/resolve';
+    WorkspaceSymbolResolveRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    WorkspaceSymbolResolveRequest.type = new messages_1.ProtocolRequestType(WorkspaceSymbolResolveRequest.method);
+})(WorkspaceSymbolResolveRequest || (exports.WorkspaceSymbolResolveRequest = WorkspaceSymbolResolveRequest = {}));
+/**
+ * A request to provide code lens for the given text document.
+ */
+var CodeLensRequest;
+(function (CodeLensRequest) {
+    CodeLensRequest.method = 'textDocument/codeLens';
+    CodeLensRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CodeLensRequest.type = new messages_1.ProtocolRequestType(CodeLensRequest.method);
+})(CodeLensRequest || (exports.CodeLensRequest = CodeLensRequest = {}));
+/**
+ * A request to resolve a command for a given code lens.
+ */
+var CodeLensResolveRequest;
+(function (CodeLensResolveRequest) {
+    CodeLensResolveRequest.method = 'codeLens/resolve';
+    CodeLensResolveRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    CodeLensResolveRequest.type = new messages_1.ProtocolRequestType(CodeLensResolveRequest.method);
+})(CodeLensResolveRequest || (exports.CodeLensResolveRequest = CodeLensResolveRequest = {}));
+/**
+ * A request to refresh all code actions
+ *
+ * @since 3.16.0
+ */
+var CodeLensRefreshRequest;
+(function (CodeLensRefreshRequest) {
+    CodeLensRefreshRequest.method = `workspace/codeLens/refresh`;
+    CodeLensRefreshRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    CodeLensRefreshRequest.type = new messages_1.ProtocolRequestType0(CodeLensRefreshRequest.method);
+})(CodeLensRefreshRequest || (exports.CodeLensRefreshRequest = CodeLensRefreshRequest = {}));
+/**
+ * A request to provide document links
+ */
+var DocumentLinkRequest;
+(function (DocumentLinkRequest) {
+    DocumentLinkRequest.method = 'textDocument/documentLink';
+    DocumentLinkRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentLinkRequest.type = new messages_1.ProtocolRequestType(DocumentLinkRequest.method);
+})(DocumentLinkRequest || (exports.DocumentLinkRequest = DocumentLinkRequest = {}));
+/**
+ * Request to resolve additional information for a given document link. The request's
+ * parameter is of type {@link DocumentLink} the response
+ * is of type {@link DocumentLink} or a Thenable that resolves to such.
+ */
+var DocumentLinkResolveRequest;
+(function (DocumentLinkResolveRequest) {
+    DocumentLinkResolveRequest.method = 'documentLink/resolve';
+    DocumentLinkResolveRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentLinkResolveRequest.type = new messages_1.ProtocolRequestType(DocumentLinkResolveRequest.method);
+})(DocumentLinkResolveRequest || (exports.DocumentLinkResolveRequest = DocumentLinkResolveRequest = {}));
+/**
+ * A request to format a whole document.
+ */
+var DocumentFormattingRequest;
+(function (DocumentFormattingRequest) {
+    DocumentFormattingRequest.method = 'textDocument/formatting';
+    DocumentFormattingRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentFormattingRequest.type = new messages_1.ProtocolRequestType(DocumentFormattingRequest.method);
+})(DocumentFormattingRequest || (exports.DocumentFormattingRequest = DocumentFormattingRequest = {}));
+/**
+ * A request to format a range in a document.
+ */
+var DocumentRangeFormattingRequest;
+(function (DocumentRangeFormattingRequest) {
+    DocumentRangeFormattingRequest.method = 'textDocument/rangeFormatting';
+    DocumentRangeFormattingRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentRangeFormattingRequest.type = new messages_1.ProtocolRequestType(DocumentRangeFormattingRequest.method);
+})(DocumentRangeFormattingRequest || (exports.DocumentRangeFormattingRequest = DocumentRangeFormattingRequest = {}));
+/**
+ * A request to format ranges in a document.
+ *
+ * @since 3.18.0
+ * @proposed
+ */
+var DocumentRangesFormattingRequest;
+(function (DocumentRangesFormattingRequest) {
+    DocumentRangesFormattingRequest.method = 'textDocument/rangesFormatting';
+    DocumentRangesFormattingRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentRangesFormattingRequest.type = new messages_1.ProtocolRequestType(DocumentRangesFormattingRequest.method);
+})(DocumentRangesFormattingRequest || (exports.DocumentRangesFormattingRequest = DocumentRangesFormattingRequest = {}));
+/**
+ * A request to format a document on type.
+ */
+var DocumentOnTypeFormattingRequest;
+(function (DocumentOnTypeFormattingRequest) {
+    DocumentOnTypeFormattingRequest.method = 'textDocument/onTypeFormatting';
+    DocumentOnTypeFormattingRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    DocumentOnTypeFormattingRequest.type = new messages_1.ProtocolRequestType(DocumentOnTypeFormattingRequest.method);
+})(DocumentOnTypeFormattingRequest || (exports.DocumentOnTypeFormattingRequest = DocumentOnTypeFormattingRequest = {}));
+//---- Rename ----------------------------------------------
+var PrepareSupportDefaultBehavior;
+(function (PrepareSupportDefaultBehavior) {
+    /**
+     * The client's default behavior is to select the identifier
+     * according the to language's syntax rule.
+     */
+    PrepareSupportDefaultBehavior.Identifier = 1;
+})(PrepareSupportDefaultBehavior || (exports.PrepareSupportDefaultBehavior = PrepareSupportDefaultBehavior = {}));
+/**
+ * A request to rename a symbol.
+ */
+var RenameRequest;
+(function (RenameRequest) {
+    RenameRequest.method = 'textDocument/rename';
+    RenameRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    RenameRequest.type = new messages_1.ProtocolRequestType(RenameRequest.method);
+})(RenameRequest || (exports.RenameRequest = RenameRequest = {}));
+/**
+ * A request to test and perform the setup necessary for a rename.
+ *
+ * @since 3.16 - support for default behavior
+ */
+var PrepareRenameRequest;
+(function (PrepareRenameRequest) {
+    PrepareRenameRequest.method = 'textDocument/prepareRename';
+    PrepareRenameRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    PrepareRenameRequest.type = new messages_1.ProtocolRequestType(PrepareRenameRequest.method);
+})(PrepareRenameRequest || (exports.PrepareRenameRequest = PrepareRenameRequest = {}));
+/**
+ * A request send from the client to the server to execute a command. The request might return
+ * a workspace edit which the client will apply to the workspace.
+ */
+var ExecuteCommandRequest;
+(function (ExecuteCommandRequest) {
+    ExecuteCommandRequest.method = 'workspace/executeCommand';
+    ExecuteCommandRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    ExecuteCommandRequest.type = new messages_1.ProtocolRequestType(ExecuteCommandRequest.method);
+})(ExecuteCommandRequest || (exports.ExecuteCommandRequest = ExecuteCommandRequest = {}));
+/**
+ * A request sent from the server to the client to modified certain resources.
+ */
+var ApplyWorkspaceEditRequest;
+(function (ApplyWorkspaceEditRequest) {
+    ApplyWorkspaceEditRequest.method = 'workspace/applyEdit';
+    ApplyWorkspaceEditRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    ApplyWorkspaceEditRequest.type = new messages_1.ProtocolRequestType('workspace/applyEdit');
+})(ApplyWorkspaceEditRequest || (exports.ApplyWorkspaceEditRequest = ApplyWorkspaceEditRequest = {}));
+
+
+/***/ }),
+
+/***/ 6305:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LinkedEditingRangeRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to provide ranges that can be edited together.
+ *
+ * @since 3.16.0
+ */
+var LinkedEditingRangeRequest;
+(function (LinkedEditingRangeRequest) {
+    LinkedEditingRangeRequest.method = 'textDocument/linkedEditingRange';
+    LinkedEditingRangeRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    LinkedEditingRangeRequest.type = new messages_1.ProtocolRequestType(LinkedEditingRangeRequest.method);
+})(LinkedEditingRangeRequest || (exports.LinkedEditingRangeRequest = LinkedEditingRangeRequest = {}));
+
+
+/***/ }),
+
+/***/ 3443:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.MonikerRequest = exports.MonikerKind = exports.UniquenessLevel = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * Moniker uniqueness level to define scope of the moniker.
+ *
+ * @since 3.16.0
+ */
+var UniquenessLevel;
+(function (UniquenessLevel) {
+    /**
+     * The moniker is only unique inside a document
+     */
+    UniquenessLevel.document = 'document';
+    /**
+     * The moniker is unique inside a project for which a dump got created
+     */
+    UniquenessLevel.project = 'project';
+    /**
+     * The moniker is unique inside the group to which a project belongs
+     */
+    UniquenessLevel.group = 'group';
+    /**
+     * The moniker is unique inside the moniker scheme.
+     */
+    UniquenessLevel.scheme = 'scheme';
+    /**
+     * The moniker is globally unique
+     */
+    UniquenessLevel.global = 'global';
+})(UniquenessLevel || (exports.UniquenessLevel = UniquenessLevel = {}));
+/**
+ * The moniker kind.
+ *
+ * @since 3.16.0
+ */
+var MonikerKind;
+(function (MonikerKind) {
+    /**
+     * The moniker represent a symbol that is imported into a project
+     */
+    MonikerKind.$import = 'import';
+    /**
+     * The moniker represents a symbol that is exported from a project
+     */
+    MonikerKind.$export = 'export';
+    /**
+     * The moniker represents a symbol that is local to a project (e.g. a local
+     * variable of a function, a class not visible outside the project, ...)
+     */
+    MonikerKind.local = 'local';
+})(MonikerKind || (exports.MonikerKind = MonikerKind = {}));
+/**
+ * A request to get the moniker of a symbol at a given text document position.
+ * The request parameter is of type {@link TextDocumentPositionParams}.
+ * The response is of type {@link Moniker Moniker[]} or `null`.
+ */
+var MonikerRequest;
+(function (MonikerRequest) {
+    MonikerRequest.method = 'textDocument/moniker';
+    MonikerRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    MonikerRequest.type = new messages_1.ProtocolRequestType(MonikerRequest.method);
+})(MonikerRequest || (exports.MonikerRequest = MonikerRequest = {}));
+
+
+/***/ }),
+
+/***/ 7169:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DidCloseNotebookDocumentNotification = exports.DidSaveNotebookDocumentNotification = exports.DidChangeNotebookDocumentNotification = exports.NotebookCellArrayChange = exports.DidOpenNotebookDocumentNotification = exports.NotebookDocumentSyncRegistrationType = exports.NotebookDocument = exports.NotebookCell = exports.ExecutionSummary = exports.NotebookCellKind = void 0;
+const vscode_languageserver_types_1 = __webpack_require__(2118);
+const Is = __webpack_require__(9533);
+const messages_1 = __webpack_require__(6140);
+/**
+ * A notebook cell kind.
+ *
+ * @since 3.17.0
+ */
+var NotebookCellKind;
+(function (NotebookCellKind) {
+    /**
+     * A markup-cell is formatted source that is used for display.
+     */
+    NotebookCellKind.Markup = 1;
+    /**
+     * A code-cell is source code.
+     */
+    NotebookCellKind.Code = 2;
+    function is(value) {
+        return value === 1 || value === 2;
+    }
+    NotebookCellKind.is = is;
+})(NotebookCellKind || (exports.NotebookCellKind = NotebookCellKind = {}));
+var ExecutionSummary;
+(function (ExecutionSummary) {
+    function create(executionOrder, success) {
+        const result = { executionOrder };
+        if (success === true || success === false) {
+            result.success = success;
+        }
+        return result;
+    }
+    ExecutionSummary.create = create;
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && vscode_languageserver_types_1.uinteger.is(candidate.executionOrder) && (candidate.success === undefined || Is.boolean(candidate.success));
+    }
+    ExecutionSummary.is = is;
+    function equals(one, other) {
+        if (one === other) {
+            return true;
+        }
+        if (one === null || one === undefined || other === null || other === undefined) {
+            return false;
+        }
+        return one.executionOrder === other.executionOrder && one.success === other.success;
+    }
+    ExecutionSummary.equals = equals;
+})(ExecutionSummary || (exports.ExecutionSummary = ExecutionSummary = {}));
+var NotebookCell;
+(function (NotebookCell) {
+    function create(kind, document) {
+        return { kind, document };
+    }
+    NotebookCell.create = create;
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && NotebookCellKind.is(candidate.kind) && vscode_languageserver_types_1.DocumentUri.is(candidate.document) &&
+            (candidate.metadata === undefined || Is.objectLiteral(candidate.metadata));
+    }
+    NotebookCell.is = is;
+    function diff(one, two) {
+        const result = new Set();
+        if (one.document !== two.document) {
+            result.add('document');
+        }
+        if (one.kind !== two.kind) {
+            result.add('kind');
+        }
+        if (one.executionSummary !== two.executionSummary) {
+            result.add('executionSummary');
+        }
+        if ((one.metadata !== undefined || two.metadata !== undefined) && !equalsMetadata(one.metadata, two.metadata)) {
+            result.add('metadata');
+        }
+        if ((one.executionSummary !== undefined || two.executionSummary !== undefined) && !ExecutionSummary.equals(one.executionSummary, two.executionSummary)) {
+            result.add('executionSummary');
+        }
+        return result;
+    }
+    NotebookCell.diff = diff;
+    function equalsMetadata(one, other) {
+        if (one === other) {
+            return true;
+        }
+        if (one === null || one === undefined || other === null || other === undefined) {
+            return false;
+        }
+        if (typeof one !== typeof other) {
+            return false;
+        }
+        if (typeof one !== 'object') {
+            return false;
+        }
+        const oneArray = Array.isArray(one);
+        const otherArray = Array.isArray(other);
+        if (oneArray !== otherArray) {
+            return false;
+        }
+        if (oneArray && otherArray) {
+            if (one.length !== other.length) {
+                return false;
+            }
+            for (let i = 0; i < one.length; i++) {
+                if (!equalsMetadata(one[i], other[i])) {
+                    return false;
+                }
+            }
+        }
+        if (Is.objectLiteral(one) && Is.objectLiteral(other)) {
+            const oneKeys = Object.keys(one);
+            const otherKeys = Object.keys(other);
+            if (oneKeys.length !== otherKeys.length) {
+                return false;
+            }
+            oneKeys.sort();
+            otherKeys.sort();
+            if (!equalsMetadata(oneKeys, otherKeys)) {
+                return false;
+            }
+            for (let i = 0; i < oneKeys.length; i++) {
+                const prop = oneKeys[i];
+                if (!equalsMetadata(one[prop], other[prop])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+})(NotebookCell || (exports.NotebookCell = NotebookCell = {}));
+var NotebookDocument;
+(function (NotebookDocument) {
+    function create(uri, notebookType, version, cells) {
+        return { uri, notebookType, version, cells };
+    }
+    NotebookDocument.create = create;
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Is.string(candidate.uri) && vscode_languageserver_types_1.integer.is(candidate.version) && Is.typedArray(candidate.cells, NotebookCell.is);
+    }
+    NotebookDocument.is = is;
+})(NotebookDocument || (exports.NotebookDocument = NotebookDocument = {}));
+var NotebookDocumentSyncRegistrationType;
+(function (NotebookDocumentSyncRegistrationType) {
+    NotebookDocumentSyncRegistrationType.method = 'notebookDocument/sync';
+    NotebookDocumentSyncRegistrationType.messageDirection = messages_1.MessageDirection.clientToServer;
+    NotebookDocumentSyncRegistrationType.type = new messages_1.RegistrationType(NotebookDocumentSyncRegistrationType.method);
+})(NotebookDocumentSyncRegistrationType || (exports.NotebookDocumentSyncRegistrationType = NotebookDocumentSyncRegistrationType = {}));
+/**
+ * A notification sent when a notebook opens.
+ *
+ * @since 3.17.0
+ */
+var DidOpenNotebookDocumentNotification;
+(function (DidOpenNotebookDocumentNotification) {
+    DidOpenNotebookDocumentNotification.method = 'notebookDocument/didOpen';
+    DidOpenNotebookDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidOpenNotebookDocumentNotification.type = new messages_1.ProtocolNotificationType(DidOpenNotebookDocumentNotification.method);
+    DidOpenNotebookDocumentNotification.registrationMethod = NotebookDocumentSyncRegistrationType.method;
+})(DidOpenNotebookDocumentNotification || (exports.DidOpenNotebookDocumentNotification = DidOpenNotebookDocumentNotification = {}));
+var NotebookCellArrayChange;
+(function (NotebookCellArrayChange) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && vscode_languageserver_types_1.uinteger.is(candidate.start) && vscode_languageserver_types_1.uinteger.is(candidate.deleteCount) && (candidate.cells === undefined || Is.typedArray(candidate.cells, NotebookCell.is));
+    }
+    NotebookCellArrayChange.is = is;
+    function create(start, deleteCount, cells) {
+        const result = { start, deleteCount };
+        if (cells !== undefined) {
+            result.cells = cells;
+        }
+        return result;
+    }
+    NotebookCellArrayChange.create = create;
+})(NotebookCellArrayChange || (exports.NotebookCellArrayChange = NotebookCellArrayChange = {}));
+var DidChangeNotebookDocumentNotification;
+(function (DidChangeNotebookDocumentNotification) {
+    DidChangeNotebookDocumentNotification.method = 'notebookDocument/didChange';
+    DidChangeNotebookDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidChangeNotebookDocumentNotification.type = new messages_1.ProtocolNotificationType(DidChangeNotebookDocumentNotification.method);
+    DidChangeNotebookDocumentNotification.registrationMethod = NotebookDocumentSyncRegistrationType.method;
+})(DidChangeNotebookDocumentNotification || (exports.DidChangeNotebookDocumentNotification = DidChangeNotebookDocumentNotification = {}));
+/**
+ * A notification sent when a notebook document is saved.
+ *
+ * @since 3.17.0
+ */
+var DidSaveNotebookDocumentNotification;
+(function (DidSaveNotebookDocumentNotification) {
+    DidSaveNotebookDocumentNotification.method = 'notebookDocument/didSave';
+    DidSaveNotebookDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidSaveNotebookDocumentNotification.type = new messages_1.ProtocolNotificationType(DidSaveNotebookDocumentNotification.method);
+    DidSaveNotebookDocumentNotification.registrationMethod = NotebookDocumentSyncRegistrationType.method;
+})(DidSaveNotebookDocumentNotification || (exports.DidSaveNotebookDocumentNotification = DidSaveNotebookDocumentNotification = {}));
+/**
+ * A notification sent when a notebook closes.
+ *
+ * @since 3.17.0
+ */
+var DidCloseNotebookDocumentNotification;
+(function (DidCloseNotebookDocumentNotification) {
+    DidCloseNotebookDocumentNotification.method = 'notebookDocument/didClose';
+    DidCloseNotebookDocumentNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidCloseNotebookDocumentNotification.type = new messages_1.ProtocolNotificationType(DidCloseNotebookDocumentNotification.method);
+    DidCloseNotebookDocumentNotification.registrationMethod = NotebookDocumentSyncRegistrationType.method;
+})(DidCloseNotebookDocumentNotification || (exports.DidCloseNotebookDocumentNotification = DidCloseNotebookDocumentNotification = {}));
+
+
+/***/ }),
+
+/***/ 1862:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WorkDoneProgressCancelNotification = exports.WorkDoneProgressCreateRequest = exports.WorkDoneProgress = void 0;
+const vscode_jsonrpc_1 = __webpack_require__(4389);
+const messages_1 = __webpack_require__(6140);
+var WorkDoneProgress;
+(function (WorkDoneProgress) {
+    WorkDoneProgress.type = new vscode_jsonrpc_1.ProgressType();
+    function is(value) {
+        return value === WorkDoneProgress.type;
+    }
+    WorkDoneProgress.is = is;
+})(WorkDoneProgress || (exports.WorkDoneProgress = WorkDoneProgress = {}));
+/**
+ * The `window/workDoneProgress/create` request is sent from the server to the client to initiate progress
+ * reporting from the server.
+ */
+var WorkDoneProgressCreateRequest;
+(function (WorkDoneProgressCreateRequest) {
+    WorkDoneProgressCreateRequest.method = 'window/workDoneProgress/create';
+    WorkDoneProgressCreateRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    WorkDoneProgressCreateRequest.type = new messages_1.ProtocolRequestType(WorkDoneProgressCreateRequest.method);
+})(WorkDoneProgressCreateRequest || (exports.WorkDoneProgressCreateRequest = WorkDoneProgressCreateRequest = {}));
+/**
+ * The `window/workDoneProgress/cancel` notification is sent from  the client to the server to cancel a progress
+ * initiated on the server side.
+ */
+var WorkDoneProgressCancelNotification;
+(function (WorkDoneProgressCancelNotification) {
+    WorkDoneProgressCancelNotification.method = 'window/workDoneProgress/cancel';
+    WorkDoneProgressCancelNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    WorkDoneProgressCancelNotification.type = new messages_1.ProtocolNotificationType(WorkDoneProgressCancelNotification.method);
+})(WorkDoneProgressCancelNotification || (exports.WorkDoneProgressCancelNotification = WorkDoneProgressCancelNotification = {}));
+
+
+/***/ }),
+
+/***/ 5206:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SelectionRangeRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to provide selection ranges in a document. The request's
+ * parameter is of type {@link SelectionRangeParams}, the
+ * response is of type {@link SelectionRange SelectionRange[]} or a Thenable
+ * that resolves to such.
+ */
+var SelectionRangeRequest;
+(function (SelectionRangeRequest) {
+    SelectionRangeRequest.method = 'textDocument/selectionRange';
+    SelectionRangeRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    SelectionRangeRequest.type = new messages_1.ProtocolRequestType(SelectionRangeRequest.method);
+})(SelectionRangeRequest || (exports.SelectionRangeRequest = SelectionRangeRequest = {}));
+
+
+/***/ }),
+
+/***/ 9434:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SemanticTokensRefreshRequest = exports.SemanticTokensRangeRequest = exports.SemanticTokensDeltaRequest = exports.SemanticTokensRequest = exports.SemanticTokensRegistrationType = exports.TokenFormat = void 0;
+const messages_1 = __webpack_require__(6140);
+//------- 'textDocument/semanticTokens' -----
+var TokenFormat;
+(function (TokenFormat) {
+    TokenFormat.Relative = 'relative';
+})(TokenFormat || (exports.TokenFormat = TokenFormat = {}));
+var SemanticTokensRegistrationType;
+(function (SemanticTokensRegistrationType) {
+    SemanticTokensRegistrationType.method = 'textDocument/semanticTokens';
+    SemanticTokensRegistrationType.type = new messages_1.RegistrationType(SemanticTokensRegistrationType.method);
+})(SemanticTokensRegistrationType || (exports.SemanticTokensRegistrationType = SemanticTokensRegistrationType = {}));
+/**
+ * @since 3.16.0
+ */
+var SemanticTokensRequest;
+(function (SemanticTokensRequest) {
+    SemanticTokensRequest.method = 'textDocument/semanticTokens/full';
+    SemanticTokensRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    SemanticTokensRequest.type = new messages_1.ProtocolRequestType(SemanticTokensRequest.method);
+    SemanticTokensRequest.registrationMethod = SemanticTokensRegistrationType.method;
+})(SemanticTokensRequest || (exports.SemanticTokensRequest = SemanticTokensRequest = {}));
+/**
+ * @since 3.16.0
+ */
+var SemanticTokensDeltaRequest;
+(function (SemanticTokensDeltaRequest) {
+    SemanticTokensDeltaRequest.method = 'textDocument/semanticTokens/full/delta';
+    SemanticTokensDeltaRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    SemanticTokensDeltaRequest.type = new messages_1.ProtocolRequestType(SemanticTokensDeltaRequest.method);
+    SemanticTokensDeltaRequest.registrationMethod = SemanticTokensRegistrationType.method;
+})(SemanticTokensDeltaRequest || (exports.SemanticTokensDeltaRequest = SemanticTokensDeltaRequest = {}));
+/**
+ * @since 3.16.0
+ */
+var SemanticTokensRangeRequest;
+(function (SemanticTokensRangeRequest) {
+    SemanticTokensRangeRequest.method = 'textDocument/semanticTokens/range';
+    SemanticTokensRangeRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    SemanticTokensRangeRequest.type = new messages_1.ProtocolRequestType(SemanticTokensRangeRequest.method);
+    SemanticTokensRangeRequest.registrationMethod = SemanticTokensRegistrationType.method;
+})(SemanticTokensRangeRequest || (exports.SemanticTokensRangeRequest = SemanticTokensRangeRequest = {}));
+/**
+ * @since 3.16.0
+ */
+var SemanticTokensRefreshRequest;
+(function (SemanticTokensRefreshRequest) {
+    SemanticTokensRefreshRequest.method = `workspace/semanticTokens/refresh`;
+    SemanticTokensRefreshRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    SemanticTokensRefreshRequest.type = new messages_1.ProtocolRequestType0(SemanticTokensRefreshRequest.method);
+})(SemanticTokensRefreshRequest || (exports.SemanticTokensRefreshRequest = SemanticTokensRefreshRequest = {}));
+
+
+/***/ }),
+
+/***/ 5726:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowDocumentRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to show a document. This request might open an
+ * external program depending on the value of the URI to open.
+ * For example a request to open `https://code.visualstudio.com/`
+ * will very likely open the URI in a WEB browser.
+ *
+ * @since 3.16.0
+*/
+var ShowDocumentRequest;
+(function (ShowDocumentRequest) {
+    ShowDocumentRequest.method = 'window/showDocument';
+    ShowDocumentRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    ShowDocumentRequest.type = new messages_1.ProtocolRequestType(ShowDocumentRequest.method);
+})(ShowDocumentRequest || (exports.ShowDocumentRequest = ShowDocumentRequest = {}));
+
+
+/***/ }),
+
+/***/ 1589:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TypeDefinitionRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+// @ts-ignore: to avoid inlining LocatioLink as dynamic import
+let __noDynamicImport;
+/**
+ * A request to resolve the type definition locations of a symbol at a given text
+ * document position. The request's parameter is of type {@link TextDocumentPositionParams}
+ * the response is of type {@link Definition} or a Thenable that resolves to such.
+ */
+var TypeDefinitionRequest;
+(function (TypeDefinitionRequest) {
+    TypeDefinitionRequest.method = 'textDocument/typeDefinition';
+    TypeDefinitionRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    TypeDefinitionRequest.type = new messages_1.ProtocolRequestType(TypeDefinitionRequest.method);
+})(TypeDefinitionRequest || (exports.TypeDefinitionRequest = TypeDefinitionRequest = {}));
+
+
+/***/ }),
+
+/***/ 3693:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) TypeFox, Microsoft and others. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TypeHierarchySubtypesRequest = exports.TypeHierarchySupertypesRequest = exports.TypeHierarchyPrepareRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * A request to result a `TypeHierarchyItem` in a document at a given position.
+ * Can be used as an input to a subtypes or supertypes type hierarchy.
+ *
+ * @since 3.17.0
+ */
+var TypeHierarchyPrepareRequest;
+(function (TypeHierarchyPrepareRequest) {
+    TypeHierarchyPrepareRequest.method = 'textDocument/prepareTypeHierarchy';
+    TypeHierarchyPrepareRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    TypeHierarchyPrepareRequest.type = new messages_1.ProtocolRequestType(TypeHierarchyPrepareRequest.method);
+})(TypeHierarchyPrepareRequest || (exports.TypeHierarchyPrepareRequest = TypeHierarchyPrepareRequest = {}));
+/**
+ * A request to resolve the supertypes for a given `TypeHierarchyItem`.
+ *
+ * @since 3.17.0
+ */
+var TypeHierarchySupertypesRequest;
+(function (TypeHierarchySupertypesRequest) {
+    TypeHierarchySupertypesRequest.method = 'typeHierarchy/supertypes';
+    TypeHierarchySupertypesRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    TypeHierarchySupertypesRequest.type = new messages_1.ProtocolRequestType(TypeHierarchySupertypesRequest.method);
+})(TypeHierarchySupertypesRequest || (exports.TypeHierarchySupertypesRequest = TypeHierarchySupertypesRequest = {}));
+/**
+ * A request to resolve the subtypes for a given `TypeHierarchyItem`.
+ *
+ * @since 3.17.0
+ */
+var TypeHierarchySubtypesRequest;
+(function (TypeHierarchySubtypesRequest) {
+    TypeHierarchySubtypesRequest.method = 'typeHierarchy/subtypes';
+    TypeHierarchySubtypesRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    TypeHierarchySubtypesRequest.type = new messages_1.ProtocolRequestType(TypeHierarchySubtypesRequest.method);
+})(TypeHierarchySubtypesRequest || (exports.TypeHierarchySubtypesRequest = TypeHierarchySubtypesRequest = {}));
+
+
+/***/ }),
+
+/***/ 8744:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DidChangeWorkspaceFoldersNotification = exports.WorkspaceFoldersRequest = void 0;
+const messages_1 = __webpack_require__(6140);
+/**
+ * The `workspace/workspaceFolders` is sent from the server to the client to fetch the open workspace folders.
+ */
+var WorkspaceFoldersRequest;
+(function (WorkspaceFoldersRequest) {
+    WorkspaceFoldersRequest.method = 'workspace/workspaceFolders';
+    WorkspaceFoldersRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    WorkspaceFoldersRequest.type = new messages_1.ProtocolRequestType0(WorkspaceFoldersRequest.method);
+})(WorkspaceFoldersRequest || (exports.WorkspaceFoldersRequest = WorkspaceFoldersRequest = {}));
+/**
+ * The `workspace/didChangeWorkspaceFolders` notification is sent from the client to the server when the workspace
+ * folder configuration changes.
+ */
+var DidChangeWorkspaceFoldersNotification;
+(function (DidChangeWorkspaceFoldersNotification) {
+    DidChangeWorkspaceFoldersNotification.method = 'workspace/didChangeWorkspaceFolders';
+    DidChangeWorkspaceFoldersNotification.messageDirection = messages_1.MessageDirection.clientToServer;
+    DidChangeWorkspaceFoldersNotification.type = new messages_1.ProtocolNotificationType(DidChangeWorkspaceFoldersNotification.method);
+})(DidChangeWorkspaceFoldersNotification || (exports.DidChangeWorkspaceFoldersNotification = DidChangeWorkspaceFoldersNotification = {}));
+
+
+/***/ }),
+
+/***/ 9533:
+/***/ ((__unused_webpack_module, exports) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.objectLiteral = exports.typedArray = exports.stringArray = exports.array = exports.func = exports.error = exports.number = exports.string = exports.boolean = void 0;
+function boolean(value) {
+    return value === true || value === false;
+}
+exports.boolean = boolean;
+function string(value) {
+    return typeof value === 'string' || value instanceof String;
+}
+exports.string = string;
+function number(value) {
+    return typeof value === 'number' || value instanceof Number;
+}
+exports.number = number;
+function error(value) {
+    return value instanceof Error;
+}
+exports.error = error;
+function func(value) {
+    return typeof value === 'function';
+}
+exports.func = func;
+function array(value) {
+    return Array.isArray(value);
+}
+exports.array = array;
+function stringArray(value) {
+    return array(value) && value.every(elem => string(elem));
+}
+exports.stringArray = stringArray;
+function typedArray(value, check) {
+    return Array.isArray(value) && value.every(check);
+}
+exports.typedArray = typedArray;
+function objectLiteral(value) {
+    // Strictly speaking class instances pass this check as well. Since the LSP
+    // doesn't use classes we ignore this for now. If we do we need to add something
+    // like this: `Object.getPrototypeOf(Object.getPrototypeOf(x)) === null`
+    return value !== null && typeof value === 'object';
+}
+exports.objectLiteral = objectLiteral;
+
+
+/***/ }),
+
+/***/ 273:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createProtocolConnection = void 0;
+const node_1 = __webpack_require__(5028);
+__exportStar(__webpack_require__(5028), exports);
+__exportStar(__webpack_require__(1661), exports);
+function createProtocolConnection(input, output, logger, options) {
+    return (0, node_1.createMessageConnection)(input, output, logger, options);
+}
+exports.createProtocolConnection = createProtocolConnection;
+
+
+/***/ }),
+
+/***/ 6560:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ----------------------------------------------------------------------------------------- */
+
+
+module.exports = __webpack_require__(273);
+
+/***/ }),
+
+/***/ 6265:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProposedFeatures = exports.NotebookDocuments = exports.TextDocuments = exports.SemanticTokensBuilder = void 0;
+const semanticTokens_1 = __webpack_require__(9817);
+Object.defineProperty(exports, "SemanticTokensBuilder", ({ enumerable: true, get: function () { return semanticTokens_1.SemanticTokensBuilder; } }));
+const ic = __webpack_require__(9229);
+__exportStar(__webpack_require__(273), exports);
+const textDocuments_1 = __webpack_require__(8382);
+Object.defineProperty(exports, "TextDocuments", ({ enumerable: true, get: function () { return textDocuments_1.TextDocuments; } }));
+const notebook_1 = __webpack_require__(9748);
+Object.defineProperty(exports, "NotebookDocuments", ({ enumerable: true, get: function () { return notebook_1.NotebookDocuments; } }));
+__exportStar(__webpack_require__(9891), exports);
+var ProposedFeatures;
+(function (ProposedFeatures) {
+    ProposedFeatures.all = {
+        __brand: 'features',
+        languages: ic.InlineCompletionFeature
+    };
+})(ProposedFeatures || (exports.ProposedFeatures = ProposedFeatures = {}));
+
+
+/***/ }),
+
+/***/ 7985:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CallHierarchyFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const CallHierarchyFeature = (Base) => {
+    return class extends Base {
+        get callHierarchy() {
+            return {
+                onPrepare: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.CallHierarchyPrepareRequest.type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), undefined);
+                    });
+                },
+                onIncomingCalls: (handler) => {
+                    const type = vscode_languageserver_protocol_1.CallHierarchyIncomingCallsRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                },
+                onOutgoingCalls: (handler) => {
+                    const type = vscode_languageserver_protocol_1.CallHierarchyOutgoingCallsRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                }
+            };
+        }
+    };
+};
+exports.CallHierarchyFeature = CallHierarchyFeature;
+
+
+/***/ }),
+
+/***/ 2507:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ConfigurationFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const Is = __webpack_require__(289);
+const ConfigurationFeature = (Base) => {
+    return class extends Base {
+        getConfiguration(arg) {
+            if (!arg) {
+                return this._getConfiguration({});
+            }
+            else if (Is.string(arg)) {
+                return this._getConfiguration({ section: arg });
+            }
+            else {
+                return this._getConfiguration(arg);
+            }
+        }
+        _getConfiguration(arg) {
+            let params = {
+                items: Array.isArray(arg) ? arg : [arg]
+            };
+            return this.connection.sendRequest(vscode_languageserver_protocol_1.ConfigurationRequest.type, params).then((result) => {
+                if (Array.isArray(result)) {
+                    return Array.isArray(arg) ? result : result[0];
+                }
+                else {
+                    return Array.isArray(arg) ? [] : null;
+                }
+            });
+        }
+    };
+};
+exports.ConfigurationFeature = ConfigurationFeature;
+
+
+/***/ }),
+
+/***/ 6634:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DiagnosticFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const DiagnosticFeature = (Base) => {
+    return class extends Base {
+        get diagnostics() {
+            return {
+                refresh: () => {
+                    return this.connection.sendRequest(vscode_languageserver_protocol_1.DiagnosticRefreshRequest.type);
+                },
+                on: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.DocumentDiagnosticRequest.type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(vscode_languageserver_protocol_1.DocumentDiagnosticRequest.partialResult, params));
+                    });
+                },
+                onWorkspace: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.WorkspaceDiagnosticRequest.type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(vscode_languageserver_protocol_1.WorkspaceDiagnosticRequest.partialResult, params));
+                    });
+                }
+            };
+        }
+    };
+};
+exports.DiagnosticFeature = DiagnosticFeature;
+
+
+/***/ }),
+
+/***/ 828:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FileOperationsFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const FileOperationsFeature = (Base) => {
+    return class extends Base {
+        onDidCreateFiles(handler) {
+            return this.connection.onNotification(vscode_languageserver_protocol_1.DidCreateFilesNotification.type, (params) => {
+                handler(params);
+            });
+        }
+        onDidRenameFiles(handler) {
+            return this.connection.onNotification(vscode_languageserver_protocol_1.DidRenameFilesNotification.type, (params) => {
+                handler(params);
+            });
+        }
+        onDidDeleteFiles(handler) {
+            return this.connection.onNotification(vscode_languageserver_protocol_1.DidDeleteFilesNotification.type, (params) => {
+                handler(params);
+            });
+        }
+        onWillCreateFiles(handler) {
+            return this.connection.onRequest(vscode_languageserver_protocol_1.WillCreateFilesRequest.type, (params, cancel) => {
+                return handler(params, cancel);
+            });
+        }
+        onWillRenameFiles(handler) {
+            return this.connection.onRequest(vscode_languageserver_protocol_1.WillRenameFilesRequest.type, (params, cancel) => {
+                return handler(params, cancel);
+            });
+        }
+        onWillDeleteFiles(handler) {
+            return this.connection.onRequest(vscode_languageserver_protocol_1.WillDeleteFilesRequest.type, (params, cancel) => {
+                return handler(params, cancel);
+            });
+        }
+    };
+};
+exports.FileOperationsFeature = FileOperationsFeature;
+
+
+/***/ }),
+
+/***/ 7040:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FoldingRangeFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const FoldingRangeFeature = (Base) => {
+    return class extends Base {
+        get foldingRange() {
+            return {
+                refresh: () => {
+                    return this.connection.sendRequest(vscode_languageserver_protocol_1.FoldingRangeRefreshRequest.type);
+                },
+                on: (handler) => {
+                    const type = vscode_languageserver_protocol_1.FoldingRangeRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                }
+            };
+        }
+    };
+};
+exports.FoldingRangeFeature = FoldingRangeFeature;
+
+
+/***/ }),
+
+/***/ 6507:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.InlayHintFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const InlayHintFeature = (Base) => {
+    return class extends Base {
+        get inlayHint() {
+            return {
+                refresh: () => {
+                    return this.connection.sendRequest(vscode_languageserver_protocol_1.InlayHintRefreshRequest.type);
+                },
+                on: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.InlayHintRequest.type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params));
+                    });
+                },
+                resolve: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.InlayHintResolveRequest.type, (params, cancel) => {
+                        return handler(params, cancel);
+                    });
+                }
+            };
+        }
+    };
+};
+exports.InlayHintFeature = InlayHintFeature;
+
+
+/***/ }),
+
+/***/ 9229:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.InlineCompletionFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const InlineCompletionFeature = (Base) => {
+    return class extends Base {
+        get inlineCompletion() {
+            return {
+                on: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.InlineCompletionRequest.type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params));
+                    });
+                }
+            };
+        }
+    };
+};
+exports.InlineCompletionFeature = InlineCompletionFeature;
+
+
+/***/ }),
+
+/***/ 8970:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.InlineValueFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const InlineValueFeature = (Base) => {
+    return class extends Base {
+        get inlineValue() {
+            return {
+                refresh: () => {
+                    return this.connection.sendRequest(vscode_languageserver_protocol_1.InlineValueRefreshRequest.type);
+                },
+                on: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.InlineValueRequest.type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params));
+                    });
+                }
+            };
+        }
+    };
+};
+exports.InlineValueFeature = InlineValueFeature;
+
+
+/***/ }),
+
+/***/ 2776:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LinkedEditingRangeFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const LinkedEditingRangeFeature = (Base) => {
+    return class extends Base {
+        onLinkedEditingRange(handler) {
+            return this.connection.onRequest(vscode_languageserver_protocol_1.LinkedEditingRangeRequest.type, (params, cancel) => {
+                return handler(params, cancel, this.attachWorkDoneProgress(params), undefined);
+            });
+        }
+    };
+};
+exports.LinkedEditingRangeFeature = LinkedEditingRangeFeature;
+
+
+/***/ }),
+
+/***/ 8120:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.MonikerFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const MonikerFeature = (Base) => {
+    return class extends Base {
+        get moniker() {
+            return {
+                on: (handler) => {
+                    const type = vscode_languageserver_protocol_1.MonikerRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                },
+            };
+        }
+    };
+};
+exports.MonikerFeature = MonikerFeature;
+
+
+/***/ }),
+
+/***/ 9748:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NotebookDocuments = exports.NotebookSyncFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const textDocuments_1 = __webpack_require__(8382);
+const NotebookSyncFeature = (Base) => {
+    return class extends Base {
+        get synchronization() {
+            return {
+                onDidOpenNotebookDocument: (handler) => {
+                    return this.connection.onNotification(vscode_languageserver_protocol_1.DidOpenNotebookDocumentNotification.type, (params) => {
+                        handler(params);
+                    });
+                },
+                onDidChangeNotebookDocument: (handler) => {
+                    return this.connection.onNotification(vscode_languageserver_protocol_1.DidChangeNotebookDocumentNotification.type, (params) => {
+                        handler(params);
+                    });
+                },
+                onDidSaveNotebookDocument: (handler) => {
+                    return this.connection.onNotification(vscode_languageserver_protocol_1.DidSaveNotebookDocumentNotification.type, (params) => {
+                        handler(params);
+                    });
+                },
+                onDidCloseNotebookDocument: (handler) => {
+                    return this.connection.onNotification(vscode_languageserver_protocol_1.DidCloseNotebookDocumentNotification.type, (params) => {
+                        handler(params);
+                    });
+                }
+            };
+        }
+    };
+};
+exports.NotebookSyncFeature = NotebookSyncFeature;
+class CellTextDocumentConnection {
+    onDidOpenTextDocument(handler) {
+        this.openHandler = handler;
+        return vscode_languageserver_protocol_1.Disposable.create(() => { this.openHandler = undefined; });
+    }
+    openTextDocument(params) {
+        this.openHandler && this.openHandler(params);
+    }
+    onDidChangeTextDocument(handler) {
+        this.changeHandler = handler;
+        return vscode_languageserver_protocol_1.Disposable.create(() => { this.changeHandler = handler; });
+    }
+    changeTextDocument(params) {
+        this.changeHandler && this.changeHandler(params);
+    }
+    onDidCloseTextDocument(handler) {
+        this.closeHandler = handler;
+        return vscode_languageserver_protocol_1.Disposable.create(() => { this.closeHandler = undefined; });
+    }
+    closeTextDocument(params) {
+        this.closeHandler && this.closeHandler(params);
+    }
+    onWillSaveTextDocument() {
+        return CellTextDocumentConnection.NULL_DISPOSE;
+    }
+    onWillSaveTextDocumentWaitUntil() {
+        return CellTextDocumentConnection.NULL_DISPOSE;
+    }
+    onDidSaveTextDocument() {
+        return CellTextDocumentConnection.NULL_DISPOSE;
+    }
+}
+CellTextDocumentConnection.NULL_DISPOSE = Object.freeze({ dispose: () => { } });
+class NotebookDocuments {
+    constructor(configurationOrTextDocuments) {
+        if (configurationOrTextDocuments instanceof textDocuments_1.TextDocuments) {
+            this._cellTextDocuments = configurationOrTextDocuments;
+        }
+        else {
+            this._cellTextDocuments = new textDocuments_1.TextDocuments(configurationOrTextDocuments);
+        }
+        this.notebookDocuments = new Map();
+        this.notebookCellMap = new Map();
+        this._onDidOpen = new vscode_languageserver_protocol_1.Emitter();
+        this._onDidChange = new vscode_languageserver_protocol_1.Emitter();
+        this._onDidSave = new vscode_languageserver_protocol_1.Emitter();
+        this._onDidClose = new vscode_languageserver_protocol_1.Emitter();
+    }
+    get cellTextDocuments() {
+        return this._cellTextDocuments;
+    }
+    getCellTextDocument(cell) {
+        return this._cellTextDocuments.get(cell.document);
+    }
+    getNotebookDocument(uri) {
+        return this.notebookDocuments.get(uri);
+    }
+    getNotebookCell(uri) {
+        const value = this.notebookCellMap.get(uri);
+        return value && value[0];
+    }
+    findNotebookDocumentForCell(cell) {
+        const key = typeof cell === 'string' ? cell : cell.document;
+        const value = this.notebookCellMap.get(key);
+        return value && value[1];
+    }
+    get onDidOpen() {
+        return this._onDidOpen.event;
+    }
+    get onDidSave() {
+        return this._onDidSave.event;
+    }
+    get onDidChange() {
+        return this._onDidChange.event;
+    }
+    get onDidClose() {
+        return this._onDidClose.event;
+    }
+    /**
+     * Listens for `low level` notification on the given connection to
+     * update the notebook documents managed by this instance.
+     *
+     * Please note that the connection only provides handlers not an event model. Therefore
+     * listening on a connection will overwrite the following handlers on a connection:
+     * `onDidOpenNotebookDocument`, `onDidChangeNotebookDocument`, `onDidSaveNotebookDocument`,
+     *  and `onDidCloseNotebookDocument`.
+     *
+     * @param connection The connection to listen on.
+     */
+    listen(connection) {
+        const cellTextDocumentConnection = new CellTextDocumentConnection();
+        const disposables = [];
+        disposables.push(this.cellTextDocuments.listen(cellTextDocumentConnection));
+        disposables.push(connection.notebooks.synchronization.onDidOpenNotebookDocument((params) => {
+            this.notebookDocuments.set(params.notebookDocument.uri, params.notebookDocument);
+            for (const cellTextDocument of params.cellTextDocuments) {
+                cellTextDocumentConnection.openTextDocument({ textDocument: cellTextDocument });
+            }
+            this.updateCellMap(params.notebookDocument);
+            this._onDidOpen.fire(params.notebookDocument);
+        }));
+        disposables.push(connection.notebooks.synchronization.onDidChangeNotebookDocument((params) => {
+            const notebookDocument = this.notebookDocuments.get(params.notebookDocument.uri);
+            if (notebookDocument === undefined) {
+                return;
+            }
+            notebookDocument.version = params.notebookDocument.version;
+            const oldMetadata = notebookDocument.metadata;
+            let metadataChanged = false;
+            const change = params.change;
+            if (change.metadata !== undefined) {
+                metadataChanged = true;
+                notebookDocument.metadata = change.metadata;
+            }
+            const opened = [];
+            const closed = [];
+            const data = [];
+            const text = [];
+            if (change.cells !== undefined) {
+                const changedCells = change.cells;
+                if (changedCells.structure !== undefined) {
+                    const array = changedCells.structure.array;
+                    notebookDocument.cells.splice(array.start, array.deleteCount, ...(array.cells !== undefined ? array.cells : []));
+                    // Additional open cell text documents.
+                    if (changedCells.structure.didOpen !== undefined) {
+                        for (const open of changedCells.structure.didOpen) {
+                            cellTextDocumentConnection.openTextDocument({ textDocument: open });
+                            opened.push(open.uri);
+                        }
+                    }
+                    // Additional closed cell test documents.
+                    if (changedCells.structure.didClose) {
+                        for (const close of changedCells.structure.didClose) {
+                            cellTextDocumentConnection.closeTextDocument({ textDocument: close });
+                            closed.push(close.uri);
+                        }
+                    }
+                }
+                if (changedCells.data !== undefined) {
+                    const cellUpdates = new Map(changedCells.data.map(cell => [cell.document, cell]));
+                    for (let i = 0; i <= notebookDocument.cells.length; i++) {
+                        const change = cellUpdates.get(notebookDocument.cells[i].document);
+                        if (change !== undefined) {
+                            const old = notebookDocument.cells.splice(i, 1, change);
+                            data.push({ old: old[0], new: change });
+                            cellUpdates.delete(change.document);
+                            if (cellUpdates.size === 0) {
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (changedCells.textContent !== undefined) {
+                    for (const cellTextDocument of changedCells.textContent) {
+                        cellTextDocumentConnection.changeTextDocument({ textDocument: cellTextDocument.document, contentChanges: cellTextDocument.changes });
+                        text.push(cellTextDocument.document.uri);
+                    }
+                }
+            }
+            // Update internal data structure.
+            this.updateCellMap(notebookDocument);
+            const changeEvent = { notebookDocument };
+            if (metadataChanged) {
+                changeEvent.metadata = { old: oldMetadata, new: notebookDocument.metadata };
+            }
+            const added = [];
+            for (const open of opened) {
+                added.push(this.getNotebookCell(open));
+            }
+            const removed = [];
+            for (const close of closed) {
+                removed.push(this.getNotebookCell(close));
+            }
+            const textContent = [];
+            for (const change of text) {
+                textContent.push(this.getNotebookCell(change));
+            }
+            if (added.length > 0 || removed.length > 0 || data.length > 0 || textContent.length > 0) {
+                changeEvent.cells = { added, removed, changed: { data, textContent } };
+            }
+            if (changeEvent.metadata !== undefined || changeEvent.cells !== undefined) {
+                this._onDidChange.fire(changeEvent);
+            }
+        }));
+        disposables.push(connection.notebooks.synchronization.onDidSaveNotebookDocument((params) => {
+            const notebookDocument = this.notebookDocuments.get(params.notebookDocument.uri);
+            if (notebookDocument === undefined) {
+                return;
+            }
+            this._onDidSave.fire(notebookDocument);
+        }));
+        disposables.push(connection.notebooks.synchronization.onDidCloseNotebookDocument((params) => {
+            const notebookDocument = this.notebookDocuments.get(params.notebookDocument.uri);
+            if (notebookDocument === undefined) {
+                return;
+            }
+            this._onDidClose.fire(notebookDocument);
+            for (const cellTextDocument of params.cellTextDocuments) {
+                cellTextDocumentConnection.closeTextDocument({ textDocument: cellTextDocument });
+            }
+            this.notebookDocuments.delete(params.notebookDocument.uri);
+            for (const cell of notebookDocument.cells) {
+                this.notebookCellMap.delete(cell.document);
+            }
+        }));
+        return vscode_languageserver_protocol_1.Disposable.create(() => { disposables.forEach(disposable => disposable.dispose()); });
+    }
+    updateCellMap(notebookDocument) {
+        for (const cell of notebookDocument.cells) {
+            this.notebookCellMap.set(cell.document, [cell, notebookDocument]);
+        }
+    }
+}
+exports.NotebookDocuments = NotebookDocuments;
+
+
+/***/ }),
+
+/***/ 2731:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.attachPartialResult = exports.ProgressFeature = exports.attachWorkDone = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const uuid_1 = __webpack_require__(7560);
+class WorkDoneProgressReporterImpl {
+    constructor(_connection, _token) {
+        this._connection = _connection;
+        this._token = _token;
+        WorkDoneProgressReporterImpl.Instances.set(this._token, this);
+    }
+    begin(title, percentage, message, cancellable) {
+        let param = {
+            kind: 'begin',
+            title,
+            percentage,
+            message,
+            cancellable
+        };
+        this._connection.sendProgress(vscode_languageserver_protocol_1.WorkDoneProgress.type, this._token, param);
+    }
+    report(arg0, arg1) {
+        let param = {
+            kind: 'report'
+        };
+        if (typeof arg0 === 'number') {
+            param.percentage = arg0;
+            if (arg1 !== undefined) {
+                param.message = arg1;
+            }
+        }
+        else {
+            param.message = arg0;
+        }
+        this._connection.sendProgress(vscode_languageserver_protocol_1.WorkDoneProgress.type, this._token, param);
+    }
+    done() {
+        WorkDoneProgressReporterImpl.Instances.delete(this._token);
+        this._connection.sendProgress(vscode_languageserver_protocol_1.WorkDoneProgress.type, this._token, { kind: 'end' });
+    }
+}
+WorkDoneProgressReporterImpl.Instances = new Map();
+class WorkDoneProgressServerReporterImpl extends WorkDoneProgressReporterImpl {
+    constructor(connection, token) {
+        super(connection, token);
+        this._source = new vscode_languageserver_protocol_1.CancellationTokenSource();
+    }
+    get token() {
+        return this._source.token;
+    }
+    done() {
+        this._source.dispose();
+        super.done();
+    }
+    cancel() {
+        this._source.cancel();
+    }
+}
+class NullProgressReporter {
+    constructor() {
+    }
+    begin() {
+    }
+    report() {
+    }
+    done() {
+    }
+}
+class NullProgressServerReporter extends NullProgressReporter {
+    constructor() {
+        super();
+        this._source = new vscode_languageserver_protocol_1.CancellationTokenSource();
+    }
+    get token() {
+        return this._source.token;
+    }
+    done() {
+        this._source.dispose();
+    }
+    cancel() {
+        this._source.cancel();
+    }
+}
+function attachWorkDone(connection, params) {
+    if (params === undefined || params.workDoneToken === undefined) {
+        return new NullProgressReporter();
+    }
+    const token = params.workDoneToken;
+    delete params.workDoneToken;
+    return new WorkDoneProgressReporterImpl(connection, token);
+}
+exports.attachWorkDone = attachWorkDone;
+const ProgressFeature = (Base) => {
+    return class extends Base {
+        constructor() {
+            super();
+            this._progressSupported = false;
+        }
+        initialize(capabilities) {
+            super.initialize(capabilities);
+            if (capabilities?.window?.workDoneProgress === true) {
+                this._progressSupported = true;
+                this.connection.onNotification(vscode_languageserver_protocol_1.WorkDoneProgressCancelNotification.type, (params) => {
+                    let progress = WorkDoneProgressReporterImpl.Instances.get(params.token);
+                    if (progress instanceof WorkDoneProgressServerReporterImpl || progress instanceof NullProgressServerReporter) {
+                        progress.cancel();
+                    }
+                });
+            }
+        }
+        attachWorkDoneProgress(token) {
+            if (token === undefined) {
+                return new NullProgressReporter();
+            }
+            else {
+                return new WorkDoneProgressReporterImpl(this.connection, token);
+            }
+        }
+        createWorkDoneProgress() {
+            if (this._progressSupported) {
+                const token = (0, uuid_1.generateUuid)();
+                return this.connection.sendRequest(vscode_languageserver_protocol_1.WorkDoneProgressCreateRequest.type, { token }).then(() => {
+                    const result = new WorkDoneProgressServerReporterImpl(this.connection, token);
+                    return result;
+                });
+            }
+            else {
+                return Promise.resolve(new NullProgressServerReporter());
+            }
+        }
+    };
+};
+exports.ProgressFeature = ProgressFeature;
+var ResultProgress;
+(function (ResultProgress) {
+    ResultProgress.type = new vscode_languageserver_protocol_1.ProgressType();
+})(ResultProgress || (ResultProgress = {}));
+class ResultProgressReporterImpl {
+    constructor(_connection, _token) {
+        this._connection = _connection;
+        this._token = _token;
+    }
+    report(data) {
+        this._connection.sendProgress(ResultProgress.type, this._token, data);
+    }
+}
+function attachPartialResult(connection, params) {
+    if (params === undefined || params.partialResultToken === undefined) {
+        return undefined;
+    }
+    const token = params.partialResultToken;
+    delete params.partialResultToken;
+    return new ResultProgressReporterImpl(connection, token);
+}
+exports.attachPartialResult = attachPartialResult;
+
+
+/***/ }),
+
+/***/ 9817:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SemanticTokensBuilder = exports.SemanticTokensDiff = exports.SemanticTokensFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const SemanticTokensFeature = (Base) => {
+    return class extends Base {
+        get semanticTokens() {
+            return {
+                refresh: () => {
+                    return this.connection.sendRequest(vscode_languageserver_protocol_1.SemanticTokensRefreshRequest.type);
+                },
+                on: (handler) => {
+                    const type = vscode_languageserver_protocol_1.SemanticTokensRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                },
+                onDelta: (handler) => {
+                    const type = vscode_languageserver_protocol_1.SemanticTokensDeltaRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                },
+                onRange: (handler) => {
+                    const type = vscode_languageserver_protocol_1.SemanticTokensRangeRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                }
+            };
+        }
+    };
+};
+exports.SemanticTokensFeature = SemanticTokensFeature;
+class SemanticTokensDiff {
+    constructor(originalSequence, modifiedSequence) {
+        this.originalSequence = originalSequence;
+        this.modifiedSequence = modifiedSequence;
+    }
+    computeDiff() {
+        const originalLength = this.originalSequence.length;
+        const modifiedLength = this.modifiedSequence.length;
+        let startIndex = 0;
+        while (startIndex < modifiedLength && startIndex < originalLength && this.originalSequence[startIndex] === this.modifiedSequence[startIndex]) {
+            startIndex++;
+        }
+        if (startIndex < modifiedLength && startIndex < originalLength) {
+            let originalEndIndex = originalLength - 1;
+            let modifiedEndIndex = modifiedLength - 1;
+            while (originalEndIndex >= startIndex && modifiedEndIndex >= startIndex && this.originalSequence[originalEndIndex] === this.modifiedSequence[modifiedEndIndex]) {
+                originalEndIndex--;
+                modifiedEndIndex--;
+            }
+            // if one moved behind the start index move them forward again
+            if (originalEndIndex < startIndex || modifiedEndIndex < startIndex) {
+                originalEndIndex++;
+                modifiedEndIndex++;
+            }
+            const deleteCount = originalEndIndex - startIndex + 1;
+            const newData = this.modifiedSequence.slice(startIndex, modifiedEndIndex + 1);
+            // If we moved behind the start index we could have missed a simple delete.
+            if (newData.length === 1 && newData[0] === this.originalSequence[originalEndIndex]) {
+                return [
+                    { start: startIndex, deleteCount: deleteCount - 1 }
+                ];
+            }
+            else {
+                return [
+                    { start: startIndex, deleteCount, data: newData }
+                ];
+            }
+        }
+        else if (startIndex < modifiedLength) {
+            return [
+                { start: startIndex, deleteCount: 0, data: this.modifiedSequence.slice(startIndex) }
+            ];
+        }
+        else if (startIndex < originalLength) {
+            return [
+                { start: startIndex, deleteCount: originalLength - startIndex }
+            ];
+        }
+        else {
+            // The two arrays are the same.
+            return [];
+        }
+    }
+}
+exports.SemanticTokensDiff = SemanticTokensDiff;
+class SemanticTokensBuilder {
+    constructor() {
+        this._prevData = undefined;
+        this.initialize();
+    }
+    initialize() {
+        this._id = Date.now();
+        this._prevLine = 0;
+        this._prevChar = 0;
+        this._data = [];
+        this._dataLen = 0;
+    }
+    push(line, char, length, tokenType, tokenModifiers) {
+        let pushLine = line;
+        let pushChar = char;
+        if (this._dataLen > 0) {
+            pushLine -= this._prevLine;
+            if (pushLine === 0) {
+                pushChar -= this._prevChar;
+            }
+        }
+        this._data[this._dataLen++] = pushLine;
+        this._data[this._dataLen++] = pushChar;
+        this._data[this._dataLen++] = length;
+        this._data[this._dataLen++] = tokenType;
+        this._data[this._dataLen++] = tokenModifiers;
+        this._prevLine = line;
+        this._prevChar = char;
+    }
+    get id() {
+        return this._id.toString();
+    }
+    previousResult(id) {
+        if (this.id === id) {
+            this._prevData = this._data;
+        }
+        this.initialize();
+    }
+    build() {
+        this._prevData = undefined;
+        return {
+            resultId: this.id,
+            data: this._data
+        };
+    }
+    canBuildEdits() {
+        return this._prevData !== undefined;
+    }
+    buildEdits() {
+        if (this._prevData !== undefined) {
+            return {
+                resultId: this.id,
+                edits: (new SemanticTokensDiff(this._prevData, this._data)).computeDiff()
+            };
+        }
+        else {
+            return this.build();
+        }
+    }
+}
+exports.SemanticTokensBuilder = SemanticTokensBuilder;
+
+
+/***/ }),
+
+/***/ 9891:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createConnection = exports.combineFeatures = exports.combineNotebooksFeatures = exports.combineLanguagesFeatures = exports.combineWorkspaceFeatures = exports.combineWindowFeatures = exports.combineClientFeatures = exports.combineTracerFeatures = exports.combineTelemetryFeatures = exports.combineConsoleFeatures = exports._NotebooksImpl = exports._LanguagesImpl = exports.BulkUnregistration = exports.BulkRegistration = exports.ErrorMessageTracker = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const Is = __webpack_require__(289);
+const UUID = __webpack_require__(7560);
+const progress_1 = __webpack_require__(2731);
+const configuration_1 = __webpack_require__(2507);
+const workspaceFolder_1 = __webpack_require__(1836);
+const callHierarchy_1 = __webpack_require__(7985);
+const semanticTokens_1 = __webpack_require__(9817);
+const showDocument_1 = __webpack_require__(5421);
+const fileOperations_1 = __webpack_require__(828);
+const linkedEditingRange_1 = __webpack_require__(2776);
+const typeHierarchy_1 = __webpack_require__(4606);
+const inlineValue_1 = __webpack_require__(8970);
+const foldingRange_1 = __webpack_require__(7040);
+// import { InlineCompletionFeatureShape, InlineCompletionFeature } from './inlineCompletion.proposed';
+const inlayHint_1 = __webpack_require__(6507);
+const diagnostic_1 = __webpack_require__(6634);
+const notebook_1 = __webpack_require__(9748);
+const moniker_1 = __webpack_require__(8120);
+function null2Undefined(value) {
+    if (value === null) {
+        return undefined;
+    }
+    return value;
+}
+/**
+ * Helps tracking error message. Equal occurrences of the same
+ * message are only stored once. This class is for example
+ * useful if text documents are validated in a loop and equal
+ * error message should be folded into one.
+ */
+class ErrorMessageTracker {
+    constructor() {
+        this._messages = Object.create(null);
+    }
+    /**
+     * Add a message to the tracker.
+     *
+     * @param message The message to add.
+     */
+    add(message) {
+        let count = this._messages[message];
+        if (!count) {
+            count = 0;
+        }
+        count++;
+        this._messages[message] = count;
+    }
+    /**
+     * Send all tracked messages to the connection's window.
+     *
+     * @param connection The connection established between client and server.
+     */
+    sendErrors(connection) {
+        Object.keys(this._messages).forEach(message => {
+            connection.window.showErrorMessage(message);
+        });
+    }
+}
+exports.ErrorMessageTracker = ErrorMessageTracker;
+class RemoteConsoleImpl {
+    constructor() {
+    }
+    rawAttach(connection) {
+        this._rawConnection = connection;
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    initialize(_capabilities) {
+    }
+    error(message) {
+        this.send(vscode_languageserver_protocol_1.MessageType.Error, message);
+    }
+    warn(message) {
+        this.send(vscode_languageserver_protocol_1.MessageType.Warning, message);
+    }
+    info(message) {
+        this.send(vscode_languageserver_protocol_1.MessageType.Info, message);
+    }
+    log(message) {
+        this.send(vscode_languageserver_protocol_1.MessageType.Log, message);
+    }
+    debug(message) {
+        this.send(vscode_languageserver_protocol_1.MessageType.Debug, message);
+    }
+    send(type, message) {
+        if (this._rawConnection) {
+            this._rawConnection.sendNotification(vscode_languageserver_protocol_1.LogMessageNotification.type, { type, message }).catch(() => {
+                (0, vscode_languageserver_protocol_1.RAL)().console.error(`Sending log message failed`);
+            });
+        }
+    }
+}
+class _RemoteWindowImpl {
+    constructor() {
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    initialize(_capabilities) {
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    showErrorMessage(message, ...actions) {
+        let params = { type: vscode_languageserver_protocol_1.MessageType.Error, message, actions };
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.ShowMessageRequest.type, params).then(null2Undefined);
+    }
+    showWarningMessage(message, ...actions) {
+        let params = { type: vscode_languageserver_protocol_1.MessageType.Warning, message, actions };
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.ShowMessageRequest.type, params).then(null2Undefined);
+    }
+    showInformationMessage(message, ...actions) {
+        let params = { type: vscode_languageserver_protocol_1.MessageType.Info, message, actions };
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.ShowMessageRequest.type, params).then(null2Undefined);
+    }
+}
+const RemoteWindowImpl = (0, showDocument_1.ShowDocumentFeature)((0, progress_1.ProgressFeature)(_RemoteWindowImpl));
+var BulkRegistration;
+(function (BulkRegistration) {
+    /**
+     * Creates a new bulk registration.
+     * @return an empty bulk registration.
+     */
+    function create() {
+        return new BulkRegistrationImpl();
+    }
+    BulkRegistration.create = create;
+})(BulkRegistration || (exports.BulkRegistration = BulkRegistration = {}));
+class BulkRegistrationImpl {
+    constructor() {
+        this._registrations = [];
+        this._registered = new Set();
+    }
+    add(type, registerOptions) {
+        const method = Is.string(type) ? type : type.method;
+        if (this._registered.has(method)) {
+            throw new Error(`${method} is already added to this registration`);
+        }
+        const id = UUID.generateUuid();
+        this._registrations.push({
+            id: id,
+            method: method,
+            registerOptions: registerOptions || {}
+        });
+        this._registered.add(method);
+    }
+    asRegistrationParams() {
+        return {
+            registrations: this._registrations
+        };
+    }
+}
+var BulkUnregistration;
+(function (BulkUnregistration) {
+    function create() {
+        return new BulkUnregistrationImpl(undefined, []);
+    }
+    BulkUnregistration.create = create;
+})(BulkUnregistration || (exports.BulkUnregistration = BulkUnregistration = {}));
+class BulkUnregistrationImpl {
+    constructor(_connection, unregistrations) {
+        this._connection = _connection;
+        this._unregistrations = new Map();
+        unregistrations.forEach(unregistration => {
+            this._unregistrations.set(unregistration.method, unregistration);
+        });
+    }
+    get isAttached() {
+        return !!this._connection;
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    add(unregistration) {
+        this._unregistrations.set(unregistration.method, unregistration);
+    }
+    dispose() {
+        let unregistrations = [];
+        for (let unregistration of this._unregistrations.values()) {
+            unregistrations.push(unregistration);
+        }
+        let params = {
+            unregisterations: unregistrations
+        };
+        this._connection.sendRequest(vscode_languageserver_protocol_1.UnregistrationRequest.type, params).catch(() => {
+            this._connection.console.info(`Bulk unregistration failed.`);
+        });
+    }
+    disposeSingle(arg) {
+        const method = Is.string(arg) ? arg : arg.method;
+        const unregistration = this._unregistrations.get(method);
+        if (!unregistration) {
+            return false;
+        }
+        let params = {
+            unregisterations: [unregistration]
+        };
+        this._connection.sendRequest(vscode_languageserver_protocol_1.UnregistrationRequest.type, params).then(() => {
+            this._unregistrations.delete(method);
+        }, (_error) => {
+            this._connection.console.info(`Un-registering request handler for ${unregistration.id} failed.`);
+        });
+        return true;
+    }
+}
+class RemoteClientImpl {
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    initialize(_capabilities) {
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    register(typeOrRegistrations, registerOptionsOrType, registerOptions) {
+        if (typeOrRegistrations instanceof BulkRegistrationImpl) {
+            return this.registerMany(typeOrRegistrations);
+        }
+        else if (typeOrRegistrations instanceof BulkUnregistrationImpl) {
+            return this.registerSingle1(typeOrRegistrations, registerOptionsOrType, registerOptions);
+        }
+        else {
+            return this.registerSingle2(typeOrRegistrations, registerOptionsOrType);
+        }
+    }
+    registerSingle1(unregistration, type, registerOptions) {
+        const method = Is.string(type) ? type : type.method;
+        const id = UUID.generateUuid();
+        let params = {
+            registrations: [{ id, method, registerOptions: registerOptions || {} }]
+        };
+        if (!unregistration.isAttached) {
+            unregistration.attach(this.connection);
+        }
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.RegistrationRequest.type, params).then((_result) => {
+            unregistration.add({ id: id, method: method });
+            return unregistration;
+        }, (_error) => {
+            this.connection.console.info(`Registering request handler for ${method} failed.`);
+            return Promise.reject(_error);
+        });
+    }
+    registerSingle2(type, registerOptions) {
+        const method = Is.string(type) ? type : type.method;
+        const id = UUID.generateUuid();
+        let params = {
+            registrations: [{ id, method, registerOptions: registerOptions || {} }]
+        };
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.RegistrationRequest.type, params).then((_result) => {
+            return vscode_languageserver_protocol_1.Disposable.create(() => {
+                this.unregisterSingle(id, method).catch(() => { this.connection.console.info(`Un-registering capability with id ${id} failed.`); });
+            });
+        }, (_error) => {
+            this.connection.console.info(`Registering request handler for ${method} failed.`);
+            return Promise.reject(_error);
+        });
+    }
+    unregisterSingle(id, method) {
+        let params = {
+            unregisterations: [{ id, method }]
+        };
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.UnregistrationRequest.type, params).catch(() => {
+            this.connection.console.info(`Un-registering request handler for ${id} failed.`);
+        });
+    }
+    registerMany(registrations) {
+        let params = registrations.asRegistrationParams();
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.RegistrationRequest.type, params).then(() => {
+            return new BulkUnregistrationImpl(this._connection, params.registrations.map(registration => { return { id: registration.id, method: registration.method }; }));
+        }, (_error) => {
+            this.connection.console.info(`Bulk registration failed.`);
+            return Promise.reject(_error);
+        });
+    }
+}
+class _RemoteWorkspaceImpl {
+    constructor() {
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    initialize(_capabilities) {
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    applyEdit(paramOrEdit) {
+        function isApplyWorkspaceEditParams(value) {
+            return value && !!value.edit;
+        }
+        let params = isApplyWorkspaceEditParams(paramOrEdit) ? paramOrEdit : { edit: paramOrEdit };
+        return this.connection.sendRequest(vscode_languageserver_protocol_1.ApplyWorkspaceEditRequest.type, params);
+    }
+}
+const RemoteWorkspaceImpl = (0, fileOperations_1.FileOperationsFeature)((0, workspaceFolder_1.WorkspaceFoldersFeature)((0, configuration_1.ConfigurationFeature)(_RemoteWorkspaceImpl)));
+class TracerImpl {
+    constructor() {
+        this._trace = vscode_languageserver_protocol_1.Trace.Off;
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    initialize(_capabilities) {
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    set trace(value) {
+        this._trace = value;
+    }
+    log(message, verbose) {
+        if (this._trace === vscode_languageserver_protocol_1.Trace.Off) {
+            return;
+        }
+        this.connection.sendNotification(vscode_languageserver_protocol_1.LogTraceNotification.type, {
+            message: message,
+            verbose: this._trace === vscode_languageserver_protocol_1.Trace.Verbose ? verbose : undefined
+        }).catch(() => {
+            // Very hard to decide what to do. We tried to send a log
+            // message which failed so we can't simply send another :-(.
+        });
+    }
+}
+class TelemetryImpl {
+    constructor() {
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    initialize(_capabilities) {
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    logEvent(data) {
+        this.connection.sendNotification(vscode_languageserver_protocol_1.TelemetryEventNotification.type, data).catch(() => {
+            this.connection.console.log(`Sending TelemetryEventNotification failed`);
+        });
+    }
+}
+class _LanguagesImpl {
+    constructor() {
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    initialize(_capabilities) {
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    attachWorkDoneProgress(params) {
+        return (0, progress_1.attachWorkDone)(this.connection, params);
+    }
+    attachPartialResultProgress(_type, params) {
+        return (0, progress_1.attachPartialResult)(this.connection, params);
+    }
+}
+exports._LanguagesImpl = _LanguagesImpl;
+const LanguagesImpl = (0, foldingRange_1.FoldingRangeFeature)((0, moniker_1.MonikerFeature)((0, diagnostic_1.DiagnosticFeature)((0, inlayHint_1.InlayHintFeature)((0, inlineValue_1.InlineValueFeature)((0, typeHierarchy_1.TypeHierarchyFeature)((0, linkedEditingRange_1.LinkedEditingRangeFeature)((0, semanticTokens_1.SemanticTokensFeature)((0, callHierarchy_1.CallHierarchyFeature)(_LanguagesImpl)))))))));
+class _NotebooksImpl {
+    constructor() {
+    }
+    attach(connection) {
+        this._connection = connection;
+    }
+    get connection() {
+        if (!this._connection) {
+            throw new Error('Remote is not attached to a connection yet.');
+        }
+        return this._connection;
+    }
+    initialize(_capabilities) {
+    }
+    fillServerCapabilities(_capabilities) {
+    }
+    attachWorkDoneProgress(params) {
+        return (0, progress_1.attachWorkDone)(this.connection, params);
+    }
+    attachPartialResultProgress(_type, params) {
+        return (0, progress_1.attachPartialResult)(this.connection, params);
+    }
+}
+exports._NotebooksImpl = _NotebooksImpl;
+const NotebooksImpl = (0, notebook_1.NotebookSyncFeature)(_NotebooksImpl);
+function combineConsoleFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineConsoleFeatures = combineConsoleFeatures;
+function combineTelemetryFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineTelemetryFeatures = combineTelemetryFeatures;
+function combineTracerFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineTracerFeatures = combineTracerFeatures;
+function combineClientFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineClientFeatures = combineClientFeatures;
+function combineWindowFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineWindowFeatures = combineWindowFeatures;
+function combineWorkspaceFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineWorkspaceFeatures = combineWorkspaceFeatures;
+function combineLanguagesFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineLanguagesFeatures = combineLanguagesFeatures;
+function combineNotebooksFeatures(one, two) {
+    return function (Base) {
+        return two(one(Base));
+    };
+}
+exports.combineNotebooksFeatures = combineNotebooksFeatures;
+function combineFeatures(one, two) {
+    function combine(one, two, func) {
+        if (one && two) {
+            return func(one, two);
+        }
+        else if (one) {
+            return one;
+        }
+        else {
+            return two;
+        }
+    }
+    let result = {
+        __brand: 'features',
+        console: combine(one.console, two.console, combineConsoleFeatures),
+        tracer: combine(one.tracer, two.tracer, combineTracerFeatures),
+        telemetry: combine(one.telemetry, two.telemetry, combineTelemetryFeatures),
+        client: combine(one.client, two.client, combineClientFeatures),
+        window: combine(one.window, two.window, combineWindowFeatures),
+        workspace: combine(one.workspace, two.workspace, combineWorkspaceFeatures),
+        languages: combine(one.languages, two.languages, combineLanguagesFeatures),
+        notebooks: combine(one.notebooks, two.notebooks, combineNotebooksFeatures)
+    };
+    return result;
+}
+exports.combineFeatures = combineFeatures;
+function createConnection(connectionFactory, watchDog, factories) {
+    const logger = (factories && factories.console ? new (factories.console(RemoteConsoleImpl))() : new RemoteConsoleImpl());
+    const connection = connectionFactory(logger);
+    logger.rawAttach(connection);
+    const tracer = (factories && factories.tracer ? new (factories.tracer(TracerImpl))() : new TracerImpl());
+    const telemetry = (factories && factories.telemetry ? new (factories.telemetry(TelemetryImpl))() : new TelemetryImpl());
+    const client = (factories && factories.client ? new (factories.client(RemoteClientImpl))() : new RemoteClientImpl());
+    const remoteWindow = (factories && factories.window ? new (factories.window(RemoteWindowImpl))() : new RemoteWindowImpl());
+    const workspace = (factories && factories.workspace ? new (factories.workspace(RemoteWorkspaceImpl))() : new RemoteWorkspaceImpl());
+    const languages = (factories && factories.languages ? new (factories.languages(LanguagesImpl))() : new LanguagesImpl());
+    const notebooks = (factories && factories.notebooks ? new (factories.notebooks(NotebooksImpl))() : new NotebooksImpl());
+    const allRemotes = [logger, tracer, telemetry, client, remoteWindow, workspace, languages, notebooks];
+    function asPromise(value) {
+        if (value instanceof Promise) {
+            return value;
+        }
+        else if (Is.thenable(value)) {
+            return new Promise((resolve, reject) => {
+                value.then((resolved) => resolve(resolved), (error) => reject(error));
+            });
+        }
+        else {
+            return Promise.resolve(value);
+        }
+    }
+    let shutdownHandler = undefined;
+    let initializeHandler = undefined;
+    let exitHandler = undefined;
+    let protocolConnection = {
+        listen: () => connection.listen(),
+        sendRequest: (type, ...params) => connection.sendRequest(Is.string(type) ? type : type.method, ...params),
+        onRequest: (type, handler) => connection.onRequest(type, handler),
+        sendNotification: (type, param) => {
+            const method = Is.string(type) ? type : type.method;
+            return connection.sendNotification(method, param);
+        },
+        onNotification: (type, handler) => connection.onNotification(type, handler),
+        onProgress: connection.onProgress,
+        sendProgress: connection.sendProgress,
+        onInitialize: (handler) => {
+            initializeHandler = handler;
+            return {
+                dispose: () => {
+                    initializeHandler = undefined;
+                }
+            };
+        },
+        onInitialized: (handler) => connection.onNotification(vscode_languageserver_protocol_1.InitializedNotification.type, handler),
+        onShutdown: (handler) => {
+            shutdownHandler = handler;
+            return {
+                dispose: () => {
+                    shutdownHandler = undefined;
+                }
+            };
+        },
+        onExit: (handler) => {
+            exitHandler = handler;
+            return {
+                dispose: () => {
+                    exitHandler = undefined;
+                }
+            };
+        },
+        get console() { return logger; },
+        get telemetry() { return telemetry; },
+        get tracer() { return tracer; },
+        get client() { return client; },
+        get window() { return remoteWindow; },
+        get workspace() { return workspace; },
+        get languages() { return languages; },
+        get notebooks() { return notebooks; },
+        onDidChangeConfiguration: (handler) => connection.onNotification(vscode_languageserver_protocol_1.DidChangeConfigurationNotification.type, handler),
+        onDidChangeWatchedFiles: (handler) => connection.onNotification(vscode_languageserver_protocol_1.DidChangeWatchedFilesNotification.type, handler),
+        __textDocumentSync: undefined,
+        onDidOpenTextDocument: (handler) => connection.onNotification(vscode_languageserver_protocol_1.DidOpenTextDocumentNotification.type, handler),
+        onDidChangeTextDocument: (handler) => connection.onNotification(vscode_languageserver_protocol_1.DidChangeTextDocumentNotification.type, handler),
+        onDidCloseTextDocument: (handler) => connection.onNotification(vscode_languageserver_protocol_1.DidCloseTextDocumentNotification.type, handler),
+        onWillSaveTextDocument: (handler) => connection.onNotification(vscode_languageserver_protocol_1.WillSaveTextDocumentNotification.type, handler),
+        onWillSaveTextDocumentWaitUntil: (handler) => connection.onRequest(vscode_languageserver_protocol_1.WillSaveTextDocumentWaitUntilRequest.type, handler),
+        onDidSaveTextDocument: (handler) => connection.onNotification(vscode_languageserver_protocol_1.DidSaveTextDocumentNotification.type, handler),
+        sendDiagnostics: (params) => connection.sendNotification(vscode_languageserver_protocol_1.PublishDiagnosticsNotification.type, params),
+        onHover: (handler) => connection.onRequest(vscode_languageserver_protocol_1.HoverRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), undefined);
+        }),
+        onCompletion: (handler) => connection.onRequest(vscode_languageserver_protocol_1.CompletionRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onCompletionResolve: (handler) => connection.onRequest(vscode_languageserver_protocol_1.CompletionResolveRequest.type, handler),
+        onSignatureHelp: (handler) => connection.onRequest(vscode_languageserver_protocol_1.SignatureHelpRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), undefined);
+        }),
+        onDeclaration: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DeclarationRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onDefinition: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DefinitionRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onTypeDefinition: (handler) => connection.onRequest(vscode_languageserver_protocol_1.TypeDefinitionRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onImplementation: (handler) => connection.onRequest(vscode_languageserver_protocol_1.ImplementationRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onReferences: (handler) => connection.onRequest(vscode_languageserver_protocol_1.ReferencesRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onDocumentHighlight: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentHighlightRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onDocumentSymbol: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentSymbolRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onWorkspaceSymbol: (handler) => connection.onRequest(vscode_languageserver_protocol_1.WorkspaceSymbolRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onWorkspaceSymbolResolve: (handler) => connection.onRequest(vscode_languageserver_protocol_1.WorkspaceSymbolResolveRequest.type, handler),
+        onCodeAction: (handler) => connection.onRequest(vscode_languageserver_protocol_1.CodeActionRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onCodeActionResolve: (handler) => connection.onRequest(vscode_languageserver_protocol_1.CodeActionResolveRequest.type, (params, cancel) => {
+            return handler(params, cancel);
+        }),
+        onCodeLens: (handler) => connection.onRequest(vscode_languageserver_protocol_1.CodeLensRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onCodeLensResolve: (handler) => connection.onRequest(vscode_languageserver_protocol_1.CodeLensResolveRequest.type, (params, cancel) => {
+            return handler(params, cancel);
+        }),
+        onDocumentFormatting: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentFormattingRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), undefined);
+        }),
+        onDocumentRangeFormatting: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentRangeFormattingRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), undefined);
+        }),
+        onDocumentOnTypeFormatting: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentOnTypeFormattingRequest.type, (params, cancel) => {
+            return handler(params, cancel);
+        }),
+        onRenameRequest: (handler) => connection.onRequest(vscode_languageserver_protocol_1.RenameRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), undefined);
+        }),
+        onPrepareRename: (handler) => connection.onRequest(vscode_languageserver_protocol_1.PrepareRenameRequest.type, (params, cancel) => {
+            return handler(params, cancel);
+        }),
+        onDocumentLinks: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentLinkRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onDocumentLinkResolve: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentLinkResolveRequest.type, (params, cancel) => {
+            return handler(params, cancel);
+        }),
+        onDocumentColor: (handler) => connection.onRequest(vscode_languageserver_protocol_1.DocumentColorRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onColorPresentation: (handler) => connection.onRequest(vscode_languageserver_protocol_1.ColorPresentationRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onFoldingRanges: (handler) => connection.onRequest(vscode_languageserver_protocol_1.FoldingRangeRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onSelectionRanges: (handler) => connection.onRequest(vscode_languageserver_protocol_1.SelectionRangeRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), (0, progress_1.attachPartialResult)(connection, params));
+        }),
+        onExecuteCommand: (handler) => connection.onRequest(vscode_languageserver_protocol_1.ExecuteCommandRequest.type, (params, cancel) => {
+            return handler(params, cancel, (0, progress_1.attachWorkDone)(connection, params), undefined);
+        }),
+        dispose: () => connection.dispose()
+    };
+    for (let remote of allRemotes) {
+        remote.attach(protocolConnection);
+    }
+    connection.onRequest(vscode_languageserver_protocol_1.InitializeRequest.type, (params) => {
+        watchDog.initialize(params);
+        if (Is.string(params.trace)) {
+            tracer.trace = vscode_languageserver_protocol_1.Trace.fromString(params.trace);
+        }
+        for (let remote of allRemotes) {
+            remote.initialize(params.capabilities);
+        }
+        if (initializeHandler) {
+            let result = initializeHandler(params, new vscode_languageserver_protocol_1.CancellationTokenSource().token, (0, progress_1.attachWorkDone)(connection, params), undefined);
+            return asPromise(result).then((value) => {
+                if (value instanceof vscode_languageserver_protocol_1.ResponseError) {
+                    return value;
+                }
+                let result = value;
+                if (!result) {
+                    result = { capabilities: {} };
+                }
+                let capabilities = result.capabilities;
+                if (!capabilities) {
+                    capabilities = {};
+                    result.capabilities = capabilities;
+                }
+                if (capabilities.textDocumentSync === undefined || capabilities.textDocumentSync === null) {
+                    capabilities.textDocumentSync = Is.number(protocolConnection.__textDocumentSync) ? protocolConnection.__textDocumentSync : vscode_languageserver_protocol_1.TextDocumentSyncKind.None;
+                }
+                else if (!Is.number(capabilities.textDocumentSync) && !Is.number(capabilities.textDocumentSync.change)) {
+                    capabilities.textDocumentSync.change = Is.number(protocolConnection.__textDocumentSync) ? protocolConnection.__textDocumentSync : vscode_languageserver_protocol_1.TextDocumentSyncKind.None;
+                }
+                for (let remote of allRemotes) {
+                    remote.fillServerCapabilities(capabilities);
+                }
+                return result;
+            });
+        }
+        else {
+            let result = { capabilities: { textDocumentSync: vscode_languageserver_protocol_1.TextDocumentSyncKind.None } };
+            for (let remote of allRemotes) {
+                remote.fillServerCapabilities(result.capabilities);
+            }
+            return result;
+        }
+    });
+    connection.onRequest(vscode_languageserver_protocol_1.ShutdownRequest.type, () => {
+        watchDog.shutdownReceived = true;
+        if (shutdownHandler) {
+            return shutdownHandler(new vscode_languageserver_protocol_1.CancellationTokenSource().token);
+        }
+        else {
+            return undefined;
+        }
+    });
+    connection.onNotification(vscode_languageserver_protocol_1.ExitNotification.type, () => {
+        try {
+            if (exitHandler) {
+                exitHandler();
+            }
+        }
+        finally {
+            if (watchDog.shutdownReceived) {
+                watchDog.exit(0);
+            }
+            else {
+                watchDog.exit(1);
+            }
+        }
+    });
+    connection.onNotification(vscode_languageserver_protocol_1.SetTraceNotification.type, (params) => {
+        tracer.trace = vscode_languageserver_protocol_1.Trace.fromString(params.value);
+    });
+    return protocolConnection;
+}
+exports.createConnection = createConnection;
+
+
+/***/ }),
+
+/***/ 5421:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ShowDocumentFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const ShowDocumentFeature = (Base) => {
+    return class extends Base {
+        showDocument(params) {
+            return this.connection.sendRequest(vscode_languageserver_protocol_1.ShowDocumentRequest.type, params);
+        }
+    };
+};
+exports.ShowDocumentFeature = ShowDocumentFeature;
+
+
+/***/ }),
+
+/***/ 8382:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TextDocuments = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+/**
+ * A manager for simple text documents. The manager requires at a minimum that
+ * the server registered for the following text document sync events in the
+ * initialize handler or via dynamic registration:
+ *
+ * - open and close events.
+ * - change events.
+ *
+ * Registering for save and will save events is optional.
+ */
+class TextDocuments {
+    /**
+     * Create a new text document manager.
+     */
+    constructor(configuration) {
+        this._configuration = configuration;
+        this._syncedDocuments = new Map();
+        this._onDidChangeContent = new vscode_languageserver_protocol_1.Emitter();
+        this._onDidOpen = new vscode_languageserver_protocol_1.Emitter();
+        this._onDidClose = new vscode_languageserver_protocol_1.Emitter();
+        this._onDidSave = new vscode_languageserver_protocol_1.Emitter();
+        this._onWillSave = new vscode_languageserver_protocol_1.Emitter();
+    }
+    /**
+     * An event that fires when a text document managed by this manager
+     * has been opened.
+     */
+    get onDidOpen() {
+        return this._onDidOpen.event;
+    }
+    /**
+     * An event that fires when a text document managed by this manager
+     * has been opened or the content changes.
+     */
+    get onDidChangeContent() {
+        return this._onDidChangeContent.event;
+    }
+    /**
+     * An event that fires when a text document managed by this manager
+     * will be saved.
+     */
+    get onWillSave() {
+        return this._onWillSave.event;
+    }
+    /**
+     * Sets a handler that will be called if a participant wants to provide
+     * edits during a text document save.
+     */
+    onWillSaveWaitUntil(handler) {
+        this._willSaveWaitUntil = handler;
+    }
+    /**
+     * An event that fires when a text document managed by this manager
+     * has been saved.
+     */
+    get onDidSave() {
+        return this._onDidSave.event;
+    }
+    /**
+     * An event that fires when a text document managed by this manager
+     * has been closed.
+     */
+    get onDidClose() {
+        return this._onDidClose.event;
+    }
+    /**
+     * Returns the document for the given URI. Returns undefined if
+     * the document is not managed by this instance.
+     *
+     * @param uri The text document's URI to retrieve.
+     * @return the text document or `undefined`.
+     */
+    get(uri) {
+        return this._syncedDocuments.get(uri);
+    }
+    /**
+     * Returns all text documents managed by this instance.
+     *
+     * @return all text documents.
+     */
+    all() {
+        return Array.from(this._syncedDocuments.values());
+    }
+    /**
+     * Returns the URIs of all text documents managed by this instance.
+     *
+     * @return the URI's of all text documents.
+     */
+    keys() {
+        return Array.from(this._syncedDocuments.keys());
+    }
+    /**
+     * Listens for `low level` notification on the given connection to
+     * update the text documents managed by this instance.
+     *
+     * Please note that the connection only provides handlers not an event model. Therefore
+     * listening on a connection will overwrite the following handlers on a connection:
+     * `onDidOpenTextDocument`, `onDidChangeTextDocument`, `onDidCloseTextDocument`,
+     * `onWillSaveTextDocument`, `onWillSaveTextDocumentWaitUntil` and `onDidSaveTextDocument`.
+     *
+     * Use the corresponding events on the TextDocuments instance instead.
+     *
+     * @param connection The connection to listen on.
+     */
+    listen(connection) {
+        connection.__textDocumentSync = vscode_languageserver_protocol_1.TextDocumentSyncKind.Incremental;
+        const disposables = [];
+        disposables.push(connection.onDidOpenTextDocument((event) => {
+            const td = event.textDocument;
+            const document = this._configuration.create(td.uri, td.languageId, td.version, td.text);
+            this._syncedDocuments.set(td.uri, document);
+            const toFire = Object.freeze({ document });
+            this._onDidOpen.fire(toFire);
+            this._onDidChangeContent.fire(toFire);
+        }));
+        disposables.push(connection.onDidChangeTextDocument((event) => {
+            const td = event.textDocument;
+            const changes = event.contentChanges;
+            if (changes.length === 0) {
+                return;
+            }
+            const { version } = td;
+            if (version === null || version === undefined) {
+                throw new Error(`Received document change event for ${td.uri} without valid version identifier`);
+            }
+            let syncedDocument = this._syncedDocuments.get(td.uri);
+            if (syncedDocument !== undefined) {
+                syncedDocument = this._configuration.update(syncedDocument, changes, version);
+                this._syncedDocuments.set(td.uri, syncedDocument);
+                this._onDidChangeContent.fire(Object.freeze({ document: syncedDocument }));
+            }
+        }));
+        disposables.push(connection.onDidCloseTextDocument((event) => {
+            let syncedDocument = this._syncedDocuments.get(event.textDocument.uri);
+            if (syncedDocument !== undefined) {
+                this._syncedDocuments.delete(event.textDocument.uri);
+                this._onDidClose.fire(Object.freeze({ document: syncedDocument }));
+            }
+        }));
+        disposables.push(connection.onWillSaveTextDocument((event) => {
+            let syncedDocument = this._syncedDocuments.get(event.textDocument.uri);
+            if (syncedDocument !== undefined) {
+                this._onWillSave.fire(Object.freeze({ document: syncedDocument, reason: event.reason }));
+            }
+        }));
+        disposables.push(connection.onWillSaveTextDocumentWaitUntil((event, token) => {
+            let syncedDocument = this._syncedDocuments.get(event.textDocument.uri);
+            if (syncedDocument !== undefined && this._willSaveWaitUntil) {
+                return this._willSaveWaitUntil(Object.freeze({ document: syncedDocument, reason: event.reason }), token);
+            }
+            else {
+                return [];
+            }
+        }));
+        disposables.push(connection.onDidSaveTextDocument((event) => {
+            let syncedDocument = this._syncedDocuments.get(event.textDocument.uri);
+            if (syncedDocument !== undefined) {
+                this._onDidSave.fire(Object.freeze({ document: syncedDocument }));
+            }
+        }));
+        return vscode_languageserver_protocol_1.Disposable.create(() => { disposables.forEach(disposable => disposable.dispose()); });
+    }
+}
+exports.TextDocuments = TextDocuments;
+
+
+/***/ }),
+
+/***/ 4606:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TypeHierarchyFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const TypeHierarchyFeature = (Base) => {
+    return class extends Base {
+        get typeHierarchy() {
+            return {
+                onPrepare: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.TypeHierarchyPrepareRequest.type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), undefined);
+                    });
+                },
+                onSupertypes: (handler) => {
+                    const type = vscode_languageserver_protocol_1.TypeHierarchySupertypesRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                },
+                onSubtypes: (handler) => {
+                    const type = vscode_languageserver_protocol_1.TypeHierarchySubtypesRequest.type;
+                    return this.connection.onRequest(type, (params, cancel) => {
+                        return handler(params, cancel, this.attachWorkDoneProgress(params), this.attachPartialResultProgress(type, params));
+                    });
+                }
+            };
+        }
+    };
+};
+exports.TypeHierarchyFeature = TypeHierarchyFeature;
+
+
+/***/ }),
+
+/***/ 289:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.thenable = exports.typedArray = exports.stringArray = exports.array = exports.func = exports.error = exports.number = exports.string = exports.boolean = void 0;
+function boolean(value) {
+    return value === true || value === false;
+}
+exports.boolean = boolean;
+function string(value) {
+    return typeof value === 'string' || value instanceof String;
+}
+exports.string = string;
+function number(value) {
+    return typeof value === 'number' || value instanceof Number;
+}
+exports.number = number;
+function error(value) {
+    return value instanceof Error;
+}
+exports.error = error;
+function func(value) {
+    return typeof value === 'function';
+}
+exports.func = func;
+function array(value) {
+    return Array.isArray(value);
+}
+exports.array = array;
+function stringArray(value) {
+    return array(value) && value.every(elem => string(elem));
+}
+exports.stringArray = stringArray;
+function typedArray(value, check) {
+    return Array.isArray(value) && value.every(check);
+}
+exports.typedArray = typedArray;
+function thenable(value) {
+    return value && func(value.then);
+}
+exports.thenable = thenable;
+
+
+/***/ }),
+
+/***/ 7560:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.generateUuid = exports.parse = exports.isUUID = exports.v4 = exports.empty = void 0;
+class ValueUUID {
+    constructor(_value) {
+        this._value = _value;
+        // empty
+    }
+    asHex() {
+        return this._value;
+    }
+    equals(other) {
+        return this.asHex() === other.asHex();
+    }
+}
+class V4UUID extends ValueUUID {
+    static _oneOf(array) {
+        return array[Math.floor(array.length * Math.random())];
+    }
+    static _randomHex() {
+        return V4UUID._oneOf(V4UUID._chars);
+    }
+    constructor() {
+        super([
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            '-',
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            '-',
+            '4',
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            '-',
+            V4UUID._oneOf(V4UUID._timeHighBits),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            '-',
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+            V4UUID._randomHex(),
+        ].join(''));
+    }
+}
+V4UUID._chars = ['0', '1', '2', '3', '4', '5', '6', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+V4UUID._timeHighBits = ['8', '9', 'a', 'b'];
+/**
+ * An empty UUID that contains only zeros.
+ */
+exports.empty = new ValueUUID('00000000-0000-0000-0000-000000000000');
+function v4() {
+    return new V4UUID();
+}
+exports.v4 = v4;
+const _UUIDPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function isUUID(value) {
+    return _UUIDPattern.test(value);
+}
+exports.isUUID = isUUID;
+/**
+ * Parses a UUID that is of the format xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
+ * @param value A uuid string.
+ */
+function parse(value) {
+    if (!isUUID(value)) {
+        throw new Error('invalid uuid');
+    }
+    return new ValueUUID(value);
+}
+exports.parse = parse;
+function generateUuid() {
+    return v4().asHex();
+}
+exports.generateUuid = generateUuid;
+
+
+/***/ }),
+
+/***/ 1836:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WorkspaceFoldersFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(273);
+const WorkspaceFoldersFeature = (Base) => {
+    return class extends Base {
+        constructor() {
+            super();
+            this._notificationIsAutoRegistered = false;
+        }
+        initialize(capabilities) {
+            super.initialize(capabilities);
+            let workspaceCapabilities = capabilities.workspace;
+            if (workspaceCapabilities && workspaceCapabilities.workspaceFolders) {
+                this._onDidChangeWorkspaceFolders = new vscode_languageserver_protocol_1.Emitter();
+                this.connection.onNotification(vscode_languageserver_protocol_1.DidChangeWorkspaceFoldersNotification.type, (params) => {
+                    this._onDidChangeWorkspaceFolders.fire(params.event);
+                });
+            }
+        }
+        fillServerCapabilities(capabilities) {
+            super.fillServerCapabilities(capabilities);
+            const changeNotifications = capabilities.workspace?.workspaceFolders?.changeNotifications;
+            this._notificationIsAutoRegistered = changeNotifications === true || typeof changeNotifications === 'string';
+        }
+        getWorkspaceFolders() {
+            return this.connection.sendRequest(vscode_languageserver_protocol_1.WorkspaceFoldersRequest.type);
+        }
+        get onDidChangeWorkspaceFolders() {
+            if (!this._onDidChangeWorkspaceFolders) {
+                throw new Error('Client doesn\'t support sending workspace folder change events.');
+            }
+            if (!this._notificationIsAutoRegistered && !this._unregistration) {
+                this._unregistration = this.connection.client.register(vscode_languageserver_protocol_1.DidChangeWorkspaceFoldersNotification.type);
+            }
+            return this._onDidChangeWorkspaceFolders.event;
+        }
+    };
+};
+exports.WorkspaceFoldersFeature = WorkspaceFoldersFeature;
+
+
+/***/ }),
+
+/***/ 7613:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveModulePath = exports.FileSystem = exports.resolveGlobalYarnPath = exports.resolveGlobalNodePath = exports.resolve = exports.uriToFilePath = void 0;
+const url = __webpack_require__(7310);
+const path = __webpack_require__(1017);
+const fs = __webpack_require__(7147);
+const child_process_1 = __webpack_require__(2081);
+/**
+ * @deprecated Use the `vscode-uri` npm module which provides a more
+ * complete implementation of handling VS Code URIs.
+ */
+function uriToFilePath(uri) {
+    let parsed = url.parse(uri);
+    if (parsed.protocol !== 'file:' || !parsed.path) {
+        return undefined;
+    }
+    let segments = parsed.path.split('/');
+    for (var i = 0, len = segments.length; i < len; i++) {
+        segments[i] = decodeURIComponent(segments[i]);
+    }
+    if (process.platform === 'win32' && segments.length > 1) {
+        let first = segments[0];
+        let second = segments[1];
+        // Do we have a drive letter and we started with a / which is the
+        // case if the first segement is empty (see split above)
+        if (first.length === 0 && second.length > 1 && second[1] === ':') {
+            // Remove first slash
+            segments.shift();
+        }
+    }
+    return path.normalize(segments.join('/'));
+}
+exports.uriToFilePath = uriToFilePath;
+function isWindows() {
+    return process.platform === 'win32';
+}
+function resolve(moduleName, nodePath, cwd, tracer) {
+    const nodePathKey = 'NODE_PATH';
+    const app = [
+        'var p = process;',
+        'p.on(\'message\',function(m){',
+        'if(m.c===\'e\'){',
+        'p.exit(0);',
+        '}',
+        'else if(m.c===\'rs\'){',
+        'try{',
+        'var r=require.resolve(m.a);',
+        'p.send({c:\'r\',s:true,r:r});',
+        '}',
+        'catch(err){',
+        'p.send({c:\'r\',s:false});',
+        '}',
+        '}',
+        '});'
+    ].join('');
+    return new Promise((resolve, reject) => {
+        let env = process.env;
+        let newEnv = Object.create(null);
+        Object.keys(env).forEach(key => newEnv[key] = env[key]);
+        if (nodePath && fs.existsSync(nodePath) /* see issue 545 */) {
+            if (newEnv[nodePathKey]) {
+                newEnv[nodePathKey] = nodePath + path.delimiter + newEnv[nodePathKey];
+            }
+            else {
+                newEnv[nodePathKey] = nodePath;
+            }
+            if (tracer) {
+                tracer(`NODE_PATH value is: ${newEnv[nodePathKey]}`);
+            }
+        }
+        newEnv['ELECTRON_RUN_AS_NODE'] = '1';
+        try {
+            let cp = (0, child_process_1.fork)('', [], {
+                cwd: cwd,
+                env: newEnv,
+                execArgv: ['-e', app]
+            });
+            if (cp.pid === void 0) {
+                reject(new Error(`Starting process to resolve node module  ${moduleName} failed`));
+                return;
+            }
+            cp.on('error', (error) => {
+                reject(error);
+            });
+            cp.on('message', (message) => {
+                if (message.c === 'r') {
+                    cp.send({ c: 'e' });
+                    if (message.s) {
+                        resolve(message.r);
+                    }
+                    else {
+                        reject(new Error(`Failed to resolve module: ${moduleName}`));
+                    }
+                }
+            });
+            let message = {
+                c: 'rs',
+                a: moduleName
+            };
+            cp.send(message);
+        }
+        catch (error) {
+            reject(error);
+        }
+    });
+}
+exports.resolve = resolve;
+/**
+ * Resolve the global npm package path.
+ * @deprecated Since this depends on the used package manager and their version the best is that servers
+ * implement this themselves since they know best what kind of package managers to support.
+ * @param tracer the tracer to use
+ */
+function resolveGlobalNodePath(tracer) {
+    let npmCommand = 'npm';
+    const env = Object.create(null);
+    Object.keys(process.env).forEach(key => env[key] = process.env[key]);
+    env['NO_UPDATE_NOTIFIER'] = 'true';
+    const options = {
+        encoding: 'utf8',
+        env
+    };
+    if (isWindows()) {
+        npmCommand = 'npm.cmd';
+        options.shell = true;
+    }
+    let handler = () => { };
+    try {
+        process.on('SIGPIPE', handler);
+        let stdout = (0, child_process_1.spawnSync)(npmCommand, ['config', 'get', 'prefix'], options).stdout;
+        if (!stdout) {
+            if (tracer) {
+                tracer(`'npm config get prefix' didn't return a value.`);
+            }
+            return undefined;
+        }
+        let prefix = stdout.trim();
+        if (tracer) {
+            tracer(`'npm config get prefix' value is: ${prefix}`);
+        }
+        if (prefix.length > 0) {
+            if (isWindows()) {
+                return path.join(prefix, 'node_modules');
+            }
+            else {
+                return path.join(prefix, 'lib', 'node_modules');
+            }
+        }
+        return undefined;
+    }
+    catch (err) {
+        return undefined;
+    }
+    finally {
+        process.removeListener('SIGPIPE', handler);
+    }
+}
+exports.resolveGlobalNodePath = resolveGlobalNodePath;
+/*
+ * Resolve the global yarn pakage path.
+ * @deprecated Since this depends on the used package manager and their version the best is that servers
+ * implement this themselves since they know best what kind of package managers to support.
+ * @param tracer the tracer to use
+ */
+function resolveGlobalYarnPath(tracer) {
+    let yarnCommand = 'yarn';
+    let options = {
+        encoding: 'utf8'
+    };
+    if (isWindows()) {
+        yarnCommand = 'yarn.cmd';
+        options.shell = true;
+    }
+    let handler = () => { };
+    try {
+        process.on('SIGPIPE', handler);
+        let results = (0, child_process_1.spawnSync)(yarnCommand, ['global', 'dir', '--json'], options);
+        let stdout = results.stdout;
+        if (!stdout) {
+            if (tracer) {
+                tracer(`'yarn global dir' didn't return a value.`);
+                if (results.stderr) {
+                    tracer(results.stderr);
+                }
+            }
+            return undefined;
+        }
+        let lines = stdout.trim().split(/\r?\n/);
+        for (let line of lines) {
+            try {
+                let yarn = JSON.parse(line);
+                if (yarn.type === 'log') {
+                    return path.join(yarn.data, 'node_modules');
+                }
+            }
+            catch (e) {
+                // Do nothing. Ignore the line
+            }
+        }
+        return undefined;
+    }
+    catch (err) {
+        return undefined;
+    }
+    finally {
+        process.removeListener('SIGPIPE', handler);
+    }
+}
+exports.resolveGlobalYarnPath = resolveGlobalYarnPath;
+var FileSystem;
+(function (FileSystem) {
+    let _isCaseSensitive = undefined;
+    function isCaseSensitive() {
+        if (_isCaseSensitive !== void 0) {
+            return _isCaseSensitive;
+        }
+        if (process.platform === 'win32') {
+            _isCaseSensitive = false;
+        }
+        else {
+            // convert current file name to upper case / lower case and check if file exists
+            // (guards against cases when name is already all uppercase or lowercase)
+            _isCaseSensitive = !fs.existsSync(__filename.toUpperCase()) || !fs.existsSync(__filename.toLowerCase());
+        }
+        return _isCaseSensitive;
+    }
+    FileSystem.isCaseSensitive = isCaseSensitive;
+    function isParent(parent, child) {
+        if (isCaseSensitive()) {
+            return path.normalize(child).indexOf(path.normalize(parent)) === 0;
+        }
+        else {
+            return path.normalize(child).toLowerCase().indexOf(path.normalize(parent).toLowerCase()) === 0;
+        }
+    }
+    FileSystem.isParent = isParent;
+})(FileSystem || (exports.FileSystem = FileSystem = {}));
+function resolveModulePath(workspaceRoot, moduleName, nodePath, tracer) {
+    if (nodePath) {
+        if (!path.isAbsolute(nodePath)) {
+            nodePath = path.join(workspaceRoot, nodePath);
+        }
+        return resolve(moduleName, nodePath, nodePath, tracer).then((value) => {
+            if (FileSystem.isParent(nodePath, value)) {
+                return value;
+            }
+            else {
+                return Promise.reject(new Error(`Failed to load ${moduleName} from node path location.`));
+            }
+        }).then(undefined, (_error) => {
+            return resolve(moduleName, resolveGlobalNodePath(tracer), workspaceRoot, tracer);
+        });
+    }
+    else {
+        return resolve(moduleName, resolveGlobalNodePath(tracer), workspaceRoot, tracer);
+    }
+}
+exports.resolveModulePath = resolveModulePath;
+
+
+/***/ }),
+
+/***/ 5809:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+/// <reference path="../../typings/thenable.d.ts" />
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createConnection = exports.Files = void 0;
+const node_util_1 = __webpack_require__(7261);
+const Is = __webpack_require__(289);
+const server_1 = __webpack_require__(9891);
+const fm = __webpack_require__(7613);
+const node_1 = __webpack_require__(6560);
+__exportStar(__webpack_require__(6560), exports);
+__exportStar(__webpack_require__(6265), exports);
+var Files;
+(function (Files) {
+    Files.uriToFilePath = fm.uriToFilePath;
+    Files.resolveGlobalNodePath = fm.resolveGlobalNodePath;
+    Files.resolveGlobalYarnPath = fm.resolveGlobalYarnPath;
+    Files.resolve = fm.resolve;
+    Files.resolveModulePath = fm.resolveModulePath;
+})(Files || (exports.Files = Files = {}));
+let _protocolConnection;
+function endProtocolConnection() {
+    if (_protocolConnection === undefined) {
+        return;
+    }
+    try {
+        _protocolConnection.end();
+    }
+    catch (_err) {
+        // Ignore. The client process could have already
+        // did and we can't send an end into the connection.
+    }
+}
+let _shutdownReceived = false;
+let exitTimer = undefined;
+function setupExitTimer() {
+    const argName = '--clientProcessId';
+    function runTimer(value) {
+        try {
+            let processId = parseInt(value);
+            if (!isNaN(processId)) {
+                exitTimer = setInterval(() => {
+                    try {
+                        process.kill(processId, 0);
+                    }
+                    catch (ex) {
+                        // Parent process doesn't exist anymore. Exit the server.
+                        endProtocolConnection();
+                        process.exit(_shutdownReceived ? 0 : 1);
+                    }
+                }, 3000);
+            }
+        }
+        catch (e) {
+            // Ignore errors;
+        }
+    }
+    for (let i = 2; i < process.argv.length; i++) {
+        let arg = process.argv[i];
+        if (arg === argName && i + 1 < process.argv.length) {
+            runTimer(process.argv[i + 1]);
+            return;
+        }
+        else {
+            let args = arg.split('=');
+            if (args[0] === argName) {
+                runTimer(args[1]);
+            }
+        }
+    }
+}
+setupExitTimer();
+const watchDog = {
+    initialize: (params) => {
+        const processId = params.processId;
+        if (Is.number(processId) && exitTimer === undefined) {
+            // We received a parent process id. Set up a timer to periodically check
+            // if the parent is still alive.
+            setInterval(() => {
+                try {
+                    process.kill(processId, 0);
+                }
+                catch (ex) {
+                    // Parent process doesn't exist anymore. Exit the server.
+                    process.exit(_shutdownReceived ? 0 : 1);
+                }
+            }, 3000);
+        }
+    },
+    get shutdownReceived() {
+        return _shutdownReceived;
+    },
+    set shutdownReceived(value) {
+        _shutdownReceived = value;
+    },
+    exit: (code) => {
+        endProtocolConnection();
+        process.exit(code);
+    }
+};
+function createConnection(arg1, arg2, arg3, arg4) {
+    let factories;
+    let input;
+    let output;
+    let options;
+    if (arg1 !== void 0 && arg1.__brand === 'features') {
+        factories = arg1;
+        arg1 = arg2;
+        arg2 = arg3;
+        arg3 = arg4;
+    }
+    if (node_1.ConnectionStrategy.is(arg1) || node_1.ConnectionOptions.is(arg1)) {
+        options = arg1;
+    }
+    else {
+        input = arg1;
+        output = arg2;
+        options = arg3;
+    }
+    return _createConnection(input, output, options, factories);
+}
+exports.createConnection = createConnection;
+function _createConnection(input, output, options, factories) {
+    let stdio = false;
+    if (!input && !output && process.argv.length > 2) {
+        let port = void 0;
+        let pipeName = void 0;
+        let argv = process.argv.slice(2);
+        for (let i = 0; i < argv.length; i++) {
+            let arg = argv[i];
+            if (arg === '--node-ipc') {
+                input = new node_1.IPCMessageReader(process);
+                output = new node_1.IPCMessageWriter(process);
+                break;
+            }
+            else if (arg === '--stdio') {
+                stdio = true;
+                input = process.stdin;
+                output = process.stdout;
+                break;
+            }
+            else if (arg === '--socket') {
+                port = parseInt(argv[i + 1]);
+                break;
+            }
+            else if (arg === '--pipe') {
+                pipeName = argv[i + 1];
+                break;
+            }
+            else {
+                var args = arg.split('=');
+                if (args[0] === '--socket') {
+                    port = parseInt(args[1]);
+                    break;
+                }
+                else if (args[0] === '--pipe') {
+                    pipeName = args[1];
+                    break;
+                }
+            }
+        }
+        if (port) {
+            let transport = (0, node_1.createServerSocketTransport)(port);
+            input = transport[0];
+            output = transport[1];
+        }
+        else if (pipeName) {
+            let transport = (0, node_1.createServerPipeTransport)(pipeName);
+            input = transport[0];
+            output = transport[1];
+        }
+    }
+    var commandLineMessage = 'Use arguments of createConnection or set command line parameters: \'--node-ipc\', \'--stdio\' or \'--socket={number}\'';
+    if (!input) {
+        throw new Error('Connection input stream is not set. ' + commandLineMessage);
+    }
+    if (!output) {
+        throw new Error('Connection output stream is not set. ' + commandLineMessage);
+    }
+    // Backwards compatibility
+    if (Is.func(input.read) && Is.func(input.on)) {
+        let inputStream = input;
+        inputStream.on('end', () => {
+            endProtocolConnection();
+            process.exit(_shutdownReceived ? 0 : 1);
+        });
+        inputStream.on('close', () => {
+            endProtocolConnection();
+            process.exit(_shutdownReceived ? 0 : 1);
+        });
+    }
+    const connectionFactory = (logger) => {
+        const result = (0, node_1.createProtocolConnection)(input, output, logger, options);
+        if (stdio) {
+            patchConsole(logger);
+        }
+        return result;
+    };
+    return (0, server_1.createConnection)(connectionFactory, watchDog, factories);
+}
+function patchConsole(logger) {
+    function serialize(args) {
+        return args.map(arg => typeof arg === 'string' ? arg : (0, node_util_1.inspect)(arg)).join(' ');
+    }
+    const counters = new Map();
+    console.assert = function assert(assertion, ...args) {
+        if (assertion) {
+            return;
+        }
+        if (args.length === 0) {
+            logger.error('Assertion failed');
+        }
+        else {
+            const [message, ...rest] = args;
+            logger.error(`Assertion failed: ${message} ${serialize(rest)}`);
+        }
+    };
+    console.count = function count(label = 'default') {
+        const message = String(label);
+        let counter = counters.get(message) ?? 0;
+        counter += 1;
+        counters.set(message, counter);
+        logger.log(`${message}: ${message}`);
+    };
+    console.countReset = function countReset(label) {
+        if (label === undefined) {
+            counters.clear();
+        }
+        else {
+            counters.delete(String(label));
+        }
+    };
+    console.debug = function debug(...args) {
+        logger.log(serialize(args));
+    };
+    console.dir = function dir(arg, options) {
+        // @ts-expect-error https://github.com/DefinitelyTyped/DefinitelyTyped/pull/66626
+        logger.log((0, node_util_1.inspect)(arg, options));
+    };
+    console.log = function log(...args) {
+        logger.log(serialize(args));
+    };
+    console.error = function error(...args) {
+        logger.error(serialize(args));
+    };
+    console.trace = function trace(...args) {
+        const stack = new Error().stack.replace(/(.+\n){2}/, '');
+        let message = 'Trace';
+        if (args.length !== 0) {
+            message += `: ${serialize(args)}`;
+        }
+        logger.log(`${message}\n${stack}`);
+    };
+    console.warn = function warn(...args) {
+        logger.warn(serialize(args));
+    };
+}
+
+
+/***/ }),
+
+/***/ 8212:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ----------------------------------------------------------------------------------------- */
+
+
+module.exports = __webpack_require__(5809);
+
+/***/ }),
+
+/***/ 2081:
+/***/ ((module) => {
+
+module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 6113:
+/***/ ((module) => {
+
+module.exports = require("crypto");
+
+/***/ }),
+
+/***/ 7147:
+/***/ ((module) => {
+
+module.exports = require("fs");
+
+/***/ }),
+
+/***/ 1808:
+/***/ ((module) => {
+
+module.exports = require("net");
+
+/***/ }),
+
+/***/ 7261:
+/***/ ((module) => {
+
+module.exports = require("node:util");
+
+/***/ }),
+
+/***/ 2037:
+/***/ ((module) => {
+
+module.exports = require("os");
+
+/***/ }),
+
+/***/ 1017:
+/***/ ((module) => {
+
+module.exports = require("path");
+
+/***/ }),
+
+/***/ 7310:
+/***/ ((module) => {
+
+module.exports = require("url");
+
+/***/ }),
+
+/***/ 3837:
+/***/ ((module) => {
+
+module.exports = require("util");
+
+/***/ }),
+
+/***/ 6960:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   TextDocument: () => (/* binding */ TextDocument)
+/* harmony export */ });
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+class FullTextDocument {
+    constructor(uri, languageId, version, content) {
+        this._uri = uri;
+        this._languageId = languageId;
+        this._version = version;
+        this._content = content;
+        this._lineOffsets = undefined;
+    }
+    get uri() {
+        return this._uri;
+    }
+    get languageId() {
+        return this._languageId;
+    }
+    get version() {
+        return this._version;
+    }
+    getText(range) {
+        if (range) {
+            const start = this.offsetAt(range.start);
+            const end = this.offsetAt(range.end);
+            return this._content.substring(start, end);
+        }
+        return this._content;
+    }
+    update(changes, version) {
+        for (let change of changes) {
+            if (FullTextDocument.isIncremental(change)) {
+                // makes sure start is before end
+                const range = getWellformedRange(change.range);
+                // update content
+                const startOffset = this.offsetAt(range.start);
+                const endOffset = this.offsetAt(range.end);
+                this._content = this._content.substring(0, startOffset) + change.text + this._content.substring(endOffset, this._content.length);
+                // update the offsets
+                const startLine = Math.max(range.start.line, 0);
+                const endLine = Math.max(range.end.line, 0);
+                let lineOffsets = this._lineOffsets;
+                const addedLineOffsets = computeLineOffsets(change.text, false, startOffset);
+                if (endLine - startLine === addedLineOffsets.length) {
+                    for (let i = 0, len = addedLineOffsets.length; i < len; i++) {
+                        lineOffsets[i + startLine + 1] = addedLineOffsets[i];
+                    }
+                }
+                else {
+                    if (addedLineOffsets.length < 10000) {
+                        lineOffsets.splice(startLine + 1, endLine - startLine, ...addedLineOffsets);
+                    }
+                    else { // avoid too many arguments for splice
+                        this._lineOffsets = lineOffsets = lineOffsets.slice(0, startLine + 1).concat(addedLineOffsets, lineOffsets.slice(endLine + 1));
+                    }
+                }
+                const diff = change.text.length - (endOffset - startOffset);
+                if (diff !== 0) {
+                    for (let i = startLine + 1 + addedLineOffsets.length, len = lineOffsets.length; i < len; i++) {
+                        lineOffsets[i] = lineOffsets[i] + diff;
+                    }
+                }
+            }
+            else if (FullTextDocument.isFull(change)) {
+                this._content = change.text;
+                this._lineOffsets = undefined;
+            }
+            else {
+                throw new Error('Unknown change event received');
+            }
+        }
+        this._version = version;
+    }
+    getLineOffsets() {
+        if (this._lineOffsets === undefined) {
+            this._lineOffsets = computeLineOffsets(this._content, true);
+        }
+        return this._lineOffsets;
+    }
+    positionAt(offset) {
+        offset = Math.max(Math.min(offset, this._content.length), 0);
+        let lineOffsets = this.getLineOffsets();
+        let low = 0, high = lineOffsets.length;
+        if (high === 0) {
+            return { line: 0, character: offset };
+        }
+        while (low < high) {
+            let mid = Math.floor((low + high) / 2);
+            if (lineOffsets[mid] > offset) {
+                high = mid;
+            }
+            else {
+                low = mid + 1;
+            }
+        }
+        // low is the least x for which the line offset is larger than the current offset
+        // or array.length if no line offset is larger than the current offset
+        let line = low - 1;
+        return { line, character: offset - lineOffsets[line] };
+    }
+    offsetAt(position) {
+        let lineOffsets = this.getLineOffsets();
+        if (position.line >= lineOffsets.length) {
+            return this._content.length;
+        }
+        else if (position.line < 0) {
+            return 0;
+        }
+        let lineOffset = lineOffsets[position.line];
+        let nextLineOffset = (position.line + 1 < lineOffsets.length) ? lineOffsets[position.line + 1] : this._content.length;
+        return Math.max(Math.min(lineOffset + position.character, nextLineOffset), lineOffset);
+    }
+    get lineCount() {
+        return this.getLineOffsets().length;
+    }
+    static isIncremental(event) {
+        let candidate = event;
+        return candidate !== undefined && candidate !== null &&
+            typeof candidate.text === 'string' && candidate.range !== undefined &&
+            (candidate.rangeLength === undefined || typeof candidate.rangeLength === 'number');
+    }
+    static isFull(event) {
+        let candidate = event;
+        return candidate !== undefined && candidate !== null &&
+            typeof candidate.text === 'string' && candidate.range === undefined && candidate.rangeLength === undefined;
+    }
+}
+var TextDocument;
+(function (TextDocument) {
+    /**
+     * Creates a new text document.
+     *
+     * @param uri The document's uri.
+     * @param languageId  The document's language Id.
+     * @param version The document's initial version number.
+     * @param content The document's content.
+     */
+    function create(uri, languageId, version, content) {
+        return new FullTextDocument(uri, languageId, version, content);
+    }
+    TextDocument.create = create;
+    /**
+     * Updates a TextDocument by modifying its content.
+     *
+     * @param document the document to update. Only documents created by TextDocument.create are valid inputs.
+     * @param changes the changes to apply to the document.
+     * @param version the changes version for the document.
+     * @returns The updated TextDocument. Note: That's the same document instance passed in as first parameter.
+     *
+     */
+    function update(document, changes, version) {
+        if (document instanceof FullTextDocument) {
+            document.update(changes, version);
+            return document;
+        }
+        else {
+            throw new Error('TextDocument.update: document must be created by TextDocument.create');
+        }
+    }
+    TextDocument.update = update;
+    function applyEdits(document, edits) {
+        let text = document.getText();
+        let sortedEdits = mergeSort(edits.map(getWellformedEdit), (a, b) => {
+            let diff = a.range.start.line - b.range.start.line;
+            if (diff === 0) {
+                return a.range.start.character - b.range.start.character;
+            }
+            return diff;
+        });
+        let lastModifiedOffset = 0;
+        const spans = [];
+        for (const e of sortedEdits) {
+            let startOffset = document.offsetAt(e.range.start);
+            if (startOffset < lastModifiedOffset) {
+                throw new Error('Overlapping edit');
+            }
+            else if (startOffset > lastModifiedOffset) {
+                spans.push(text.substring(lastModifiedOffset, startOffset));
+            }
+            if (e.newText.length) {
+                spans.push(e.newText);
+            }
+            lastModifiedOffset = document.offsetAt(e.range.end);
+        }
+        spans.push(text.substr(lastModifiedOffset));
+        return spans.join('');
+    }
+    TextDocument.applyEdits = applyEdits;
+})(TextDocument || (TextDocument = {}));
+function mergeSort(data, compare) {
+    if (data.length <= 1) {
+        // sorted
+        return data;
+    }
+    const p = (data.length / 2) | 0;
+    const left = data.slice(0, p);
+    const right = data.slice(p);
+    mergeSort(left, compare);
+    mergeSort(right, compare);
+    let leftIdx = 0;
+    let rightIdx = 0;
+    let i = 0;
+    while (leftIdx < left.length && rightIdx < right.length) {
+        let ret = compare(left[leftIdx], right[rightIdx]);
+        if (ret <= 0) {
+            // smaller_equal -> take left to preserve order
+            data[i++] = left[leftIdx++];
+        }
+        else {
+            // greater -> take right
+            data[i++] = right[rightIdx++];
+        }
+    }
+    while (leftIdx < left.length) {
+        data[i++] = left[leftIdx++];
+    }
+    while (rightIdx < right.length) {
+        data[i++] = right[rightIdx++];
+    }
+    return data;
+}
+function computeLineOffsets(text, isAtLineStart, textOffset = 0) {
+    const result = isAtLineStart ? [textOffset] : [];
+    for (let i = 0; i < text.length; i++) {
+        let ch = text.charCodeAt(i);
+        if (ch === 13 /* CharCode.CarriageReturn */ || ch === 10 /* CharCode.LineFeed */) {
+            if (ch === 13 /* CharCode.CarriageReturn */ && i + 1 < text.length && text.charCodeAt(i + 1) === 10 /* CharCode.LineFeed */) {
+                i++;
+            }
+            result.push(textOffset + i + 1);
+        }
+    }
+    return result;
+}
+function getWellformedRange(range) {
+    const start = range.start;
+    const end = range.end;
+    if (start.line > end.line || (start.line === end.line && start.character > end.character)) {
+        return { start: end, end: start };
+    }
+    return range;
+}
+function getWellformedEdit(textEdit) {
+    const range = getWellformedRange(textEdit.range);
+    if (range !== textEdit.range) {
+        return { newText: textEdit.newText, range };
+    }
+    return textEdit;
+}
+
+
+/***/ }),
+
+/***/ 2118:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   AnnotatedTextEdit: () => (/* binding */ AnnotatedTextEdit),
+/* harmony export */   ChangeAnnotation: () => (/* binding */ ChangeAnnotation),
+/* harmony export */   ChangeAnnotationIdentifier: () => (/* binding */ ChangeAnnotationIdentifier),
+/* harmony export */   CodeAction: () => (/* binding */ CodeAction),
+/* harmony export */   CodeActionContext: () => (/* binding */ CodeActionContext),
+/* harmony export */   CodeActionKind: () => (/* binding */ CodeActionKind),
+/* harmony export */   CodeActionTriggerKind: () => (/* binding */ CodeActionTriggerKind),
+/* harmony export */   CodeDescription: () => (/* binding */ CodeDescription),
+/* harmony export */   CodeLens: () => (/* binding */ CodeLens),
+/* harmony export */   Color: () => (/* binding */ Color),
+/* harmony export */   ColorInformation: () => (/* binding */ ColorInformation),
+/* harmony export */   ColorPresentation: () => (/* binding */ ColorPresentation),
+/* harmony export */   Command: () => (/* binding */ Command),
+/* harmony export */   CompletionItem: () => (/* binding */ CompletionItem),
+/* harmony export */   CompletionItemKind: () => (/* binding */ CompletionItemKind),
+/* harmony export */   CompletionItemLabelDetails: () => (/* binding */ CompletionItemLabelDetails),
+/* harmony export */   CompletionItemTag: () => (/* binding */ CompletionItemTag),
+/* harmony export */   CompletionList: () => (/* binding */ CompletionList),
+/* harmony export */   CreateFile: () => (/* binding */ CreateFile),
+/* harmony export */   DeleteFile: () => (/* binding */ DeleteFile),
+/* harmony export */   Diagnostic: () => (/* binding */ Diagnostic),
+/* harmony export */   DiagnosticRelatedInformation: () => (/* binding */ DiagnosticRelatedInformation),
+/* harmony export */   DiagnosticSeverity: () => (/* binding */ DiagnosticSeverity),
+/* harmony export */   DiagnosticTag: () => (/* binding */ DiagnosticTag),
+/* harmony export */   DocumentHighlight: () => (/* binding */ DocumentHighlight),
+/* harmony export */   DocumentHighlightKind: () => (/* binding */ DocumentHighlightKind),
+/* harmony export */   DocumentLink: () => (/* binding */ DocumentLink),
+/* harmony export */   DocumentSymbol: () => (/* binding */ DocumentSymbol),
+/* harmony export */   DocumentUri: () => (/* binding */ DocumentUri),
+/* harmony export */   EOL: () => (/* binding */ EOL),
+/* harmony export */   FoldingRange: () => (/* binding */ FoldingRange),
+/* harmony export */   FoldingRangeKind: () => (/* binding */ FoldingRangeKind),
+/* harmony export */   FormattingOptions: () => (/* binding */ FormattingOptions),
+/* harmony export */   Hover: () => (/* binding */ Hover),
+/* harmony export */   InlayHint: () => (/* binding */ InlayHint),
+/* harmony export */   InlayHintKind: () => (/* binding */ InlayHintKind),
+/* harmony export */   InlayHintLabelPart: () => (/* binding */ InlayHintLabelPart),
+/* harmony export */   InlineCompletionContext: () => (/* binding */ InlineCompletionContext),
+/* harmony export */   InlineCompletionItem: () => (/* binding */ InlineCompletionItem),
+/* harmony export */   InlineCompletionList: () => (/* binding */ InlineCompletionList),
+/* harmony export */   InlineCompletionTriggerKind: () => (/* binding */ InlineCompletionTriggerKind),
+/* harmony export */   InlineValueContext: () => (/* binding */ InlineValueContext),
+/* harmony export */   InlineValueEvaluatableExpression: () => (/* binding */ InlineValueEvaluatableExpression),
+/* harmony export */   InlineValueText: () => (/* binding */ InlineValueText),
+/* harmony export */   InlineValueVariableLookup: () => (/* binding */ InlineValueVariableLookup),
+/* harmony export */   InsertReplaceEdit: () => (/* binding */ InsertReplaceEdit),
+/* harmony export */   InsertTextFormat: () => (/* binding */ InsertTextFormat),
+/* harmony export */   InsertTextMode: () => (/* binding */ InsertTextMode),
+/* harmony export */   Location: () => (/* binding */ Location),
+/* harmony export */   LocationLink: () => (/* binding */ LocationLink),
+/* harmony export */   MarkedString: () => (/* binding */ MarkedString),
+/* harmony export */   MarkupContent: () => (/* binding */ MarkupContent),
+/* harmony export */   MarkupKind: () => (/* binding */ MarkupKind),
+/* harmony export */   OptionalVersionedTextDocumentIdentifier: () => (/* binding */ OptionalVersionedTextDocumentIdentifier),
+/* harmony export */   ParameterInformation: () => (/* binding */ ParameterInformation),
+/* harmony export */   Position: () => (/* binding */ Position),
+/* harmony export */   Range: () => (/* binding */ Range),
+/* harmony export */   RenameFile: () => (/* binding */ RenameFile),
+/* harmony export */   SelectedCompletionInfo: () => (/* binding */ SelectedCompletionInfo),
+/* harmony export */   SelectionRange: () => (/* binding */ SelectionRange),
+/* harmony export */   SemanticTokenModifiers: () => (/* binding */ SemanticTokenModifiers),
+/* harmony export */   SemanticTokenTypes: () => (/* binding */ SemanticTokenTypes),
+/* harmony export */   SemanticTokens: () => (/* binding */ SemanticTokens),
+/* harmony export */   SignatureInformation: () => (/* binding */ SignatureInformation),
+/* harmony export */   StringValue: () => (/* binding */ StringValue),
+/* harmony export */   SymbolInformation: () => (/* binding */ SymbolInformation),
+/* harmony export */   SymbolKind: () => (/* binding */ SymbolKind),
+/* harmony export */   SymbolTag: () => (/* binding */ SymbolTag),
+/* harmony export */   TextDocument: () => (/* binding */ TextDocument),
+/* harmony export */   TextDocumentEdit: () => (/* binding */ TextDocumentEdit),
+/* harmony export */   TextDocumentIdentifier: () => (/* binding */ TextDocumentIdentifier),
+/* harmony export */   TextDocumentItem: () => (/* binding */ TextDocumentItem),
+/* harmony export */   TextEdit: () => (/* binding */ TextEdit),
+/* harmony export */   URI: () => (/* binding */ URI),
+/* harmony export */   VersionedTextDocumentIdentifier: () => (/* binding */ VersionedTextDocumentIdentifier),
+/* harmony export */   WorkspaceChange: () => (/* binding */ WorkspaceChange),
+/* harmony export */   WorkspaceEdit: () => (/* binding */ WorkspaceEdit),
+/* harmony export */   WorkspaceFolder: () => (/* binding */ WorkspaceFolder),
+/* harmony export */   WorkspaceSymbol: () => (/* binding */ WorkspaceSymbol),
+/* harmony export */   integer: () => (/* binding */ integer),
+/* harmony export */   uinteger: () => (/* binding */ uinteger)
+/* harmony export */ });
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+
+var DocumentUri;
+(function (DocumentUri) {
+    function is(value) {
+        return typeof value === 'string';
+    }
+    DocumentUri.is = is;
+})(DocumentUri || (DocumentUri = {}));
+var URI;
+(function (URI) {
+    function is(value) {
+        return typeof value === 'string';
+    }
+    URI.is = is;
+})(URI || (URI = {}));
+var integer;
+(function (integer) {
+    integer.MIN_VALUE = -2147483648;
+    integer.MAX_VALUE = 2147483647;
+    function is(value) {
+        return typeof value === 'number' && integer.MIN_VALUE <= value && value <= integer.MAX_VALUE;
+    }
+    integer.is = is;
+})(integer || (integer = {}));
+var uinteger;
+(function (uinteger) {
+    uinteger.MIN_VALUE = 0;
+    uinteger.MAX_VALUE = 2147483647;
+    function is(value) {
+        return typeof value === 'number' && uinteger.MIN_VALUE <= value && value <= uinteger.MAX_VALUE;
+    }
+    uinteger.is = is;
+})(uinteger || (uinteger = {}));
+/**
+ * The Position namespace provides helper functions to work with
+ * {@link Position} literals.
+ */
+var Position;
+(function (Position) {
+    /**
+     * Creates a new Position literal from the given line and character.
+     * @param line The position's line.
+     * @param character The position's character.
+     */
+    function create(line, character) {
+        if (line === Number.MAX_VALUE) {
+            line = uinteger.MAX_VALUE;
+        }
+        if (character === Number.MAX_VALUE) {
+            character = uinteger.MAX_VALUE;
+        }
+        return { line, character };
+    }
+    Position.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link Position} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.objectLiteral(candidate) && Is.uinteger(candidate.line) && Is.uinteger(candidate.character);
+    }
+    Position.is = is;
+})(Position || (Position = {}));
+/**
+ * The Range namespace provides helper functions to work with
+ * {@link Range} literals.
+ */
+var Range;
+(function (Range) {
+    function create(one, two, three, four) {
+        if (Is.uinteger(one) && Is.uinteger(two) && Is.uinteger(three) && Is.uinteger(four)) {
+            return { start: Position.create(one, two), end: Position.create(three, four) };
+        }
+        else if (Position.is(one) && Position.is(two)) {
+            return { start: one, end: two };
+        }
+        else {
+            throw new Error(`Range#create called with invalid arguments[${one}, ${two}, ${three}, ${four}]`);
+        }
+    }
+    Range.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link Range} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.objectLiteral(candidate) && Position.is(candidate.start) && Position.is(candidate.end);
+    }
+    Range.is = is;
+})(Range || (Range = {}));
+/**
+ * The Location namespace provides helper functions to work with
+ * {@link Location} literals.
+ */
+var Location;
+(function (Location) {
+    /**
+     * Creates a Location literal.
+     * @param uri The location's uri.
+     * @param range The location's range.
+     */
+    function create(uri, range) {
+        return { uri, range };
+    }
+    Location.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link Location} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.objectLiteral(candidate) && Range.is(candidate.range) && (Is.string(candidate.uri) || Is.undefined(candidate.uri));
+    }
+    Location.is = is;
+})(Location || (Location = {}));
+/**
+ * The LocationLink namespace provides helper functions to work with
+ * {@link LocationLink} literals.
+ */
+var LocationLink;
+(function (LocationLink) {
+    /**
+     * Creates a LocationLink literal.
+     * @param targetUri The definition's uri.
+     * @param targetRange The full range of the definition.
+     * @param targetSelectionRange The span of the symbol definition at the target.
+     * @param originSelectionRange The span of the symbol being defined in the originating source file.
+     */
+    function create(targetUri, targetRange, targetSelectionRange, originSelectionRange) {
+        return { targetUri, targetRange, targetSelectionRange, originSelectionRange };
+    }
+    LocationLink.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link LocationLink} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.objectLiteral(candidate) && Range.is(candidate.targetRange) && Is.string(candidate.targetUri)
+            && Range.is(candidate.targetSelectionRange)
+            && (Range.is(candidate.originSelectionRange) || Is.undefined(candidate.originSelectionRange));
+    }
+    LocationLink.is = is;
+})(LocationLink || (LocationLink = {}));
+/**
+ * The Color namespace provides helper functions to work with
+ * {@link Color} literals.
+ */
+var Color;
+(function (Color) {
+    /**
+     * Creates a new Color literal.
+     */
+    function create(red, green, blue, alpha) {
+        return {
+            red,
+            green,
+            blue,
+            alpha,
+        };
+    }
+    Color.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link Color} interface.
+     */
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Is.numberRange(candidate.red, 0, 1)
+            && Is.numberRange(candidate.green, 0, 1)
+            && Is.numberRange(candidate.blue, 0, 1)
+            && Is.numberRange(candidate.alpha, 0, 1);
+    }
+    Color.is = is;
+})(Color || (Color = {}));
+/**
+ * The ColorInformation namespace provides helper functions to work with
+ * {@link ColorInformation} literals.
+ */
+var ColorInformation;
+(function (ColorInformation) {
+    /**
+     * Creates a new ColorInformation literal.
+     */
+    function create(range, color) {
+        return {
+            range,
+            color,
+        };
+    }
+    ColorInformation.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link ColorInformation} interface.
+     */
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Range.is(candidate.range) && Color.is(candidate.color);
+    }
+    ColorInformation.is = is;
+})(ColorInformation || (ColorInformation = {}));
+/**
+ * The Color namespace provides helper functions to work with
+ * {@link ColorPresentation} literals.
+ */
+var ColorPresentation;
+(function (ColorPresentation) {
+    /**
+     * Creates a new ColorInformation literal.
+     */
+    function create(label, textEdit, additionalTextEdits) {
+        return {
+            label,
+            textEdit,
+            additionalTextEdits,
+        };
+    }
+    ColorPresentation.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link ColorInformation} interface.
+     */
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Is.string(candidate.label)
+            && (Is.undefined(candidate.textEdit) || TextEdit.is(candidate))
+            && (Is.undefined(candidate.additionalTextEdits) || Is.typedArray(candidate.additionalTextEdits, TextEdit.is));
+    }
+    ColorPresentation.is = is;
+})(ColorPresentation || (ColorPresentation = {}));
+/**
+ * A set of predefined range kinds.
+ */
+var FoldingRangeKind;
+(function (FoldingRangeKind) {
+    /**
+     * Folding range for a comment
+     */
+    FoldingRangeKind.Comment = 'comment';
+    /**
+     * Folding range for an import or include
+     */
+    FoldingRangeKind.Imports = 'imports';
+    /**
+     * Folding range for a region (e.g. `#region`)
+     */
+    FoldingRangeKind.Region = 'region';
+})(FoldingRangeKind || (FoldingRangeKind = {}));
+/**
+ * The folding range namespace provides helper functions to work with
+ * {@link FoldingRange} literals.
+ */
+var FoldingRange;
+(function (FoldingRange) {
+    /**
+     * Creates a new FoldingRange literal.
+     */
+    function create(startLine, endLine, startCharacter, endCharacter, kind, collapsedText) {
+        const result = {
+            startLine,
+            endLine
+        };
+        if (Is.defined(startCharacter)) {
+            result.startCharacter = startCharacter;
+        }
+        if (Is.defined(endCharacter)) {
+            result.endCharacter = endCharacter;
+        }
+        if (Is.defined(kind)) {
+            result.kind = kind;
+        }
+        if (Is.defined(collapsedText)) {
+            result.collapsedText = collapsedText;
+        }
+        return result;
+    }
+    FoldingRange.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link FoldingRange} interface.
+     */
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Is.uinteger(candidate.startLine) && Is.uinteger(candidate.startLine)
+            && (Is.undefined(candidate.startCharacter) || Is.uinteger(candidate.startCharacter))
+            && (Is.undefined(candidate.endCharacter) || Is.uinteger(candidate.endCharacter))
+            && (Is.undefined(candidate.kind) || Is.string(candidate.kind));
+    }
+    FoldingRange.is = is;
+})(FoldingRange || (FoldingRange = {}));
+/**
+ * The DiagnosticRelatedInformation namespace provides helper functions to work with
+ * {@link DiagnosticRelatedInformation} literals.
+ */
+var DiagnosticRelatedInformation;
+(function (DiagnosticRelatedInformation) {
+    /**
+     * Creates a new DiagnosticRelatedInformation literal.
+     */
+    function create(location, message) {
+        return {
+            location,
+            message
+        };
+    }
+    DiagnosticRelatedInformation.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link DiagnosticRelatedInformation} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Location.is(candidate.location) && Is.string(candidate.message);
+    }
+    DiagnosticRelatedInformation.is = is;
+})(DiagnosticRelatedInformation || (DiagnosticRelatedInformation = {}));
+/**
+ * The diagnostic's severity.
+ */
+var DiagnosticSeverity;
+(function (DiagnosticSeverity) {
+    /**
+     * Reports an error.
+     */
+    DiagnosticSeverity.Error = 1;
+    /**
+     * Reports a warning.
+     */
+    DiagnosticSeverity.Warning = 2;
+    /**
+     * Reports an information.
+     */
+    DiagnosticSeverity.Information = 3;
+    /**
+     * Reports a hint.
+     */
+    DiagnosticSeverity.Hint = 4;
+})(DiagnosticSeverity || (DiagnosticSeverity = {}));
+/**
+ * The diagnostic tags.
+ *
+ * @since 3.15.0
+ */
+var DiagnosticTag;
+(function (DiagnosticTag) {
+    /**
+     * Unused or unnecessary code.
+     *
+     * Clients are allowed to render diagnostics with this tag faded out instead of having
+     * an error squiggle.
+     */
+    DiagnosticTag.Unnecessary = 1;
+    /**
+     * Deprecated or obsolete code.
+     *
+     * Clients are allowed to rendered diagnostics with this tag strike through.
+     */
+    DiagnosticTag.Deprecated = 2;
+})(DiagnosticTag || (DiagnosticTag = {}));
+/**
+ * The CodeDescription namespace provides functions to deal with descriptions for diagnostic codes.
+ *
+ * @since 3.16.0
+ */
+var CodeDescription;
+(function (CodeDescription) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Is.string(candidate.href);
+    }
+    CodeDescription.is = is;
+})(CodeDescription || (CodeDescription = {}));
+/**
+ * The Diagnostic namespace provides helper functions to work with
+ * {@link Diagnostic} literals.
+ */
+var Diagnostic;
+(function (Diagnostic) {
+    /**
+     * Creates a new Diagnostic literal.
+     */
+    function create(range, message, severity, code, source, relatedInformation) {
+        let result = { range, message };
+        if (Is.defined(severity)) {
+            result.severity = severity;
+        }
+        if (Is.defined(code)) {
+            result.code = code;
+        }
+        if (Is.defined(source)) {
+            result.source = source;
+        }
+        if (Is.defined(relatedInformation)) {
+            result.relatedInformation = relatedInformation;
+        }
+        return result;
+    }
+    Diagnostic.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link Diagnostic} interface.
+     */
+    function is(value) {
+        var _a;
+        let candidate = value;
+        return Is.defined(candidate)
+            && Range.is(candidate.range)
+            && Is.string(candidate.message)
+            && (Is.number(candidate.severity) || Is.undefined(candidate.severity))
+            && (Is.integer(candidate.code) || Is.string(candidate.code) || Is.undefined(candidate.code))
+            && (Is.undefined(candidate.codeDescription) || (Is.string((_a = candidate.codeDescription) === null || _a === void 0 ? void 0 : _a.href)))
+            && (Is.string(candidate.source) || Is.undefined(candidate.source))
+            && (Is.undefined(candidate.relatedInformation) || Is.typedArray(candidate.relatedInformation, DiagnosticRelatedInformation.is));
+    }
+    Diagnostic.is = is;
+})(Diagnostic || (Diagnostic = {}));
+/**
+ * The Command namespace provides helper functions to work with
+ * {@link Command} literals.
+ */
+var Command;
+(function (Command) {
+    /**
+     * Creates a new Command literal.
+     */
+    function create(title, command, ...args) {
+        let result = { title, command };
+        if (Is.defined(args) && args.length > 0) {
+            result.arguments = args;
+        }
+        return result;
+    }
+    Command.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link Command} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.string(candidate.title) && Is.string(candidate.command);
+    }
+    Command.is = is;
+})(Command || (Command = {}));
+/**
+ * The TextEdit namespace provides helper function to create replace,
+ * insert and delete edits more easily.
+ */
+var TextEdit;
+(function (TextEdit) {
+    /**
+     * Creates a replace text edit.
+     * @param range The range of text to be replaced.
+     * @param newText The new text.
+     */
+    function replace(range, newText) {
+        return { range, newText };
+    }
+    TextEdit.replace = replace;
+    /**
+     * Creates an insert text edit.
+     * @param position The position to insert the text at.
+     * @param newText The text to be inserted.
+     */
+    function insert(position, newText) {
+        return { range: { start: position, end: position }, newText };
+    }
+    TextEdit.insert = insert;
+    /**
+     * Creates a delete text edit.
+     * @param range The range of text to be deleted.
+     */
+    function del(range) {
+        return { range, newText: '' };
+    }
+    TextEdit.del = del;
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate)
+            && Is.string(candidate.newText)
+            && Range.is(candidate.range);
+    }
+    TextEdit.is = is;
+})(TextEdit || (TextEdit = {}));
+var ChangeAnnotation;
+(function (ChangeAnnotation) {
+    function create(label, needsConfirmation, description) {
+        const result = { label };
+        if (needsConfirmation !== undefined) {
+            result.needsConfirmation = needsConfirmation;
+        }
+        if (description !== undefined) {
+            result.description = description;
+        }
+        return result;
+    }
+    ChangeAnnotation.create = create;
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Is.string(candidate.label) &&
+            (Is.boolean(candidate.needsConfirmation) || candidate.needsConfirmation === undefined) &&
+            (Is.string(candidate.description) || candidate.description === undefined);
+    }
+    ChangeAnnotation.is = is;
+})(ChangeAnnotation || (ChangeAnnotation = {}));
+var ChangeAnnotationIdentifier;
+(function (ChangeAnnotationIdentifier) {
+    function is(value) {
+        const candidate = value;
+        return Is.string(candidate);
+    }
+    ChangeAnnotationIdentifier.is = is;
+})(ChangeAnnotationIdentifier || (ChangeAnnotationIdentifier = {}));
+var AnnotatedTextEdit;
+(function (AnnotatedTextEdit) {
+    /**
+     * Creates an annotated replace text edit.
+     *
+     * @param range The range of text to be replaced.
+     * @param newText The new text.
+     * @param annotation The annotation.
+     */
+    function replace(range, newText, annotation) {
+        return { range, newText, annotationId: annotation };
+    }
+    AnnotatedTextEdit.replace = replace;
+    /**
+     * Creates an annotated insert text edit.
+     *
+     * @param position The position to insert the text at.
+     * @param newText The text to be inserted.
+     * @param annotation The annotation.
+     */
+    function insert(position, newText, annotation) {
+        return { range: { start: position, end: position }, newText, annotationId: annotation };
+    }
+    AnnotatedTextEdit.insert = insert;
+    /**
+     * Creates an annotated delete text edit.
+     *
+     * @param range The range of text to be deleted.
+     * @param annotation The annotation.
+     */
+    function del(range, annotation) {
+        return { range, newText: '', annotationId: annotation };
+    }
+    AnnotatedTextEdit.del = del;
+    function is(value) {
+        const candidate = value;
+        return TextEdit.is(candidate) && (ChangeAnnotation.is(candidate.annotationId) || ChangeAnnotationIdentifier.is(candidate.annotationId));
+    }
+    AnnotatedTextEdit.is = is;
+})(AnnotatedTextEdit || (AnnotatedTextEdit = {}));
+/**
+ * The TextDocumentEdit namespace provides helper function to create
+ * an edit that manipulates a text document.
+ */
+var TextDocumentEdit;
+(function (TextDocumentEdit) {
+    /**
+     * Creates a new `TextDocumentEdit`
+     */
+    function create(textDocument, edits) {
+        return { textDocument, edits };
+    }
+    TextDocumentEdit.create = create;
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate)
+            && OptionalVersionedTextDocumentIdentifier.is(candidate.textDocument)
+            && Array.isArray(candidate.edits);
+    }
+    TextDocumentEdit.is = is;
+})(TextDocumentEdit || (TextDocumentEdit = {}));
+var CreateFile;
+(function (CreateFile) {
+    function create(uri, options, annotation) {
+        let result = {
+            kind: 'create',
+            uri
+        };
+        if (options !== undefined && (options.overwrite !== undefined || options.ignoreIfExists !== undefined)) {
+            result.options = options;
+        }
+        if (annotation !== undefined) {
+            result.annotationId = annotation;
+        }
+        return result;
+    }
+    CreateFile.create = create;
+    function is(value) {
+        let candidate = value;
+        return candidate && candidate.kind === 'create' && Is.string(candidate.uri) && (candidate.options === undefined ||
+            ((candidate.options.overwrite === undefined || Is.boolean(candidate.options.overwrite)) && (candidate.options.ignoreIfExists === undefined || Is.boolean(candidate.options.ignoreIfExists)))) && (candidate.annotationId === undefined || ChangeAnnotationIdentifier.is(candidate.annotationId));
+    }
+    CreateFile.is = is;
+})(CreateFile || (CreateFile = {}));
+var RenameFile;
+(function (RenameFile) {
+    function create(oldUri, newUri, options, annotation) {
+        let result = {
+            kind: 'rename',
+            oldUri,
+            newUri
+        };
+        if (options !== undefined && (options.overwrite !== undefined || options.ignoreIfExists !== undefined)) {
+            result.options = options;
+        }
+        if (annotation !== undefined) {
+            result.annotationId = annotation;
+        }
+        return result;
+    }
+    RenameFile.create = create;
+    function is(value) {
+        let candidate = value;
+        return candidate && candidate.kind === 'rename' && Is.string(candidate.oldUri) && Is.string(candidate.newUri) && (candidate.options === undefined ||
+            ((candidate.options.overwrite === undefined || Is.boolean(candidate.options.overwrite)) && (candidate.options.ignoreIfExists === undefined || Is.boolean(candidate.options.ignoreIfExists)))) && (candidate.annotationId === undefined || ChangeAnnotationIdentifier.is(candidate.annotationId));
+    }
+    RenameFile.is = is;
+})(RenameFile || (RenameFile = {}));
+var DeleteFile;
+(function (DeleteFile) {
+    function create(uri, options, annotation) {
+        let result = {
+            kind: 'delete',
+            uri
+        };
+        if (options !== undefined && (options.recursive !== undefined || options.ignoreIfNotExists !== undefined)) {
+            result.options = options;
+        }
+        if (annotation !== undefined) {
+            result.annotationId = annotation;
+        }
+        return result;
+    }
+    DeleteFile.create = create;
+    function is(value) {
+        let candidate = value;
+        return candidate && candidate.kind === 'delete' && Is.string(candidate.uri) && (candidate.options === undefined ||
+            ((candidate.options.recursive === undefined || Is.boolean(candidate.options.recursive)) && (candidate.options.ignoreIfNotExists === undefined || Is.boolean(candidate.options.ignoreIfNotExists)))) && (candidate.annotationId === undefined || ChangeAnnotationIdentifier.is(candidate.annotationId));
+    }
+    DeleteFile.is = is;
+})(DeleteFile || (DeleteFile = {}));
+var WorkspaceEdit;
+(function (WorkspaceEdit) {
+    function is(value) {
+        let candidate = value;
+        return candidate &&
+            (candidate.changes !== undefined || candidate.documentChanges !== undefined) &&
+            (candidate.documentChanges === undefined || candidate.documentChanges.every((change) => {
+                if (Is.string(change.kind)) {
+                    return CreateFile.is(change) || RenameFile.is(change) || DeleteFile.is(change);
+                }
+                else {
+                    return TextDocumentEdit.is(change);
+                }
+            }));
+    }
+    WorkspaceEdit.is = is;
+})(WorkspaceEdit || (WorkspaceEdit = {}));
+class TextEditChangeImpl {
+    constructor(edits, changeAnnotations) {
+        this.edits = edits;
+        this.changeAnnotations = changeAnnotations;
+    }
+    insert(position, newText, annotation) {
+        let edit;
+        let id;
+        if (annotation === undefined) {
+            edit = TextEdit.insert(position, newText);
+        }
+        else if (ChangeAnnotationIdentifier.is(annotation)) {
+            id = annotation;
+            edit = AnnotatedTextEdit.insert(position, newText, annotation);
+        }
+        else {
+            this.assertChangeAnnotations(this.changeAnnotations);
+            id = this.changeAnnotations.manage(annotation);
+            edit = AnnotatedTextEdit.insert(position, newText, id);
+        }
+        this.edits.push(edit);
+        if (id !== undefined) {
+            return id;
+        }
+    }
+    replace(range, newText, annotation) {
+        let edit;
+        let id;
+        if (annotation === undefined) {
+            edit = TextEdit.replace(range, newText);
+        }
+        else if (ChangeAnnotationIdentifier.is(annotation)) {
+            id = annotation;
+            edit = AnnotatedTextEdit.replace(range, newText, annotation);
+        }
+        else {
+            this.assertChangeAnnotations(this.changeAnnotations);
+            id = this.changeAnnotations.manage(annotation);
+            edit = AnnotatedTextEdit.replace(range, newText, id);
+        }
+        this.edits.push(edit);
+        if (id !== undefined) {
+            return id;
+        }
+    }
+    delete(range, annotation) {
+        let edit;
+        let id;
+        if (annotation === undefined) {
+            edit = TextEdit.del(range);
+        }
+        else if (ChangeAnnotationIdentifier.is(annotation)) {
+            id = annotation;
+            edit = AnnotatedTextEdit.del(range, annotation);
+        }
+        else {
+            this.assertChangeAnnotations(this.changeAnnotations);
+            id = this.changeAnnotations.manage(annotation);
+            edit = AnnotatedTextEdit.del(range, id);
+        }
+        this.edits.push(edit);
+        if (id !== undefined) {
+            return id;
+        }
+    }
+    add(edit) {
+        this.edits.push(edit);
+    }
+    all() {
+        return this.edits;
+    }
+    clear() {
+        this.edits.splice(0, this.edits.length);
+    }
+    assertChangeAnnotations(value) {
+        if (value === undefined) {
+            throw new Error(`Text edit change is not configured to manage change annotations.`);
+        }
+    }
+}
+/**
+ * A helper class
+ */
+class ChangeAnnotations {
+    constructor(annotations) {
+        this._annotations = annotations === undefined ? Object.create(null) : annotations;
+        this._counter = 0;
+        this._size = 0;
+    }
+    all() {
+        return this._annotations;
+    }
+    get size() {
+        return this._size;
+    }
+    manage(idOrAnnotation, annotation) {
+        let id;
+        if (ChangeAnnotationIdentifier.is(idOrAnnotation)) {
+            id = idOrAnnotation;
+        }
+        else {
+            id = this.nextId();
+            annotation = idOrAnnotation;
+        }
+        if (this._annotations[id] !== undefined) {
+            throw new Error(`Id ${id} is already in use.`);
+        }
+        if (annotation === undefined) {
+            throw new Error(`No annotation provided for id ${id}`);
+        }
+        this._annotations[id] = annotation;
+        this._size++;
+        return id;
+    }
+    nextId() {
+        this._counter++;
+        return this._counter.toString();
+    }
+}
+/**
+ * A workspace change helps constructing changes to a workspace.
+ */
+class WorkspaceChange {
+    constructor(workspaceEdit) {
+        this._textEditChanges = Object.create(null);
+        if (workspaceEdit !== undefined) {
+            this._workspaceEdit = workspaceEdit;
+            if (workspaceEdit.documentChanges) {
+                this._changeAnnotations = new ChangeAnnotations(workspaceEdit.changeAnnotations);
+                workspaceEdit.changeAnnotations = this._changeAnnotations.all();
+                workspaceEdit.documentChanges.forEach((change) => {
+                    if (TextDocumentEdit.is(change)) {
+                        const textEditChange = new TextEditChangeImpl(change.edits, this._changeAnnotations);
+                        this._textEditChanges[change.textDocument.uri] = textEditChange;
+                    }
+                });
+            }
+            else if (workspaceEdit.changes) {
+                Object.keys(workspaceEdit.changes).forEach((key) => {
+                    const textEditChange = new TextEditChangeImpl(workspaceEdit.changes[key]);
+                    this._textEditChanges[key] = textEditChange;
+                });
+            }
+        }
+        else {
+            this._workspaceEdit = {};
+        }
+    }
+    /**
+     * Returns the underlying {@link WorkspaceEdit} literal
+     * use to be returned from a workspace edit operation like rename.
+     */
+    get edit() {
+        this.initDocumentChanges();
+        if (this._changeAnnotations !== undefined) {
+            if (this._changeAnnotations.size === 0) {
+                this._workspaceEdit.changeAnnotations = undefined;
+            }
+            else {
+                this._workspaceEdit.changeAnnotations = this._changeAnnotations.all();
+            }
+        }
+        return this._workspaceEdit;
+    }
+    getTextEditChange(key) {
+        if (OptionalVersionedTextDocumentIdentifier.is(key)) {
+            this.initDocumentChanges();
+            if (this._workspaceEdit.documentChanges === undefined) {
+                throw new Error('Workspace edit is not configured for document changes.');
+            }
+            const textDocument = { uri: key.uri, version: key.version };
+            let result = this._textEditChanges[textDocument.uri];
+            if (!result) {
+                const edits = [];
+                const textDocumentEdit = {
+                    textDocument,
+                    edits
+                };
+                this._workspaceEdit.documentChanges.push(textDocumentEdit);
+                result = new TextEditChangeImpl(edits, this._changeAnnotations);
+                this._textEditChanges[textDocument.uri] = result;
+            }
+            return result;
+        }
+        else {
+            this.initChanges();
+            if (this._workspaceEdit.changes === undefined) {
+                throw new Error('Workspace edit is not configured for normal text edit changes.');
+            }
+            let result = this._textEditChanges[key];
+            if (!result) {
+                let edits = [];
+                this._workspaceEdit.changes[key] = edits;
+                result = new TextEditChangeImpl(edits);
+                this._textEditChanges[key] = result;
+            }
+            return result;
+        }
+    }
+    initDocumentChanges() {
+        if (this._workspaceEdit.documentChanges === undefined && this._workspaceEdit.changes === undefined) {
+            this._changeAnnotations = new ChangeAnnotations();
+            this._workspaceEdit.documentChanges = [];
+            this._workspaceEdit.changeAnnotations = this._changeAnnotations.all();
+        }
+    }
+    initChanges() {
+        if (this._workspaceEdit.documentChanges === undefined && this._workspaceEdit.changes === undefined) {
+            this._workspaceEdit.changes = Object.create(null);
+        }
+    }
+    createFile(uri, optionsOrAnnotation, options) {
+        this.initDocumentChanges();
+        if (this._workspaceEdit.documentChanges === undefined) {
+            throw new Error('Workspace edit is not configured for document changes.');
+        }
+        let annotation;
+        if (ChangeAnnotation.is(optionsOrAnnotation) || ChangeAnnotationIdentifier.is(optionsOrAnnotation)) {
+            annotation = optionsOrAnnotation;
+        }
+        else {
+            options = optionsOrAnnotation;
+        }
+        let operation;
+        let id;
+        if (annotation === undefined) {
+            operation = CreateFile.create(uri, options);
+        }
+        else {
+            id = ChangeAnnotationIdentifier.is(annotation) ? annotation : this._changeAnnotations.manage(annotation);
+            operation = CreateFile.create(uri, options, id);
+        }
+        this._workspaceEdit.documentChanges.push(operation);
+        if (id !== undefined) {
+            return id;
+        }
+    }
+    renameFile(oldUri, newUri, optionsOrAnnotation, options) {
+        this.initDocumentChanges();
+        if (this._workspaceEdit.documentChanges === undefined) {
+            throw new Error('Workspace edit is not configured for document changes.');
+        }
+        let annotation;
+        if (ChangeAnnotation.is(optionsOrAnnotation) || ChangeAnnotationIdentifier.is(optionsOrAnnotation)) {
+            annotation = optionsOrAnnotation;
+        }
+        else {
+            options = optionsOrAnnotation;
+        }
+        let operation;
+        let id;
+        if (annotation === undefined) {
+            operation = RenameFile.create(oldUri, newUri, options);
+        }
+        else {
+            id = ChangeAnnotationIdentifier.is(annotation) ? annotation : this._changeAnnotations.manage(annotation);
+            operation = RenameFile.create(oldUri, newUri, options, id);
+        }
+        this._workspaceEdit.documentChanges.push(operation);
+        if (id !== undefined) {
+            return id;
+        }
+    }
+    deleteFile(uri, optionsOrAnnotation, options) {
+        this.initDocumentChanges();
+        if (this._workspaceEdit.documentChanges === undefined) {
+            throw new Error('Workspace edit is not configured for document changes.');
+        }
+        let annotation;
+        if (ChangeAnnotation.is(optionsOrAnnotation) || ChangeAnnotationIdentifier.is(optionsOrAnnotation)) {
+            annotation = optionsOrAnnotation;
+        }
+        else {
+            options = optionsOrAnnotation;
+        }
+        let operation;
+        let id;
+        if (annotation === undefined) {
+            operation = DeleteFile.create(uri, options);
+        }
+        else {
+            id = ChangeAnnotationIdentifier.is(annotation) ? annotation : this._changeAnnotations.manage(annotation);
+            operation = DeleteFile.create(uri, options, id);
+        }
+        this._workspaceEdit.documentChanges.push(operation);
+        if (id !== undefined) {
+            return id;
+        }
+    }
+}
+/**
+ * The TextDocumentIdentifier namespace provides helper functions to work with
+ * {@link TextDocumentIdentifier} literals.
+ */
+var TextDocumentIdentifier;
+(function (TextDocumentIdentifier) {
+    /**
+     * Creates a new TextDocumentIdentifier literal.
+     * @param uri The document's uri.
+     */
+    function create(uri) {
+        return { uri };
+    }
+    TextDocumentIdentifier.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link TextDocumentIdentifier} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.string(candidate.uri);
+    }
+    TextDocumentIdentifier.is = is;
+})(TextDocumentIdentifier || (TextDocumentIdentifier = {}));
+/**
+ * The VersionedTextDocumentIdentifier namespace provides helper functions to work with
+ * {@link VersionedTextDocumentIdentifier} literals.
+ */
+var VersionedTextDocumentIdentifier;
+(function (VersionedTextDocumentIdentifier) {
+    /**
+     * Creates a new VersionedTextDocumentIdentifier literal.
+     * @param uri The document's uri.
+     * @param version The document's version.
+     */
+    function create(uri, version) {
+        return { uri, version };
+    }
+    VersionedTextDocumentIdentifier.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link VersionedTextDocumentIdentifier} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.string(candidate.uri) && Is.integer(candidate.version);
+    }
+    VersionedTextDocumentIdentifier.is = is;
+})(VersionedTextDocumentIdentifier || (VersionedTextDocumentIdentifier = {}));
+/**
+ * The OptionalVersionedTextDocumentIdentifier namespace provides helper functions to work with
+ * {@link OptionalVersionedTextDocumentIdentifier} literals.
+ */
+var OptionalVersionedTextDocumentIdentifier;
+(function (OptionalVersionedTextDocumentIdentifier) {
+    /**
+     * Creates a new OptionalVersionedTextDocumentIdentifier literal.
+     * @param uri The document's uri.
+     * @param version The document's version.
+     */
+    function create(uri, version) {
+        return { uri, version };
+    }
+    OptionalVersionedTextDocumentIdentifier.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link OptionalVersionedTextDocumentIdentifier} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.string(candidate.uri) && (candidate.version === null || Is.integer(candidate.version));
+    }
+    OptionalVersionedTextDocumentIdentifier.is = is;
+})(OptionalVersionedTextDocumentIdentifier || (OptionalVersionedTextDocumentIdentifier = {}));
+/**
+ * The TextDocumentItem namespace provides helper functions to work with
+ * {@link TextDocumentItem} literals.
+ */
+var TextDocumentItem;
+(function (TextDocumentItem) {
+    /**
+     * Creates a new TextDocumentItem literal.
+     * @param uri The document's uri.
+     * @param languageId The document's language identifier.
+     * @param version The document's version number.
+     * @param text The document's text.
+     */
+    function create(uri, languageId, version, text) {
+        return { uri, languageId, version, text };
+    }
+    TextDocumentItem.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link TextDocumentItem} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.string(candidate.uri) && Is.string(candidate.languageId) && Is.integer(candidate.version) && Is.string(candidate.text);
+    }
+    TextDocumentItem.is = is;
+})(TextDocumentItem || (TextDocumentItem = {}));
+/**
+ * Describes the content type that a client supports in various
+ * result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
+ *
+ * Please note that `MarkupKinds` must not start with a `$`. This kinds
+ * are reserved for internal usage.
+ */
+var MarkupKind;
+(function (MarkupKind) {
+    /**
+     * Plain text is supported as a content format
+     */
+    MarkupKind.PlainText = 'plaintext';
+    /**
+     * Markdown is supported as a content format
+     */
+    MarkupKind.Markdown = 'markdown';
+    /**
+     * Checks whether the given value is a value of the {@link MarkupKind} type.
+     */
+    function is(value) {
+        const candidate = value;
+        return candidate === MarkupKind.PlainText || candidate === MarkupKind.Markdown;
+    }
+    MarkupKind.is = is;
+})(MarkupKind || (MarkupKind = {}));
+var MarkupContent;
+(function (MarkupContent) {
+    /**
+     * Checks whether the given value conforms to the {@link MarkupContent} interface.
+     */
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(value) && MarkupKind.is(candidate.kind) && Is.string(candidate.value);
+    }
+    MarkupContent.is = is;
+})(MarkupContent || (MarkupContent = {}));
+/**
+ * The kind of a completion entry.
+ */
+var CompletionItemKind;
+(function (CompletionItemKind) {
+    CompletionItemKind.Text = 1;
+    CompletionItemKind.Method = 2;
+    CompletionItemKind.Function = 3;
+    CompletionItemKind.Constructor = 4;
+    CompletionItemKind.Field = 5;
+    CompletionItemKind.Variable = 6;
+    CompletionItemKind.Class = 7;
+    CompletionItemKind.Interface = 8;
+    CompletionItemKind.Module = 9;
+    CompletionItemKind.Property = 10;
+    CompletionItemKind.Unit = 11;
+    CompletionItemKind.Value = 12;
+    CompletionItemKind.Enum = 13;
+    CompletionItemKind.Keyword = 14;
+    CompletionItemKind.Snippet = 15;
+    CompletionItemKind.Color = 16;
+    CompletionItemKind.File = 17;
+    CompletionItemKind.Reference = 18;
+    CompletionItemKind.Folder = 19;
+    CompletionItemKind.EnumMember = 20;
+    CompletionItemKind.Constant = 21;
+    CompletionItemKind.Struct = 22;
+    CompletionItemKind.Event = 23;
+    CompletionItemKind.Operator = 24;
+    CompletionItemKind.TypeParameter = 25;
+})(CompletionItemKind || (CompletionItemKind = {}));
+/**
+ * Defines whether the insert text in a completion item should be interpreted as
+ * plain text or a snippet.
+ */
+var InsertTextFormat;
+(function (InsertTextFormat) {
+    /**
+     * The primary text to be inserted is treated as a plain string.
+     */
+    InsertTextFormat.PlainText = 1;
+    /**
+     * The primary text to be inserted is treated as a snippet.
+     *
+     * A snippet can define tab stops and placeholders with `$1`, `$2`
+     * and `${3:foo}`. `$0` defines the final tab stop, it defaults to
+     * the end of the snippet. Placeholders with equal identifiers are linked,
+     * that is typing in one will update others too.
+     *
+     * See also: https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
+     */
+    InsertTextFormat.Snippet = 2;
+})(InsertTextFormat || (InsertTextFormat = {}));
+/**
+ * Completion item tags are extra annotations that tweak the rendering of a completion
+ * item.
+ *
+ * @since 3.15.0
+ */
+var CompletionItemTag;
+(function (CompletionItemTag) {
+    /**
+     * Render a completion as obsolete, usually using a strike-out.
+     */
+    CompletionItemTag.Deprecated = 1;
+})(CompletionItemTag || (CompletionItemTag = {}));
+/**
+ * The InsertReplaceEdit namespace provides functions to deal with insert / replace edits.
+ *
+ * @since 3.16.0
+ */
+var InsertReplaceEdit;
+(function (InsertReplaceEdit) {
+    /**
+     * Creates a new insert / replace edit
+     */
+    function create(newText, insert, replace) {
+        return { newText, insert, replace };
+    }
+    InsertReplaceEdit.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link InsertReplaceEdit} interface.
+     */
+    function is(value) {
+        const candidate = value;
+        return candidate && Is.string(candidate.newText) && Range.is(candidate.insert) && Range.is(candidate.replace);
+    }
+    InsertReplaceEdit.is = is;
+})(InsertReplaceEdit || (InsertReplaceEdit = {}));
+/**
+ * How whitespace and indentation is handled during completion
+ * item insertion.
+ *
+ * @since 3.16.0
+ */
+var InsertTextMode;
+(function (InsertTextMode) {
+    /**
+     * The insertion or replace strings is taken as it is. If the
+     * value is multi line the lines below the cursor will be
+     * inserted using the indentation defined in the string value.
+     * The client will not apply any kind of adjustments to the
+     * string.
+     */
+    InsertTextMode.asIs = 1;
+    /**
+     * The editor adjusts leading whitespace of new lines so that
+     * they match the indentation up to the cursor of the line for
+     * which the item is accepted.
+     *
+     * Consider a line like this: <2tabs><cursor><3tabs>foo. Accepting a
+     * multi line completion item is indented using 2 tabs and all
+     * following lines inserted will be indented using 2 tabs as well.
+     */
+    InsertTextMode.adjustIndentation = 2;
+})(InsertTextMode || (InsertTextMode = {}));
+var CompletionItemLabelDetails;
+(function (CompletionItemLabelDetails) {
+    function is(value) {
+        const candidate = value;
+        return candidate && (Is.string(candidate.detail) || candidate.detail === undefined) &&
+            (Is.string(candidate.description) || candidate.description === undefined);
+    }
+    CompletionItemLabelDetails.is = is;
+})(CompletionItemLabelDetails || (CompletionItemLabelDetails = {}));
+/**
+ * The CompletionItem namespace provides functions to deal with
+ * completion items.
+ */
+var CompletionItem;
+(function (CompletionItem) {
+    /**
+     * Create a completion item and seed it with a label.
+     * @param label The completion item's label
+     */
+    function create(label) {
+        return { label };
+    }
+    CompletionItem.create = create;
+})(CompletionItem || (CompletionItem = {}));
+/**
+ * The CompletionList namespace provides functions to deal with
+ * completion lists.
+ */
+var CompletionList;
+(function (CompletionList) {
+    /**
+     * Creates a new completion list.
+     *
+     * @param items The completion items.
+     * @param isIncomplete The list is not complete.
+     */
+    function create(items, isIncomplete) {
+        return { items: items ? items : [], isIncomplete: !!isIncomplete };
+    }
+    CompletionList.create = create;
+})(CompletionList || (CompletionList = {}));
+var MarkedString;
+(function (MarkedString) {
+    /**
+     * Creates a marked string from plain text.
+     *
+     * @param plainText The plain text.
+     */
+    function fromPlainText(plainText) {
+        return plainText.replace(/[\\`*_{}[\]()#+\-.!]/g, '\\$&'); // escape markdown syntax tokens: http://daringfireball.net/projects/markdown/syntax#backslash
+    }
+    MarkedString.fromPlainText = fromPlainText;
+    /**
+     * Checks whether the given value conforms to the {@link MarkedString} type.
+     */
+    function is(value) {
+        const candidate = value;
+        return Is.string(candidate) || (Is.objectLiteral(candidate) && Is.string(candidate.language) && Is.string(candidate.value));
+    }
+    MarkedString.is = is;
+})(MarkedString || (MarkedString = {}));
+var Hover;
+(function (Hover) {
+    /**
+     * Checks whether the given value conforms to the {@link Hover} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return !!candidate && Is.objectLiteral(candidate) && (MarkupContent.is(candidate.contents) ||
+            MarkedString.is(candidate.contents) ||
+            Is.typedArray(candidate.contents, MarkedString.is)) && (value.range === undefined || Range.is(value.range));
+    }
+    Hover.is = is;
+})(Hover || (Hover = {}));
+/**
+ * The ParameterInformation namespace provides helper functions to work with
+ * {@link ParameterInformation} literals.
+ */
+var ParameterInformation;
+(function (ParameterInformation) {
+    /**
+     * Creates a new parameter information literal.
+     *
+     * @param label A label string.
+     * @param documentation A doc string.
+     */
+    function create(label, documentation) {
+        return documentation ? { label, documentation } : { label };
+    }
+    ParameterInformation.create = create;
+})(ParameterInformation || (ParameterInformation = {}));
+/**
+ * The SignatureInformation namespace provides helper functions to work with
+ * {@link SignatureInformation} literals.
+ */
+var SignatureInformation;
+(function (SignatureInformation) {
+    function create(label, documentation, ...parameters) {
+        let result = { label };
+        if (Is.defined(documentation)) {
+            result.documentation = documentation;
+        }
+        if (Is.defined(parameters)) {
+            result.parameters = parameters;
+        }
+        else {
+            result.parameters = [];
+        }
+        return result;
+    }
+    SignatureInformation.create = create;
+})(SignatureInformation || (SignatureInformation = {}));
+/**
+ * A document highlight kind.
+ */
+var DocumentHighlightKind;
+(function (DocumentHighlightKind) {
+    /**
+     * A textual occurrence.
+     */
+    DocumentHighlightKind.Text = 1;
+    /**
+     * Read-access of a symbol, like reading a variable.
+     */
+    DocumentHighlightKind.Read = 2;
+    /**
+     * Write-access of a symbol, like writing to a variable.
+     */
+    DocumentHighlightKind.Write = 3;
+})(DocumentHighlightKind || (DocumentHighlightKind = {}));
+/**
+ * DocumentHighlight namespace to provide helper functions to work with
+ * {@link DocumentHighlight} literals.
+ */
+var DocumentHighlight;
+(function (DocumentHighlight) {
+    /**
+     * Create a DocumentHighlight object.
+     * @param range The range the highlight applies to.
+     * @param kind The highlight kind
+     */
+    function create(range, kind) {
+        let result = { range };
+        if (Is.number(kind)) {
+            result.kind = kind;
+        }
+        return result;
+    }
+    DocumentHighlight.create = create;
+})(DocumentHighlight || (DocumentHighlight = {}));
+/**
+ * A symbol kind.
+ */
+var SymbolKind;
+(function (SymbolKind) {
+    SymbolKind.File = 1;
+    SymbolKind.Module = 2;
+    SymbolKind.Namespace = 3;
+    SymbolKind.Package = 4;
+    SymbolKind.Class = 5;
+    SymbolKind.Method = 6;
+    SymbolKind.Property = 7;
+    SymbolKind.Field = 8;
+    SymbolKind.Constructor = 9;
+    SymbolKind.Enum = 10;
+    SymbolKind.Interface = 11;
+    SymbolKind.Function = 12;
+    SymbolKind.Variable = 13;
+    SymbolKind.Constant = 14;
+    SymbolKind.String = 15;
+    SymbolKind.Number = 16;
+    SymbolKind.Boolean = 17;
+    SymbolKind.Array = 18;
+    SymbolKind.Object = 19;
+    SymbolKind.Key = 20;
+    SymbolKind.Null = 21;
+    SymbolKind.EnumMember = 22;
+    SymbolKind.Struct = 23;
+    SymbolKind.Event = 24;
+    SymbolKind.Operator = 25;
+    SymbolKind.TypeParameter = 26;
+})(SymbolKind || (SymbolKind = {}));
+/**
+ * Symbol tags are extra annotations that tweak the rendering of a symbol.
+ *
+ * @since 3.16
+ */
+var SymbolTag;
+(function (SymbolTag) {
+    /**
+     * Render a symbol as obsolete, usually using a strike-out.
+     */
+    SymbolTag.Deprecated = 1;
+})(SymbolTag || (SymbolTag = {}));
+var SymbolInformation;
+(function (SymbolInformation) {
+    /**
+     * Creates a new symbol information literal.
+     *
+     * @param name The name of the symbol.
+     * @param kind The kind of the symbol.
+     * @param range The range of the location of the symbol.
+     * @param uri The resource of the location of symbol.
+     * @param containerName The name of the symbol containing the symbol.
+     */
+    function create(name, kind, range, uri, containerName) {
+        let result = {
+            name,
+            kind,
+            location: { uri, range }
+        };
+        if (containerName) {
+            result.containerName = containerName;
+        }
+        return result;
+    }
+    SymbolInformation.create = create;
+})(SymbolInformation || (SymbolInformation = {}));
+var WorkspaceSymbol;
+(function (WorkspaceSymbol) {
+    /**
+     * Create a new workspace symbol.
+     *
+     * @param name The name of the symbol.
+     * @param kind The kind of the symbol.
+     * @param uri The resource of the location of the symbol.
+     * @param range An options range of the location.
+     * @returns A WorkspaceSymbol.
+     */
+    function create(name, kind, uri, range) {
+        return range !== undefined
+            ? { name, kind, location: { uri, range } }
+            : { name, kind, location: { uri } };
+    }
+    WorkspaceSymbol.create = create;
+})(WorkspaceSymbol || (WorkspaceSymbol = {}));
+var DocumentSymbol;
+(function (DocumentSymbol) {
+    /**
+     * Creates a new symbol information literal.
+     *
+     * @param name The name of the symbol.
+     * @param detail The detail of the symbol.
+     * @param kind The kind of the symbol.
+     * @param range The range of the symbol.
+     * @param selectionRange The selectionRange of the symbol.
+     * @param children Children of the symbol.
+     */
+    function create(name, detail, kind, range, selectionRange, children) {
+        let result = {
+            name,
+            detail,
+            kind,
+            range,
+            selectionRange
+        };
+        if (children !== undefined) {
+            result.children = children;
+        }
+        return result;
+    }
+    DocumentSymbol.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link DocumentSymbol} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return candidate &&
+            Is.string(candidate.name) && Is.number(candidate.kind) &&
+            Range.is(candidate.range) && Range.is(candidate.selectionRange) &&
+            (candidate.detail === undefined || Is.string(candidate.detail)) &&
+            (candidate.deprecated === undefined || Is.boolean(candidate.deprecated)) &&
+            (candidate.children === undefined || Array.isArray(candidate.children)) &&
+            (candidate.tags === undefined || Array.isArray(candidate.tags));
+    }
+    DocumentSymbol.is = is;
+})(DocumentSymbol || (DocumentSymbol = {}));
+/**
+ * A set of predefined code action kinds
+ */
+var CodeActionKind;
+(function (CodeActionKind) {
+    /**
+     * Empty kind.
+     */
+    CodeActionKind.Empty = '';
+    /**
+     * Base kind for quickfix actions: 'quickfix'
+     */
+    CodeActionKind.QuickFix = 'quickfix';
+    /**
+     * Base kind for refactoring actions: 'refactor'
+     */
+    CodeActionKind.Refactor = 'refactor';
+    /**
+     * Base kind for refactoring extraction actions: 'refactor.extract'
+     *
+     * Example extract actions:
+     *
+     * - Extract method
+     * - Extract function
+     * - Extract variable
+     * - Extract interface from class
+     * - ...
+     */
+    CodeActionKind.RefactorExtract = 'refactor.extract';
+    /**
+     * Base kind for refactoring inline actions: 'refactor.inline'
+     *
+     * Example inline actions:
+     *
+     * - Inline function
+     * - Inline variable
+     * - Inline constant
+     * - ...
+     */
+    CodeActionKind.RefactorInline = 'refactor.inline';
+    /**
+     * Base kind for refactoring rewrite actions: 'refactor.rewrite'
+     *
+     * Example rewrite actions:
+     *
+     * - Convert JavaScript function to class
+     * - Add or remove parameter
+     * - Encapsulate field
+     * - Make method static
+     * - Move method to base class
+     * - ...
+     */
+    CodeActionKind.RefactorRewrite = 'refactor.rewrite';
+    /**
+     * Base kind for source actions: `source`
+     *
+     * Source code actions apply to the entire file.
+     */
+    CodeActionKind.Source = 'source';
+    /**
+     * Base kind for an organize imports source action: `source.organizeImports`
+     */
+    CodeActionKind.SourceOrganizeImports = 'source.organizeImports';
+    /**
+     * Base kind for auto-fix source actions: `source.fixAll`.
+     *
+     * Fix all actions automatically fix errors that have a clear fix that do not require user input.
+     * They should not suppress errors or perform unsafe fixes such as generating new types or classes.
+     *
+     * @since 3.15.0
+     */
+    CodeActionKind.SourceFixAll = 'source.fixAll';
+})(CodeActionKind || (CodeActionKind = {}));
+/**
+ * The reason why code actions were requested.
+ *
+ * @since 3.17.0
+ */
+var CodeActionTriggerKind;
+(function (CodeActionTriggerKind) {
+    /**
+     * Code actions were explicitly requested by the user or by an extension.
+     */
+    CodeActionTriggerKind.Invoked = 1;
+    /**
+     * Code actions were requested automatically.
+     *
+     * This typically happens when current selection in a file changes, but can
+     * also be triggered when file content changes.
+     */
+    CodeActionTriggerKind.Automatic = 2;
+})(CodeActionTriggerKind || (CodeActionTriggerKind = {}));
+/**
+ * The CodeActionContext namespace provides helper functions to work with
+ * {@link CodeActionContext} literals.
+ */
+var CodeActionContext;
+(function (CodeActionContext) {
+    /**
+     * Creates a new CodeActionContext literal.
+     */
+    function create(diagnostics, only, triggerKind) {
+        let result = { diagnostics };
+        if (only !== undefined && only !== null) {
+            result.only = only;
+        }
+        if (triggerKind !== undefined && triggerKind !== null) {
+            result.triggerKind = triggerKind;
+        }
+        return result;
+    }
+    CodeActionContext.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link CodeActionContext} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.typedArray(candidate.diagnostics, Diagnostic.is)
+            && (candidate.only === undefined || Is.typedArray(candidate.only, Is.string))
+            && (candidate.triggerKind === undefined || candidate.triggerKind === CodeActionTriggerKind.Invoked || candidate.triggerKind === CodeActionTriggerKind.Automatic);
+    }
+    CodeActionContext.is = is;
+})(CodeActionContext || (CodeActionContext = {}));
+var CodeAction;
+(function (CodeAction) {
+    function create(title, kindOrCommandOrEdit, kind) {
+        let result = { title };
+        let checkKind = true;
+        if (typeof kindOrCommandOrEdit === 'string') {
+            checkKind = false;
+            result.kind = kindOrCommandOrEdit;
+        }
+        else if (Command.is(kindOrCommandOrEdit)) {
+            result.command = kindOrCommandOrEdit;
+        }
+        else {
+            result.edit = kindOrCommandOrEdit;
+        }
+        if (checkKind && kind !== undefined) {
+            result.kind = kind;
+        }
+        return result;
+    }
+    CodeAction.create = create;
+    function is(value) {
+        let candidate = value;
+        return candidate && Is.string(candidate.title) &&
+            (candidate.diagnostics === undefined || Is.typedArray(candidate.diagnostics, Diagnostic.is)) &&
+            (candidate.kind === undefined || Is.string(candidate.kind)) &&
+            (candidate.edit !== undefined || candidate.command !== undefined) &&
+            (candidate.command === undefined || Command.is(candidate.command)) &&
+            (candidate.isPreferred === undefined || Is.boolean(candidate.isPreferred)) &&
+            (candidate.edit === undefined || WorkspaceEdit.is(candidate.edit));
+    }
+    CodeAction.is = is;
+})(CodeAction || (CodeAction = {}));
+/**
+ * The CodeLens namespace provides helper functions to work with
+ * {@link CodeLens} literals.
+ */
+var CodeLens;
+(function (CodeLens) {
+    /**
+     * Creates a new CodeLens literal.
+     */
+    function create(range, data) {
+        let result = { range };
+        if (Is.defined(data)) {
+            result.data = data;
+        }
+        return result;
+    }
+    CodeLens.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link CodeLens} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Range.is(candidate.range) && (Is.undefined(candidate.command) || Command.is(candidate.command));
+    }
+    CodeLens.is = is;
+})(CodeLens || (CodeLens = {}));
+/**
+ * The FormattingOptions namespace provides helper functions to work with
+ * {@link FormattingOptions} literals.
+ */
+var FormattingOptions;
+(function (FormattingOptions) {
+    /**
+     * Creates a new FormattingOptions literal.
+     */
+    function create(tabSize, insertSpaces) {
+        return { tabSize, insertSpaces };
+    }
+    FormattingOptions.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link FormattingOptions} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.uinteger(candidate.tabSize) && Is.boolean(candidate.insertSpaces);
+    }
+    FormattingOptions.is = is;
+})(FormattingOptions || (FormattingOptions = {}));
+/**
+ * The DocumentLink namespace provides helper functions to work with
+ * {@link DocumentLink} literals.
+ */
+var DocumentLink;
+(function (DocumentLink) {
+    /**
+     * Creates a new DocumentLink literal.
+     */
+    function create(range, target, data) {
+        return { range, target, data };
+    }
+    DocumentLink.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link DocumentLink} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Range.is(candidate.range) && (Is.undefined(candidate.target) || Is.string(candidate.target));
+    }
+    DocumentLink.is = is;
+})(DocumentLink || (DocumentLink = {}));
+/**
+ * The SelectionRange namespace provides helper function to work with
+ * SelectionRange literals.
+ */
+var SelectionRange;
+(function (SelectionRange) {
+    /**
+     * Creates a new SelectionRange
+     * @param range the range.
+     * @param parent an optional parent.
+     */
+    function create(range, parent) {
+        return { range, parent };
+    }
+    SelectionRange.create = create;
+    function is(value) {
+        let candidate = value;
+        return Is.objectLiteral(candidate) && Range.is(candidate.range) && (candidate.parent === undefined || SelectionRange.is(candidate.parent));
+    }
+    SelectionRange.is = is;
+})(SelectionRange || (SelectionRange = {}));
+/**
+ * A set of predefined token types. This set is not fixed
+ * an clients can specify additional token types via the
+ * corresponding client capabilities.
+ *
+ * @since 3.16.0
+ */
+var SemanticTokenTypes;
+(function (SemanticTokenTypes) {
+    SemanticTokenTypes["namespace"] = "namespace";
+    /**
+     * Represents a generic type. Acts as a fallback for types which can't be mapped to
+     * a specific type like class or enum.
+     */
+    SemanticTokenTypes["type"] = "type";
+    SemanticTokenTypes["class"] = "class";
+    SemanticTokenTypes["enum"] = "enum";
+    SemanticTokenTypes["interface"] = "interface";
+    SemanticTokenTypes["struct"] = "struct";
+    SemanticTokenTypes["typeParameter"] = "typeParameter";
+    SemanticTokenTypes["parameter"] = "parameter";
+    SemanticTokenTypes["variable"] = "variable";
+    SemanticTokenTypes["property"] = "property";
+    SemanticTokenTypes["enumMember"] = "enumMember";
+    SemanticTokenTypes["event"] = "event";
+    SemanticTokenTypes["function"] = "function";
+    SemanticTokenTypes["method"] = "method";
+    SemanticTokenTypes["macro"] = "macro";
+    SemanticTokenTypes["keyword"] = "keyword";
+    SemanticTokenTypes["modifier"] = "modifier";
+    SemanticTokenTypes["comment"] = "comment";
+    SemanticTokenTypes["string"] = "string";
+    SemanticTokenTypes["number"] = "number";
+    SemanticTokenTypes["regexp"] = "regexp";
+    SemanticTokenTypes["operator"] = "operator";
+    /**
+     * @since 3.17.0
+     */
+    SemanticTokenTypes["decorator"] = "decorator";
+})(SemanticTokenTypes || (SemanticTokenTypes = {}));
+/**
+ * A set of predefined token modifiers. This set is not fixed
+ * an clients can specify additional token types via the
+ * corresponding client capabilities.
+ *
+ * @since 3.16.0
+ */
+var SemanticTokenModifiers;
+(function (SemanticTokenModifiers) {
+    SemanticTokenModifiers["declaration"] = "declaration";
+    SemanticTokenModifiers["definition"] = "definition";
+    SemanticTokenModifiers["readonly"] = "readonly";
+    SemanticTokenModifiers["static"] = "static";
+    SemanticTokenModifiers["deprecated"] = "deprecated";
+    SemanticTokenModifiers["abstract"] = "abstract";
+    SemanticTokenModifiers["async"] = "async";
+    SemanticTokenModifiers["modification"] = "modification";
+    SemanticTokenModifiers["documentation"] = "documentation";
+    SemanticTokenModifiers["defaultLibrary"] = "defaultLibrary";
+})(SemanticTokenModifiers || (SemanticTokenModifiers = {}));
+/**
+ * @since 3.16.0
+ */
+var SemanticTokens;
+(function (SemanticTokens) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && (candidate.resultId === undefined || typeof candidate.resultId === 'string') &&
+            Array.isArray(candidate.data) && (candidate.data.length === 0 || typeof candidate.data[0] === 'number');
+    }
+    SemanticTokens.is = is;
+})(SemanticTokens || (SemanticTokens = {}));
+/**
+ * The InlineValueText namespace provides functions to deal with InlineValueTexts.
+ *
+ * @since 3.17.0
+ */
+var InlineValueText;
+(function (InlineValueText) {
+    /**
+     * Creates a new InlineValueText literal.
+     */
+    function create(range, text) {
+        return { range, text };
+    }
+    InlineValueText.create = create;
+    function is(value) {
+        const candidate = value;
+        return candidate !== undefined && candidate !== null && Range.is(candidate.range) && Is.string(candidate.text);
+    }
+    InlineValueText.is = is;
+})(InlineValueText || (InlineValueText = {}));
+/**
+ * The InlineValueVariableLookup namespace provides functions to deal with InlineValueVariableLookups.
+ *
+ * @since 3.17.0
+ */
+var InlineValueVariableLookup;
+(function (InlineValueVariableLookup) {
+    /**
+     * Creates a new InlineValueText literal.
+     */
+    function create(range, variableName, caseSensitiveLookup) {
+        return { range, variableName, caseSensitiveLookup };
+    }
+    InlineValueVariableLookup.create = create;
+    function is(value) {
+        const candidate = value;
+        return candidate !== undefined && candidate !== null && Range.is(candidate.range) && Is.boolean(candidate.caseSensitiveLookup)
+            && (Is.string(candidate.variableName) || candidate.variableName === undefined);
+    }
+    InlineValueVariableLookup.is = is;
+})(InlineValueVariableLookup || (InlineValueVariableLookup = {}));
+/**
+ * The InlineValueEvaluatableExpression namespace provides functions to deal with InlineValueEvaluatableExpression.
+ *
+ * @since 3.17.0
+ */
+var InlineValueEvaluatableExpression;
+(function (InlineValueEvaluatableExpression) {
+    /**
+     * Creates a new InlineValueEvaluatableExpression literal.
+     */
+    function create(range, expression) {
+        return { range, expression };
+    }
+    InlineValueEvaluatableExpression.create = create;
+    function is(value) {
+        const candidate = value;
+        return candidate !== undefined && candidate !== null && Range.is(candidate.range)
+            && (Is.string(candidate.expression) || candidate.expression === undefined);
+    }
+    InlineValueEvaluatableExpression.is = is;
+})(InlineValueEvaluatableExpression || (InlineValueEvaluatableExpression = {}));
+/**
+ * The InlineValueContext namespace provides helper functions to work with
+ * {@link InlineValueContext} literals.
+ *
+ * @since 3.17.0
+ */
+var InlineValueContext;
+(function (InlineValueContext) {
+    /**
+     * Creates a new InlineValueContext literal.
+     */
+    function create(frameId, stoppedLocation) {
+        return { frameId, stoppedLocation };
+    }
+    InlineValueContext.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link InlineValueContext} interface.
+     */
+    function is(value) {
+        const candidate = value;
+        return Is.defined(candidate) && Range.is(value.stoppedLocation);
+    }
+    InlineValueContext.is = is;
+})(InlineValueContext || (InlineValueContext = {}));
+/**
+ * Inlay hint kinds.
+ *
+ * @since 3.17.0
+ */
+var InlayHintKind;
+(function (InlayHintKind) {
+    /**
+     * An inlay hint that for a type annotation.
+     */
+    InlayHintKind.Type = 1;
+    /**
+     * An inlay hint that is for a parameter.
+     */
+    InlayHintKind.Parameter = 2;
+    function is(value) {
+        return value === 1 || value === 2;
+    }
+    InlayHintKind.is = is;
+})(InlayHintKind || (InlayHintKind = {}));
+var InlayHintLabelPart;
+(function (InlayHintLabelPart) {
+    function create(value) {
+        return { value };
+    }
+    InlayHintLabelPart.create = create;
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate)
+            && (candidate.tooltip === undefined || Is.string(candidate.tooltip) || MarkupContent.is(candidate.tooltip))
+            && (candidate.location === undefined || Location.is(candidate.location))
+            && (candidate.command === undefined || Command.is(candidate.command));
+    }
+    InlayHintLabelPart.is = is;
+})(InlayHintLabelPart || (InlayHintLabelPart = {}));
+var InlayHint;
+(function (InlayHint) {
+    function create(position, label, kind) {
+        const result = { position, label };
+        if (kind !== undefined) {
+            result.kind = kind;
+        }
+        return result;
+    }
+    InlayHint.create = create;
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && Position.is(candidate.position)
+            && (Is.string(candidate.label) || Is.typedArray(candidate.label, InlayHintLabelPart.is))
+            && (candidate.kind === undefined || InlayHintKind.is(candidate.kind))
+            && (candidate.textEdits === undefined) || Is.typedArray(candidate.textEdits, TextEdit.is)
+            && (candidate.tooltip === undefined || Is.string(candidate.tooltip) || MarkupContent.is(candidate.tooltip))
+            && (candidate.paddingLeft === undefined || Is.boolean(candidate.paddingLeft))
+            && (candidate.paddingRight === undefined || Is.boolean(candidate.paddingRight));
+    }
+    InlayHint.is = is;
+})(InlayHint || (InlayHint = {}));
+var StringValue;
+(function (StringValue) {
+    function createSnippet(value) {
+        return { kind: 'snippet', value };
+    }
+    StringValue.createSnippet = createSnippet;
+})(StringValue || (StringValue = {}));
+var InlineCompletionItem;
+(function (InlineCompletionItem) {
+    function create(insertText, filterText, range, command) {
+        return { insertText, filterText, range, command };
+    }
+    InlineCompletionItem.create = create;
+})(InlineCompletionItem || (InlineCompletionItem = {}));
+var InlineCompletionList;
+(function (InlineCompletionList) {
+    function create(items) {
+        return { items };
+    }
+    InlineCompletionList.create = create;
+})(InlineCompletionList || (InlineCompletionList = {}));
+/**
+ * Describes how an {@link InlineCompletionItemProvider inline completion provider} was triggered.
+ *
+ * @since 3.18.0
+ * @proposed
+ */
+var InlineCompletionTriggerKind;
+(function (InlineCompletionTriggerKind) {
+    /**
+     * Completion was triggered explicitly by a user gesture.
+     */
+    InlineCompletionTriggerKind.Invoked = 0;
+    /**
+     * Completion was triggered automatically while editing.
+     */
+    InlineCompletionTriggerKind.Automatic = 1;
+})(InlineCompletionTriggerKind || (InlineCompletionTriggerKind = {}));
+var SelectedCompletionInfo;
+(function (SelectedCompletionInfo) {
+    function create(range, text) {
+        return { range, text };
+    }
+    SelectedCompletionInfo.create = create;
+})(SelectedCompletionInfo || (SelectedCompletionInfo = {}));
+var InlineCompletionContext;
+(function (InlineCompletionContext) {
+    function create(triggerKind, selectedCompletionInfo) {
+        return { triggerKind, selectedCompletionInfo };
+    }
+    InlineCompletionContext.create = create;
+})(InlineCompletionContext || (InlineCompletionContext = {}));
+var WorkspaceFolder;
+(function (WorkspaceFolder) {
+    function is(value) {
+        const candidate = value;
+        return Is.objectLiteral(candidate) && URI.is(candidate.uri) && Is.string(candidate.name);
+    }
+    WorkspaceFolder.is = is;
+})(WorkspaceFolder || (WorkspaceFolder = {}));
+const EOL = ['\n', '\r\n', '\r'];
+/**
+ * @deprecated Use the text document from the new vscode-languageserver-textdocument package.
+ */
+var TextDocument;
+(function (TextDocument) {
+    /**
+     * Creates a new ITextDocument literal from the given uri and content.
+     * @param uri The document's uri.
+     * @param languageId The document's language Id.
+     * @param version The document's version.
+     * @param content The document's content.
+     */
+    function create(uri, languageId, version, content) {
+        return new FullTextDocument(uri, languageId, version, content);
+    }
+    TextDocument.create = create;
+    /**
+     * Checks whether the given literal conforms to the {@link ITextDocument} interface.
+     */
+    function is(value) {
+        let candidate = value;
+        return Is.defined(candidate) && Is.string(candidate.uri) && (Is.undefined(candidate.languageId) || Is.string(candidate.languageId)) && Is.uinteger(candidate.lineCount)
+            && Is.func(candidate.getText) && Is.func(candidate.positionAt) && Is.func(candidate.offsetAt) ? true : false;
+    }
+    TextDocument.is = is;
+    function applyEdits(document, edits) {
+        let text = document.getText();
+        let sortedEdits = mergeSort(edits, (a, b) => {
+            let diff = a.range.start.line - b.range.start.line;
+            if (diff === 0) {
+                return a.range.start.character - b.range.start.character;
+            }
+            return diff;
+        });
+        let lastModifiedOffset = text.length;
+        for (let i = sortedEdits.length - 1; i >= 0; i--) {
+            let e = sortedEdits[i];
+            let startOffset = document.offsetAt(e.range.start);
+            let endOffset = document.offsetAt(e.range.end);
+            if (endOffset <= lastModifiedOffset) {
+                text = text.substring(0, startOffset) + e.newText + text.substring(endOffset, text.length);
+            }
+            else {
+                throw new Error('Overlapping edit');
+            }
+            lastModifiedOffset = startOffset;
+        }
+        return text;
+    }
+    TextDocument.applyEdits = applyEdits;
+    function mergeSort(data, compare) {
+        if (data.length <= 1) {
+            // sorted
+            return data;
+        }
+        const p = (data.length / 2) | 0;
+        const left = data.slice(0, p);
+        const right = data.slice(p);
+        mergeSort(left, compare);
+        mergeSort(right, compare);
+        let leftIdx = 0;
+        let rightIdx = 0;
+        let i = 0;
+        while (leftIdx < left.length && rightIdx < right.length) {
+            let ret = compare(left[leftIdx], right[rightIdx]);
+            if (ret <= 0) {
+                // smaller_equal -> take left to preserve order
+                data[i++] = left[leftIdx++];
+            }
+            else {
+                // greater -> take right
+                data[i++] = right[rightIdx++];
+            }
+        }
+        while (leftIdx < left.length) {
+            data[i++] = left[leftIdx++];
+        }
+        while (rightIdx < right.length) {
+            data[i++] = right[rightIdx++];
+        }
+        return data;
+    }
+})(TextDocument || (TextDocument = {}));
+/**
+ * @deprecated Use the text document from the new vscode-languageserver-textdocument package.
+ */
+class FullTextDocument {
+    constructor(uri, languageId, version, content) {
+        this._uri = uri;
+        this._languageId = languageId;
+        this._version = version;
+        this._content = content;
+        this._lineOffsets = undefined;
+    }
+    get uri() {
+        return this._uri;
+    }
+    get languageId() {
+        return this._languageId;
+    }
+    get version() {
+        return this._version;
+    }
+    getText(range) {
+        if (range) {
+            let start = this.offsetAt(range.start);
+            let end = this.offsetAt(range.end);
+            return this._content.substring(start, end);
+        }
+        return this._content;
+    }
+    update(event, version) {
+        this._content = event.text;
+        this._version = version;
+        this._lineOffsets = undefined;
+    }
+    getLineOffsets() {
+        if (this._lineOffsets === undefined) {
+            let lineOffsets = [];
+            let text = this._content;
+            let isLineStart = true;
+            for (let i = 0; i < text.length; i++) {
+                if (isLineStart) {
+                    lineOffsets.push(i);
+                    isLineStart = false;
+                }
+                let ch = text.charAt(i);
+                isLineStart = (ch === '\r' || ch === '\n');
+                if (ch === '\r' && i + 1 < text.length && text.charAt(i + 1) === '\n') {
+                    i++;
+                }
+            }
+            if (isLineStart && text.length > 0) {
+                lineOffsets.push(text.length);
+            }
+            this._lineOffsets = lineOffsets;
+        }
+        return this._lineOffsets;
+    }
+    positionAt(offset) {
+        offset = Math.max(Math.min(offset, this._content.length), 0);
+        let lineOffsets = this.getLineOffsets();
+        let low = 0, high = lineOffsets.length;
+        if (high === 0) {
+            return Position.create(0, offset);
+        }
+        while (low < high) {
+            let mid = Math.floor((low + high) / 2);
+            if (lineOffsets[mid] > offset) {
+                high = mid;
+            }
+            else {
+                low = mid + 1;
+            }
+        }
+        // low is the least x for which the line offset is larger than the current offset
+        // or array.length if no line offset is larger than the current offset
+        let line = low - 1;
+        return Position.create(line, offset - lineOffsets[line]);
+    }
+    offsetAt(position) {
+        let lineOffsets = this.getLineOffsets();
+        if (position.line >= lineOffsets.length) {
+            return this._content.length;
+        }
+        else if (position.line < 0) {
+            return 0;
+        }
+        let lineOffset = lineOffsets[position.line];
+        let nextLineOffset = (position.line + 1 < lineOffsets.length) ? lineOffsets[position.line + 1] : this._content.length;
+        return Math.max(Math.min(lineOffset + position.character, nextLineOffset), lineOffset);
+    }
+    get lineCount() {
+        return this.getLineOffsets().length;
+    }
+}
+var Is;
+(function (Is) {
+    const toString = Object.prototype.toString;
+    function defined(value) {
+        return typeof value !== 'undefined';
+    }
+    Is.defined = defined;
+    function undefined(value) {
+        return typeof value === 'undefined';
+    }
+    Is.undefined = undefined;
+    function boolean(value) {
+        return value === true || value === false;
+    }
+    Is.boolean = boolean;
+    function string(value) {
+        return toString.call(value) === '[object String]';
+    }
+    Is.string = string;
+    function number(value) {
+        return toString.call(value) === '[object Number]';
+    }
+    Is.number = number;
+    function numberRange(value, min, max) {
+        return toString.call(value) === '[object Number]' && min <= value && value <= max;
+    }
+    Is.numberRange = numberRange;
+    function integer(value) {
+        return toString.call(value) === '[object Number]' && -2147483648 <= value && value <= 2147483647;
+    }
+    Is.integer = integer;
+    function uinteger(value) {
+        return toString.call(value) === '[object Number]' && 0 <= value && value <= 2147483647;
+    }
+    Is.uinteger = uinteger;
+    function func(value) {
+        return toString.call(value) === '[object Function]';
+    }
+    Is.func = func;
+    function objectLiteral(value) {
+        // Strictly speaking class instances pass this check as well. Since the LSP
+        // doesn't use classes we ignore this for now. If we do we need to add something
+        // like this: `Object.getPrototypeOf(Object.getPrototypeOf(x)) === null`
+        return value !== null && typeof value === 'object';
+    }
+    Is.objectLiteral = objectLiteral;
+    function typedArray(value, check) {
+        return Array.isArray(value) && value.every(check);
+    }
+    Is.typedArray = typedArray;
+})(Is || (Is = {}));
+
+
+/***/ }),
+
+/***/ 6883:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   URI: () => (/* binding */ URI),
+/* harmony export */   Utils: () => (/* binding */ Utils)
+/* harmony export */ });
+var LIB;(()=>{"use strict";var t={470:t=>{function e(t){if("string"!=typeof t)throw new TypeError("Path must be a string. Received "+JSON.stringify(t))}function r(t,e){for(var r,n="",i=0,o=-1,s=0,h=0;h<=t.length;++h){if(h<t.length)r=t.charCodeAt(h);else{if(47===r)break;r=47}if(47===r){if(o===h-1||1===s);else if(o!==h-1&&2===s){if(n.length<2||2!==i||46!==n.charCodeAt(n.length-1)||46!==n.charCodeAt(n.length-2))if(n.length>2){var a=n.lastIndexOf("/");if(a!==n.length-1){-1===a?(n="",i=0):i=(n=n.slice(0,a)).length-1-n.lastIndexOf("/"),o=h,s=0;continue}}else if(2===n.length||1===n.length){n="",i=0,o=h,s=0;continue}e&&(n.length>0?n+="/..":n="..",i=2)}else n.length>0?n+="/"+t.slice(o+1,h):n=t.slice(o+1,h),i=h-o-1;o=h,s=0}else 46===r&&-1!==s?++s:s=-1}return n}var n={resolve:function(){for(var t,n="",i=!1,o=arguments.length-1;o>=-1&&!i;o--){var s;o>=0?s=arguments[o]:(void 0===t&&(t=process.cwd()),s=t),e(s),0!==s.length&&(n=s+"/"+n,i=47===s.charCodeAt(0))}return n=r(n,!i),i?n.length>0?"/"+n:"/":n.length>0?n:"."},normalize:function(t){if(e(t),0===t.length)return".";var n=47===t.charCodeAt(0),i=47===t.charCodeAt(t.length-1);return 0!==(t=r(t,!n)).length||n||(t="."),t.length>0&&i&&(t+="/"),n?"/"+t:t},isAbsolute:function(t){return e(t),t.length>0&&47===t.charCodeAt(0)},join:function(){if(0===arguments.length)return".";for(var t,r=0;r<arguments.length;++r){var i=arguments[r];e(i),i.length>0&&(void 0===t?t=i:t+="/"+i)}return void 0===t?".":n.normalize(t)},relative:function(t,r){if(e(t),e(r),t===r)return"";if((t=n.resolve(t))===(r=n.resolve(r)))return"";for(var i=1;i<t.length&&47===t.charCodeAt(i);++i);for(var o=t.length,s=o-i,h=1;h<r.length&&47===r.charCodeAt(h);++h);for(var a=r.length-h,c=s<a?s:a,f=-1,u=0;u<=c;++u){if(u===c){if(a>c){if(47===r.charCodeAt(h+u))return r.slice(h+u+1);if(0===u)return r.slice(h+u)}else s>c&&(47===t.charCodeAt(i+u)?f=u:0===u&&(f=0));break}var l=t.charCodeAt(i+u);if(l!==r.charCodeAt(h+u))break;47===l&&(f=u)}var g="";for(u=i+f+1;u<=o;++u)u!==o&&47!==t.charCodeAt(u)||(0===g.length?g+="..":g+="/..");return g.length>0?g+r.slice(h+f):(h+=f,47===r.charCodeAt(h)&&++h,r.slice(h))},_makeLong:function(t){return t},dirname:function(t){if(e(t),0===t.length)return".";for(var r=t.charCodeAt(0),n=47===r,i=-1,o=!0,s=t.length-1;s>=1;--s)if(47===(r=t.charCodeAt(s))){if(!o){i=s;break}}else o=!1;return-1===i?n?"/":".":n&&1===i?"//":t.slice(0,i)},basename:function(t,r){if(void 0!==r&&"string"!=typeof r)throw new TypeError('"ext" argument must be a string');e(t);var n,i=0,o=-1,s=!0;if(void 0!==r&&r.length>0&&r.length<=t.length){if(r.length===t.length&&r===t)return"";var h=r.length-1,a=-1;for(n=t.length-1;n>=0;--n){var c=t.charCodeAt(n);if(47===c){if(!s){i=n+1;break}}else-1===a&&(s=!1,a=n+1),h>=0&&(c===r.charCodeAt(h)?-1==--h&&(o=n):(h=-1,o=a))}return i===o?o=a:-1===o&&(o=t.length),t.slice(i,o)}for(n=t.length-1;n>=0;--n)if(47===t.charCodeAt(n)){if(!s){i=n+1;break}}else-1===o&&(s=!1,o=n+1);return-1===o?"":t.slice(i,o)},extname:function(t){e(t);for(var r=-1,n=0,i=-1,o=!0,s=0,h=t.length-1;h>=0;--h){var a=t.charCodeAt(h);if(47!==a)-1===i&&(o=!1,i=h+1),46===a?-1===r?r=h:1!==s&&(s=1):-1!==r&&(s=-1);else if(!o){n=h+1;break}}return-1===r||-1===i||0===s||1===s&&r===i-1&&r===n+1?"":t.slice(r,i)},format:function(t){if(null===t||"object"!=typeof t)throw new TypeError('The "pathObject" argument must be of type Object. Received type '+typeof t);return function(t,e){var r=e.dir||e.root,n=e.base||(e.name||"")+(e.ext||"");return r?r===e.root?r+n:r+"/"+n:n}(0,t)},parse:function(t){e(t);var r={root:"",dir:"",base:"",ext:"",name:""};if(0===t.length)return r;var n,i=t.charCodeAt(0),o=47===i;o?(r.root="/",n=1):n=0;for(var s=-1,h=0,a=-1,c=!0,f=t.length-1,u=0;f>=n;--f)if(47!==(i=t.charCodeAt(f)))-1===a&&(c=!1,a=f+1),46===i?-1===s?s=f:1!==u&&(u=1):-1!==s&&(u=-1);else if(!c){h=f+1;break}return-1===s||-1===a||0===u||1===u&&s===a-1&&s===h+1?-1!==a&&(r.base=r.name=0===h&&o?t.slice(1,a):t.slice(h,a)):(0===h&&o?(r.name=t.slice(1,s),r.base=t.slice(1,a)):(r.name=t.slice(h,s),r.base=t.slice(h,a)),r.ext=t.slice(s,a)),h>0?r.dir=t.slice(0,h-1):o&&(r.dir="/"),r},sep:"/",delimiter:":",win32:null,posix:null};n.posix=n,t.exports=n}},e={};function r(n){var i=e[n];if(void 0!==i)return i.exports;var o=e[n]={exports:{}};return t[n](o,o.exports,r),o.exports}r.d=(t,e)=>{for(var n in e)r.o(e,n)&&!r.o(t,n)&&Object.defineProperty(t,n,{enumerable:!0,get:e[n]})},r.o=(t,e)=>Object.prototype.hasOwnProperty.call(t,e),r.r=t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})};var n={};(()=>{let t;if(r.r(n),r.d(n,{URI:()=>f,Utils:()=>P}),"object"==typeof process)t="win32"===process.platform;else if("object"==typeof navigator){let e=navigator.userAgent;t=e.indexOf("Windows")>=0}const e=/^\w[\w\d+.-]*$/,i=/^\//,o=/^\/\//;function s(t,r){if(!t.scheme&&r)throw new Error(`[UriError]: Scheme is missing: {scheme: "", authority: "${t.authority}", path: "${t.path}", query: "${t.query}", fragment: "${t.fragment}"}`);if(t.scheme&&!e.test(t.scheme))throw new Error("[UriError]: Scheme contains illegal characters.");if(t.path)if(t.authority){if(!i.test(t.path))throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character')}else if(o.test(t.path))throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")')}const h="",a="/",c=/^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;class f{static isUri(t){return t instanceof f||!!t&&"string"==typeof t.authority&&"string"==typeof t.fragment&&"string"==typeof t.path&&"string"==typeof t.query&&"string"==typeof t.scheme&&"string"==typeof t.fsPath&&"function"==typeof t.with&&"function"==typeof t.toString}scheme;authority;path;query;fragment;constructor(t,e,r,n,i,o=!1){"object"==typeof t?(this.scheme=t.scheme||h,this.authority=t.authority||h,this.path=t.path||h,this.query=t.query||h,this.fragment=t.fragment||h):(this.scheme=function(t,e){return t||e?t:"file"}(t,o),this.authority=e||h,this.path=function(t,e){switch(t){case"https":case"http":case"file":e?e[0]!==a&&(e=a+e):e=a}return e}(this.scheme,r||h),this.query=n||h,this.fragment=i||h,s(this,o))}get fsPath(){return m(this,!1)}with(t){if(!t)return this;let{scheme:e,authority:r,path:n,query:i,fragment:o}=t;return void 0===e?e=this.scheme:null===e&&(e=h),void 0===r?r=this.authority:null===r&&(r=h),void 0===n?n=this.path:null===n&&(n=h),void 0===i?i=this.query:null===i&&(i=h),void 0===o?o=this.fragment:null===o&&(o=h),e===this.scheme&&r===this.authority&&n===this.path&&i===this.query&&o===this.fragment?this:new l(e,r,n,i,o)}static parse(t,e=!1){const r=c.exec(t);return r?new l(r[2]||h,C(r[4]||h),C(r[5]||h),C(r[7]||h),C(r[9]||h),e):new l(h,h,h,h,h)}static file(e){let r=h;if(t&&(e=e.replace(/\\/g,a)),e[0]===a&&e[1]===a){const t=e.indexOf(a,2);-1===t?(r=e.substring(2),e=a):(r=e.substring(2,t),e=e.substring(t)||a)}return new l("file",r,e,h,h)}static from(t){const e=new l(t.scheme,t.authority,t.path,t.query,t.fragment);return s(e,!0),e}toString(t=!1){return y(this,t)}toJSON(){return this}static revive(t){if(t){if(t instanceof f)return t;{const e=new l(t);return e._formatted=t.external,e._fsPath=t._sep===u?t.fsPath:null,e}}return t}}const u=t?1:void 0;class l extends f{_formatted=null;_fsPath=null;get fsPath(){return this._fsPath||(this._fsPath=m(this,!1)),this._fsPath}toString(t=!1){return t?y(this,!0):(this._formatted||(this._formatted=y(this,!1)),this._formatted)}toJSON(){const t={$mid:1};return this._fsPath&&(t.fsPath=this._fsPath,t._sep=u),this._formatted&&(t.external=this._formatted),this.path&&(t.path=this.path),this.scheme&&(t.scheme=this.scheme),this.authority&&(t.authority=this.authority),this.query&&(t.query=this.query),this.fragment&&(t.fragment=this.fragment),t}}const g={58:"%3A",47:"%2F",63:"%3F",35:"%23",91:"%5B",93:"%5D",64:"%40",33:"%21",36:"%24",38:"%26",39:"%27",40:"%28",41:"%29",42:"%2A",43:"%2B",44:"%2C",59:"%3B",61:"%3D",32:"%20"};function d(t,e,r){let n,i=-1;for(let o=0;o<t.length;o++){const s=t.charCodeAt(o);if(s>=97&&s<=122||s>=65&&s<=90||s>=48&&s<=57||45===s||46===s||95===s||126===s||e&&47===s||r&&91===s||r&&93===s||r&&58===s)-1!==i&&(n+=encodeURIComponent(t.substring(i,o)),i=-1),void 0!==n&&(n+=t.charAt(o));else{void 0===n&&(n=t.substr(0,o));const e=g[s];void 0!==e?(-1!==i&&(n+=encodeURIComponent(t.substring(i,o)),i=-1),n+=e):-1===i&&(i=o)}}return-1!==i&&(n+=encodeURIComponent(t.substring(i))),void 0!==n?n:t}function p(t){let e;for(let r=0;r<t.length;r++){const n=t.charCodeAt(r);35===n||63===n?(void 0===e&&(e=t.substr(0,r)),e+=g[n]):void 0!==e&&(e+=t[r])}return void 0!==e?e:t}function m(e,r){let n;return n=e.authority&&e.path.length>1&&"file"===e.scheme?`//${e.authority}${e.path}`:47===e.path.charCodeAt(0)&&(e.path.charCodeAt(1)>=65&&e.path.charCodeAt(1)<=90||e.path.charCodeAt(1)>=97&&e.path.charCodeAt(1)<=122)&&58===e.path.charCodeAt(2)?r?e.path.substr(1):e.path[1].toLowerCase()+e.path.substr(2):e.path,t&&(n=n.replace(/\//g,"\\")),n}function y(t,e){const r=e?p:d;let n="",{scheme:i,authority:o,path:s,query:h,fragment:c}=t;if(i&&(n+=i,n+=":"),(o||"file"===i)&&(n+=a,n+=a),o){let t=o.indexOf("@");if(-1!==t){const e=o.substr(0,t);o=o.substr(t+1),t=e.lastIndexOf(":"),-1===t?n+=r(e,!1,!1):(n+=r(e.substr(0,t),!1,!1),n+=":",n+=r(e.substr(t+1),!1,!0)),n+="@"}o=o.toLowerCase(),t=o.lastIndexOf(":"),-1===t?n+=r(o,!1,!0):(n+=r(o.substr(0,t),!1,!0),n+=o.substr(t))}if(s){if(s.length>=3&&47===s.charCodeAt(0)&&58===s.charCodeAt(2)){const t=s.charCodeAt(1);t>=65&&t<=90&&(s=`/${String.fromCharCode(t+32)}:${s.substr(3)}`)}else if(s.length>=2&&58===s.charCodeAt(1)){const t=s.charCodeAt(0);t>=65&&t<=90&&(s=`${String.fromCharCode(t+32)}:${s.substr(2)}`)}n+=r(s,!0,!1)}return h&&(n+="?",n+=r(h,!1,!1)),c&&(n+="#",n+=e?c:d(c,!1,!1)),n}function v(t){try{return decodeURIComponent(t)}catch{return t.length>3?t.substr(0,3)+v(t.substr(3)):t}}const b=/(%[0-9A-Za-z][0-9A-Za-z])+/g;function C(t){return t.match(b)?t.replace(b,(t=>v(t))):t}var A=r(470);const w=A.posix||A,x="/";var P;!function(t){t.joinPath=function(t,...e){return t.with({path:w.join(t.path,...e)})},t.resolvePath=function(t,...e){let r=t.path,n=!1;r[0]!==x&&(r=x+r,n=!0);let i=w.resolve(r,...e);return n&&i[0]===x&&!t.authority&&(i=i.substring(1)),t.with({path:i})},t.dirname=function(t){if(0===t.path.length||t.path===x)return t;let e=w.dirname(t.path);return 1===e.length&&46===e.charCodeAt(0)&&(e=""),t.with({path:e})},t.basename=function(t){return w.basename(t.path)},t.extname=function(t){return w.extname(t.path)}}(P||(P={}))})(),LIB=n})();const{URI,Utils}=LIB;
+//# sourceMappingURL=index.mjs.map
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+var exports = __webpack_exports__;
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const path = __webpack_require__(1017);
+const os_1 = __webpack_require__(2037);
+const node_1 = __webpack_require__(8212);
+const vscode_languageserver_textdocument_1 = __webpack_require__(6960);
+const vscode_uri_1 = __webpack_require__(6883);
+const customMessages_1 = __webpack_require__(2116);
+const settings_1 = __webpack_require__(7237);
+const eslint_1 = __webpack_require__(7567);
+const paths_1 = __webpack_require__(9675);
+const diff_1 = __webpack_require__(5232);
+const languageDefaults_1 = __webpack_require__(2388);
+// The connection to use. Code action requests get removed from the queue if
+// canceled.
+const connection = (0, node_1.createConnection)(node_1.ProposedFeatures.all, {
+    cancelUndispatched: (message) => {
+        // Code actions can safely be cancel on request.
+        if (node_1.Message.isRequest(message) && message.method === 'textDocument/codeAction') {
+            const response = {
+                jsonrpc: message.jsonrpc,
+                id: message.id,
+                result: null
+            };
+            return response;
+        }
+        return undefined;
+    }
+});
+// Set when handling the initialize request.
+let clientCapabilities;
+const documents = new node_1.TextDocuments(vscode_languageserver_textdocument_1.TextDocument);
+// The notebooks manager is using the normal document manager for the cell documents.
+// So all validating will work out of the box since normal document events will fire.
+const notebooks = new node_1.NotebookDocuments(documents);
+function loadNodeModule(moduleName) {
+    const r =  true ? require : 0;
+    try {
+        return r(moduleName);
+    }
+    catch (err) {
+        if (err.stack) {
+            connection.console.error(err.stack.toString());
+        }
+    }
+    return undefined;
+}
+// Some plugins call exit which will terminate the server.
+// To not loose the information we sent such a behavior
+// to the client.
+const nodeExit = process.exit;
+process.exit = ((code) => {
+    const stack = new Error('stack');
+    void connection.sendNotification(customMessages_1.ExitCalled.type, [code ? code : 0, stack.stack]);
+    setTimeout(() => {
+        nodeExit(code);
+    }, 1000);
+});
+// Handling of uncaught exceptions hitting the event loop.
+process.on('uncaughtException', (error) => {
+    let message;
+    if (error) {
+        if (typeof error.stack === 'string') {
+            message = error.stack;
+        }
+        else if (typeof error.message === 'string') {
+            message = error.message;
+        }
+        else if (typeof error === 'string') {
+            message = error;
+        }
+        if (message === undefined || message.length === 0) {
+            try {
+                message = JSON.stringify(error, undefined, 4);
+            }
+            catch (e) {
+                // Should not happen.
+            }
+        }
+    }
+    // eslint-disable-next-line no-console
+    console.error('Uncaught exception received.');
+    if (message) {
+        // eslint-disable-next-line no-console
+        console.error(message);
+    }
+});
+/**
+ * Infers a file path for a given URI / TextDocument. If the document is a notebook
+ * cell document it uses the file path from the notebook with a corresponding
+ * extension (e.g. TypeScript -> ts)
+ */
+function inferFilePath(documentOrUri) {
+    if (!documentOrUri) {
+        return undefined;
+    }
+    const uri = (0, paths_1.getUri)(documentOrUri);
+    if (uri.scheme === 'file') {
+        return (0, paths_1.getFileSystemPath)(uri);
+    }
+    const notebookDocument = notebooks.findNotebookDocumentForCell(uri.toString());
+    if (notebookDocument !== undefined) {
+        const notebookUri = vscode_uri_1.URI.parse(notebookDocument.uri);
+        if (notebookUri.scheme === 'file') {
+            const filePath = (0, paths_1.getFileSystemPath)(uri);
+            if (filePath !== undefined) {
+                const textDocument = documents.get(uri.toString());
+                if (textDocument !== undefined) {
+                    const extension = languageDefaults_1.default.getExtension(textDocument.languageId);
+                    if (extension !== undefined) {
+                        const extname = path.extname(filePath);
+                        if (extname.length === 0 && filePath[0] === '.') {
+                            return `${filePath}.${extension}`;
+                        }
+                        else if (extname.length > 0 && extname !== extension) {
+                            return `${filePath.substring(0, filePath.length - extname.length)}.${extension}`;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return undefined;
+}
+eslint_1.ESLint.initialize(connection, documents, inferFilePath, loadNodeModule);
+eslint_1.SaveRuleConfigs.inferFilePath = inferFilePath;
+var Request;
+(function (Request) {
+    function is(value) {
+        const candidate = value;
+        return candidate && candidate.token !== undefined && candidate.resolve !== undefined && candidate.reject !== undefined;
+    }
+    Request.is = is;
+})(Request || (Request = {}));
+var Thenable;
+(function (Thenable) {
+    function is(value) {
+        const candidate = value;
+        return candidate && typeof candidate.then === 'function';
+    }
+    Thenable.is = is;
+})(Thenable || (Thenable = {}));
+class BufferedMessageQueue {
+    constructor(connection) {
+        this.connection = connection;
+        this.queue = [];
+        this.requestHandlers = new Map();
+        this.notificationHandlers = new Map();
+    }
+    registerRequest(type, handler, versionProvider) {
+        this.connection.onRequest(type, (params, token) => {
+            return new Promise((resolve, reject) => {
+                this.queue.push({
+                    method: type.method,
+                    params: params,
+                    documentVersion: versionProvider ? versionProvider(params) : undefined,
+                    resolve: resolve,
+                    reject: reject,
+                    token: token
+                });
+                this.trigger();
+            });
+        });
+        this.requestHandlers.set(type.method, { handler, versionProvider });
+    }
+    registerNotification(type, handler, versionProvider) {
+        connection.onNotification(type, (params) => {
+            this.queue.push({
+                method: type.method,
+                params: params,
+                documentVersion: versionProvider ? versionProvider(params) : undefined,
+            });
+            this.trigger();
+        });
+        this.notificationHandlers.set(type.method, { handler, versionProvider });
+    }
+    addNotificationMessage(type, params, version) {
+        this.queue.push({
+            method: type.method,
+            params,
+            documentVersion: version
+        });
+        this.trigger();
+    }
+    onNotification(type, handler, versionProvider) {
+        this.notificationHandlers.set(type.method, { handler, versionProvider });
+    }
+    trigger() {
+        if (this.timer || this.queue.length === 0) {
+            return;
+        }
+        this.timer = setImmediate(() => {
+            this.timer = undefined;
+            this.processQueue();
+            this.trigger();
+        });
+    }
+    processQueue() {
+        const message = this.queue.shift();
+        if (!message) {
+            return;
+        }
+        if (Request.is(message)) {
+            const requestMessage = message;
+            if (requestMessage.token.isCancellationRequested) {
+                requestMessage.reject(new node_1.ResponseError(node_1.LSPErrorCodes.RequestCancelled, 'Request got cancelled'));
+                return;
+            }
+            const elem = this.requestHandlers.get(requestMessage.method);
+            if (elem === undefined) {
+                throw new Error(`No handler registered`);
+            }
+            if (elem.versionProvider && requestMessage.documentVersion !== undefined && requestMessage.documentVersion !== elem.versionProvider(requestMessage.params)) {
+                requestMessage.reject(new node_1.ResponseError(node_1.LSPErrorCodes.RequestCancelled, 'Request got cancelled'));
+                return;
+            }
+            const result = elem.handler(requestMessage.params, requestMessage.token);
+            if (Thenable.is(result)) {
+                result.then((value) => {
+                    requestMessage.resolve(value);
+                }, (error) => {
+                    requestMessage.reject(error);
+                });
+            }
+            else {
+                requestMessage.resolve(result);
+            }
+        }
+        else {
+            const notificationMessage = message;
+            const elem = this.notificationHandlers.get(notificationMessage.method);
+            if (elem === undefined) {
+                throw new Error(`No handler registered`);
+            }
+            if (elem.versionProvider && notificationMessage.documentVersion !== undefined && notificationMessage.documentVersion !== elem.versionProvider(notificationMessage.params)) {
+                return;
+            }
+            elem.handler(notificationMessage.params);
+        }
+    }
+}
+var ValidateNotification;
+(function (ValidateNotification) {
+    ValidateNotification.type = new node_1.NotificationType('eslint/validate');
+})(ValidateNotification || (ValidateNotification = {}));
+const messageQueue = new BufferedMessageQueue(connection);
+messageQueue.onNotification(ValidateNotification.type, (document) => {
+    void validateSingle(document, true);
+}, (document) => {
+    return document.version;
+});
+documents.onDidOpen(async (event) => {
+    const document = event.document;
+    const settings = await eslint_1.ESLint.resolveSettings(document);
+    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings)) {
+        return;
+    }
+    if (settings.run === 'onSave') {
+        messageQueue.addNotificationMessage(ValidateNotification.type, document, document.version);
+    }
+});
+// A text document has changed. Validate the document according the run setting.
+documents.onDidChangeContent(async (event) => {
+    const document = event.document;
+    const uri = document.uri;
+    eslint_1.CodeActions.remove(uri);
+    const settings = await eslint_1.ESLint.resolveSettings(document);
+    if (settings.validate !== settings_1.Validate.on || settings.run !== 'onType') {
+        return;
+    }
+    messageQueue.addNotificationMessage(ValidateNotification.type, document, document.version);
+});
+// A text document has been saved. Validate the document according the run setting.
+documents.onDidSave(async (event) => {
+    const document = event.document;
+    const settings = await eslint_1.ESLint.resolveSettings(document);
+    if (settings.validate !== settings_1.Validate.on || settings.run !== 'onSave') {
+        return;
+    }
+    messageQueue.addNotificationMessage(ValidateNotification.type, document, document.version);
+});
+documents.onDidClose(async (event) => {
+    const document = event.document;
+    const settings = await eslint_1.ESLint.resolveSettings(document);
+    const uri = document.uri;
+    eslint_1.ESLint.removeSettings(uri);
+    eslint_1.SaveRuleConfigs.remove(uri);
+    eslint_1.CodeActions.remove(uri);
+    eslint_1.ESLint.unregisterAsFormatter(document);
+    if (settings.validate === settings_1.Validate.on) {
+        void connection.sendDiagnostics({ uri: uri, diagnostics: [] });
+    }
+});
+function environmentChanged() {
+    eslint_1.ESLint.clearSettings();
+    eslint_1.RuleSeverities.clear();
+    eslint_1.SaveRuleConfigs.clear();
+    eslint_1.ESLint.clearFormatters();
+    for (const document of documents.all()) {
+        messageQueue.addNotificationMessage(ValidateNotification.type, document, document.version);
+    }
+}
+var CommandIds;
+(function (CommandIds) {
+    CommandIds.applySingleFix = 'eslint.applySingleFix';
+    CommandIds.applySuggestion = 'eslint.applySuggestion';
+    CommandIds.applySameFixes = 'eslint.applySameFixes';
+    CommandIds.applyAllFixes = 'eslint.applyAllFixes';
+    CommandIds.applyDisableLine = 'eslint.applyDisableLine';
+    CommandIds.applyDisableFile = 'eslint.applyDisableFile';
+    CommandIds.openRuleDoc = 'eslint.openRuleDoc';
+})(CommandIds || (CommandIds = {}));
+connection.onInitialize((params, _cancel, progress) => {
+    progress.begin('Initializing ESLint Server');
+    const syncKind = node_1.TextDocumentSyncKind.Incremental;
+    clientCapabilities = params.capabilities;
+    progress.done();
+    const capabilities = {
+        textDocumentSync: {
+            openClose: true,
+            change: syncKind,
+            willSaveWaitUntil: false,
+            save: {
+                includeText: false
+            }
+        },
+        workspace: {
+            workspaceFolders: {
+                supported: true
+            }
+        },
+        executeCommandProvider: {
+            commands: [
+                CommandIds.applySingleFix,
+                CommandIds.applySuggestion,
+                CommandIds.applySameFixes,
+                CommandIds.applyAllFixes,
+                CommandIds.applyDisableLine,
+                CommandIds.applyDisableFile,
+                CommandIds.openRuleDoc,
+            ]
+        }
+    };
+    if (clientCapabilities.textDocument?.codeAction?.codeActionLiteralSupport?.codeActionKind.valueSet !== undefined) {
+        capabilities.codeActionProvider = {
+            codeActionKinds: [node_1.CodeActionKind.QuickFix, `${node_1.CodeActionKind.SourceFixAll}.eslint`]
+        };
+    }
+    return { capabilities };
+});
+connection.onInitialized(() => {
+    if (clientCapabilities.workspace?.didChangeConfiguration?.dynamicRegistration === true) {
+        void connection.client.register(node_1.DidChangeConfigurationNotification.type, undefined);
+    }
+    void connection.client.register(node_1.DidChangeWorkspaceFoldersNotification.type, undefined);
+});
+messageQueue.registerNotification(node_1.DidChangeConfigurationNotification.type, (_params) => {
+    environmentChanged();
+});
+messageQueue.registerNotification(node_1.DidChangeWorkspaceFoldersNotification.type, (_params) => {
+    environmentChanged();
+});
+async function validateSingle(document, publishDiagnostics = true) {
+    // We validate document in a queue but open / close documents directly. So we need to deal with the
+    // fact that a document might be gone from the server.
+    if (!documents.get(document.uri)) {
+        return;
+    }
+    const settings = await eslint_1.ESLint.resolveSettings(document);
+    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings)) {
+        return;
+    }
+    try {
+        const start = Date.now();
+        const diagnostics = await eslint_1.ESLint.validate(document, settings);
+        if (publishDiagnostics) {
+            void connection.sendDiagnostics({ uri: document.uri, diagnostics });
+        }
+        const timeTaken = Date.now() - start;
+        void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: customMessages_1.Status.ok, validationTime: timeTaken });
+    }
+    catch (err) {
+        // if an exception has occurred while validating clear all errors to ensure
+        // we are not showing any stale once
+        void connection.sendDiagnostics({ uri: document.uri, diagnostics: [] });
+        if (!settings.silent) {
+            let status = undefined;
+            for (const handler of eslint_1.ESLint.ErrorHandlers.single) {
+                status = handler(err, document, settings.library);
+                if (status) {
+                    break;
+                }
+            }
+            status = status || customMessages_1.Status.error;
+            void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: status });
+        }
+        else {
+            connection.console.info(eslint_1.ESLint.ErrorHandlers.getMessage(err, document));
+            void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: customMessages_1.Status.ok });
+        }
+    }
+}
+function validateMany(documents) {
+    documents.forEach(document => {
+        messageQueue.addNotificationMessage(ValidateNotification.type, document, document.version);
+    });
+}
+messageQueue.registerNotification(node_1.DidChangeWatchedFilesNotification.type, async (params) => {
+    // A .eslintrc has change. No smartness here.
+    // Simply revalidate all file.
+    eslint_1.RuleMetaData.clear();
+    eslint_1.ESLint.ErrorHandlers.clearNoConfigReported();
+    eslint_1.ESLint.ErrorHandlers.clearMissingModuleReported();
+    eslint_1.ESLint.clearSettings(); // config files can change plugins and parser.
+    eslint_1.RuleSeverities.clear();
+    eslint_1.SaveRuleConfigs.clear();
+    await Promise.all(params.changes.map(async (change) => {
+        const fsPath = inferFilePath(change.uri);
+        if (fsPath === undefined || fsPath.length === 0 || (0, paths_1.isUNC)(fsPath)) {
+            return;
+        }
+        const dirname = path.dirname(fsPath);
+        if (dirname) {
+            const library = eslint_1.ESLint.ErrorHandlers.getConfigErrorReported(fsPath);
+            if (library !== undefined) {
+                const eslintClass = eslint_1.ESLint.newClass(library, {}, false);
+                try {
+                    await eslintClass.lintText('', { filePath: path.join(dirname, '___test___.js') });
+                    eslint_1.ESLint.ErrorHandlers.removeConfigErrorReported(fsPath);
+                }
+                catch (error) {
+                }
+            }
+        }
+    }));
+    validateMany(documents.all());
+});
+class CodeActionResult {
+    constructor() {
+        this._actions = new Map();
+    }
+    get(ruleId) {
+        let result = this._actions.get(ruleId);
+        if (result === undefined) {
+            result = { fixes: [], suggestions: [] };
+            this._actions.set(ruleId, result);
+        }
+        return result;
+    }
+    get fixAll() {
+        if (this._fixAll === undefined) {
+            this._fixAll = [];
+        }
+        return this._fixAll;
+    }
+    all() {
+        const result = [];
+        for (const actions of this._actions.values()) {
+            result.push(...actions.fixes);
+            result.push(...actions.suggestions);
+            if (actions.disable) {
+                result.push(actions.disable);
+            }
+            if (actions.fixAll) {
+                result.push(actions.fixAll);
+            }
+            if (actions.disableFile) {
+                result.push(actions.disableFile);
+            }
+            if (actions.showDocumentation) {
+                result.push(actions.showDocumentation);
+            }
+        }
+        if (this._fixAll !== undefined) {
+            result.push(...this._fixAll);
+        }
+        return result;
+    }
+    get length() {
+        let result = 0;
+        for (const actions of this._actions.values()) {
+            result += actions.fixes.length;
+        }
+        return result;
+    }
+}
+class Changes {
+    constructor() {
+        this.values = new Map();
+        this.uri = undefined;
+        this.version = undefined;
+    }
+    clear(textDocument) {
+        if (textDocument === undefined) {
+            this.uri = undefined;
+            this.version = undefined;
+        }
+        else {
+            this.uri = textDocument.uri;
+            this.version = textDocument.version;
+        }
+        this.values.clear();
+    }
+    isUsable(uri, version) {
+        return this.uri === uri && this.version === version;
+    }
+    set(key, change) {
+        this.values.set(key, change);
+    }
+    get(key) {
+        return this.values.get(key);
+    }
+}
+var CommandParams;
+(function (CommandParams) {
+    function create(textDocument, ruleId, sequence) {
+        return { uri: textDocument.uri, version: textDocument.version, ruleId, sequence };
+    }
+    CommandParams.create = create;
+    function hasRuleId(value) {
+        return value.ruleId !== undefined;
+    }
+    CommandParams.hasRuleId = hasRuleId;
+})(CommandParams || (CommandParams = {}));
+const changes = new Changes();
+const ESLintSourceFixAll = `${node_1.CodeActionKind.SourceFixAll}.eslint`;
+messageQueue.registerRequest(node_1.CodeActionRequest.type, async (params) => {
+    const result = new CodeActionResult();
+    const uri = params.textDocument.uri;
+    const textDocument = documents.get(uri);
+    if (textDocument === undefined) {
+        changes.clear(textDocument);
+        return result.all();
+    }
+    function createCodeAction(title, kind, commandId, arg, diagnostic) {
+        const command = node_1.Command.create(title, commandId, arg);
+        const action = node_1.CodeAction.create(title, command, kind);
+        if (diagnostic !== undefined) {
+            action.diagnostics = [diagnostic];
+        }
+        return action;
+    }
+    function getDisableRuleEditInsertionIndex(line, commentTags) {
+        let charIndex = line.indexOf('--');
+        if (charIndex < 0) {
+            if (typeof commentTags === 'string') {
+                return line.length;
+            }
+            else { // commentTags is an array containing the block comment closing and opening tags
+                charIndex = line.indexOf(commentTags[1]);
+                while (charIndex > 0 && line[charIndex - 1] === ' ') {
+                    charIndex--;
+                }
+            }
+        }
+        else {
+            while (charIndex > 1 && line[charIndex - 1] === ' ') {
+                charIndex--;
+            }
+        }
+        return charIndex;
+    }
+    /**
+     * Prefix characters with special meaning in comment markers with a backslash
+     * See also: https://github.com/microsoft/vscode-eslint/issues/1610
+     */
+    function escapeStringRegexp(value) {
+        return value.replace(/[|{}\\()[\]^$+*?.]/g, '\\$&');
+    }
+    function createDisableLineTextEdit(textDocument, editInfo, indentationText) {
+        const lineComment = languageDefaults_1.default.getLineComment(textDocument.languageId);
+        const blockComment = languageDefaults_1.default.getBlockComment(textDocument.languageId);
+        // If the concerned line is not the first line of the file
+        if (editInfo.line - 1 > 0) {
+            // Check previous line if there is a eslint-disable-next-line comment already present.
+            const prevLine = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 2, 0), node_1.Position.create(editInfo.line - 2, node_1.uinteger.MAX_VALUE)));
+            // For consistency, we ignore the settings here and use the comment style from that
+            // specific line.
+            const matchedLineDisable = new RegExp(`${escapeStringRegexp(lineComment)} eslint-disable-next-line`).test(prevLine);
+            if (matchedLineDisable) {
+                const insertionIndex = getDisableRuleEditInsertionIndex(prevLine, lineComment);
+                return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 2, insertionIndex), `, ${editInfo.ruleId}`);
+            }
+            const matchedBlockDisable = new RegExp(`${escapeStringRegexp(blockComment[0])} eslint-disable-next-line`).test(prevLine);
+            if (matchedBlockDisable) {
+                const insertionIndex = getDisableRuleEditInsertionIndex(prevLine, blockComment);
+                return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 2, insertionIndex), `, ${editInfo.ruleId}`);
+            }
+        }
+        // We're creating a new disabling comment. Use the comment style given in settings.
+        const commentStyle = settings.codeAction.disableRuleComment.commentStyle;
+        let disableRuleContent;
+        if (commentStyle === 'block') {
+            disableRuleContent = `${indentationText}${blockComment[0]} eslint-disable-next-line ${editInfo.ruleId} ${blockComment[1]}${os_1.EOL}`;
+        }
+        else { // commentStyle === 'line'
+            disableRuleContent = `${indentationText}${lineComment} eslint-disable-next-line ${editInfo.ruleId}${os_1.EOL}`;
+        }
+        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, 0), disableRuleContent);
+    }
+    function createDisableSameLineTextEdit(textDocument, editInfo) {
+        const lineComment = languageDefaults_1.default.getLineComment(textDocument.languageId);
+        const blockComment = languageDefaults_1.default.getBlockComment(textDocument.languageId);
+        const currentLine = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, node_1.uinteger.MAX_VALUE)));
+        let disableRuleContent;
+        let insertionIndex;
+        // Check if there's already a disabling comment. If so, we ignore the settings here
+        // and use the comment style from that specific line.
+        const matchedLineDisable = new RegExp(`${lineComment} eslint-disable-line`).test(currentLine);
+        const matchedBlockDisable = new RegExp(`${blockComment[0]} eslint-disable-line`).test(currentLine);
+        if (matchedLineDisable) {
+            disableRuleContent = `, ${editInfo.ruleId}`;
+            insertionIndex = getDisableRuleEditInsertionIndex(currentLine, lineComment);
+        }
+        else if (matchedBlockDisable) {
+            disableRuleContent = `, ${editInfo.ruleId}`;
+            insertionIndex = getDisableRuleEditInsertionIndex(currentLine, blockComment);
+        }
+        else {
+            // We're creating a new disabling comment.
+            const commentStyle = settings.codeAction.disableRuleComment.commentStyle;
+            disableRuleContent = commentStyle === 'line' ? ` ${lineComment} eslint-disable-line ${editInfo.ruleId}` : ` ${blockComment[0]} eslint-disable-line ${editInfo.ruleId} ${blockComment[1]}`;
+            insertionIndex = node_1.uinteger.MAX_VALUE;
+        }
+        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, insertionIndex), disableRuleContent);
+    }
+    function createDisableFileTextEdit(textDocument, editInfo) {
+        // If first line contains a shebang, insert on the next line instead.
+        const shebang = textDocument.getText(node_1.Range.create(node_1.Position.create(0, 0), node_1.Position.create(0, 2)));
+        const line = shebang === '#!' ? 1 : 0;
+        const block = languageDefaults_1.default.getBlockComment(textDocument.languageId);
+        return node_1.TextEdit.insert(node_1.Position.create(line, 0), `${block[0]} eslint-disable ${editInfo.ruleId} ${block[1]}${os_1.EOL}`);
+    }
+    function getLastEdit(array) {
+        const length = array.length;
+        if (length === 0) {
+            return undefined;
+        }
+        return array[length - 1];
+    }
+    const settings = await eslint_1.ESLint.resolveSettings(textDocument);
+    // The file is not validated at all or we couldn't load an eslint library for it.
+    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings)) {
+        return result.all();
+    }
+    const problems = eslint_1.CodeActions.get(uri);
+    // We validate on type and have no problems ==> nothing to fix.
+    if (problems === undefined && settings.run === 'onType') {
+        return result.all();
+    }
+    const only = params.context.only !== undefined && params.context.only.length > 0 ? params.context.only[0] : undefined;
+    const isSource = only === node_1.CodeActionKind.Source;
+    const isSourceFixAll = (only === ESLintSourceFixAll || only === node_1.CodeActionKind.SourceFixAll);
+    if (isSourceFixAll || isSource) {
+        if (isSourceFixAll) {
+            const textDocumentIdentifier = { uri: textDocument.uri, version: textDocument.version };
+            const edits = await computeAllFixes(textDocumentIdentifier, AllFixesMode.onSave);
+            if (edits !== undefined) {
+                result.fixAll.push(node_1.CodeAction.create(`Fix all fixable ESLint issues`, { documentChanges: [node_1.TextDocumentEdit.create(textDocumentIdentifier, edits)] }, ESLintSourceFixAll));
+            }
+        }
+        else if (isSource) {
+            result.fixAll.push(createCodeAction(`Fix all fixable ESLint issues`, node_1.CodeActionKind.Source, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
+        }
+        return result.all();
+    }
+    if (problems === undefined) {
+        return result.all();
+    }
+    const fixes = new eslint_1.Fixes(problems);
+    if (fixes.isEmpty()) {
+        return result.all();
+    }
+    let documentVersion = -1;
+    const allFixableRuleIds = [];
+    const kind = only ?? node_1.CodeActionKind.QuickFix;
+    for (const editInfo of fixes.getScoped(params.context.diagnostics)) {
+        documentVersion = editInfo.documentVersion;
+        const ruleId = editInfo.ruleId;
+        allFixableRuleIds.push(ruleId);
+        if (eslint_1.Problem.isFixable(editInfo)) {
+            const workspaceChange = new node_1.WorkspaceChange();
+            workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(eslint_1.FixableProblem.createTextEdit(textDocument, editInfo));
+            changes.set(`${CommandIds.applySingleFix}:${ruleId}`, workspaceChange);
+            const action = createCodeAction(editInfo.label, kind, CommandIds.applySingleFix, CommandParams.create(textDocument, ruleId), editInfo.diagnostic);
+            action.isPreferred = true;
+            result.get(ruleId).fixes.push(action);
+        }
+        if (eslint_1.Problem.hasSuggestions(editInfo)) {
+            editInfo.suggestions.forEach((suggestion, suggestionSequence) => {
+                const workspaceChange = new node_1.WorkspaceChange();
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(eslint_1.SuggestionsProblem.createTextEdit(textDocument, suggestion));
+                changes.set(`${CommandIds.applySuggestion}:${ruleId}:${suggestionSequence}`, workspaceChange);
+                const action = createCodeAction(`${suggestion.desc} (${editInfo.ruleId})`, node_1.CodeActionKind.QuickFix, CommandIds.applySuggestion, CommandParams.create(textDocument, ruleId, suggestionSequence), editInfo.diagnostic);
+                result.get(ruleId).suggestions.push(action);
+            });
+        }
+        if (settings.codeAction.disableRuleComment.enable && ruleId !== eslint_1.RuleMetaData.unusedDisableDirectiveId) {
+            let workspaceChange = new node_1.WorkspaceChange();
+            if (settings.codeAction.disableRuleComment.location === 'sameLine') {
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableSameLineTextEdit(textDocument, editInfo));
+            }
+            else {
+                const lineText = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, node_1.uinteger.MAX_VALUE)));
+                const matches = /^([ \t]*)/.exec(lineText);
+                const indentationText = matches !== null && matches.length > 0 ? matches[1] : '';
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableLineTextEdit(textDocument, editInfo, indentationText));
+            }
+            changes.set(`${CommandIds.applyDisableLine}:${ruleId}`, workspaceChange);
+            result.get(ruleId).disable = createCodeAction(`Disable ${ruleId} for this line`, kind, CommandIds.applyDisableLine, CommandParams.create(textDocument, ruleId));
+            if (result.get(ruleId).disableFile === undefined) {
+                workspaceChange = new node_1.WorkspaceChange();
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableFileTextEdit(textDocument, editInfo));
+                changes.set(`${CommandIds.applyDisableFile}:${ruleId}`, workspaceChange);
+                result.get(ruleId).disableFile = createCodeAction(`Disable ${ruleId} for the entire file`, kind, CommandIds.applyDisableFile, CommandParams.create(textDocument, ruleId));
+            }
+        }
+        if (settings.codeAction.showDocumentation.enable && result.get(ruleId).showDocumentation === undefined) {
+            if (eslint_1.RuleMetaData.hasRuleId(ruleId)) {
+                result.get(ruleId).showDocumentation = createCodeAction(`Show documentation for ${ruleId}`, kind, CommandIds.openRuleDoc, CommandParams.create(textDocument, ruleId));
+            }
+        }
+    }
+    if (result.length > 0) {
+        const sameProblems = new Map(allFixableRuleIds.map(s => [s, []]));
+        for (const editInfo of fixes.getAllSorted()) {
+            if (documentVersion === -1) {
+                documentVersion = editInfo.documentVersion;
+            }
+            if (sameProblems.has(editInfo.ruleId)) {
+                const same = sameProblems.get(editInfo.ruleId);
+                if (!eslint_1.Fixes.overlaps(getLastEdit(same), editInfo)) {
+                    same.push(editInfo);
+                }
+            }
+        }
+        sameProblems.forEach((same, ruleId) => {
+            if (same.length > 1) {
+                const sameFixes = new node_1.WorkspaceChange();
+                const sameTextChange = sameFixes.getTextEditChange({ uri, version: documentVersion });
+                same.map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix)).forEach(edit => sameTextChange.add(edit));
+                changes.set(CommandIds.applySameFixes, sameFixes);
+                result.get(ruleId).fixAll = createCodeAction(`Fix all ${ruleId} problems`, kind, CommandIds.applySameFixes, CommandParams.create(textDocument));
+            }
+        });
+        result.fixAll.push(createCodeAction(`Fix all auto-fixable problems`, kind, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
+    }
+    return result.all();
+}, (params) => {
+    const document = documents.get(params.textDocument.uri);
+    return document !== undefined ? document.version : undefined;
+});
+var AllFixesMode;
+(function (AllFixesMode) {
+    AllFixesMode["onSave"] = "onsave";
+    AllFixesMode["format"] = "format";
+    AllFixesMode["command"] = "command";
+})(AllFixesMode || (AllFixesMode = {}));
+async function computeAllFixes(identifier, mode) {
+    const uri = identifier.uri;
+    const textDocument = documents.get(uri);
+    if (textDocument === undefined || identifier.version !== textDocument.version) {
+        return undefined;
+    }
+    const settings = await eslint_1.ESLint.resolveSettings(textDocument);
+    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings) || (mode === AllFixesMode.format && !settings.format)) {
+        return [];
+    }
+    const filePath = inferFilePath(textDocument);
+    const problems = eslint_1.CodeActions.get(uri);
+    const originalContent = textDocument.getText();
+    let start = Date.now();
+    // Only use known fixes when running in onSave mode. See https://github.com/microsoft/vscode-eslint/issues/871
+    // for details
+    if (mode === AllFixesMode.onSave && settings.codeActionOnSave.mode === settings_1.CodeActionsOnSaveMode.problems) {
+        const result = problems !== undefined && problems.size > 0
+            ? new eslint_1.Fixes(problems).getApplicable().map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix))
+            : [];
+        connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
+        return result;
+    }
+    else {
+        const saveConfig = filePath !== undefined && mode === AllFixesMode.onSave ? await eslint_1.SaveRuleConfigs.get(uri, settings) : undefined;
+        const offRules = saveConfig?.offRules;
+        const onRules = saveConfig?.onRules;
+        let overrideConfig;
+        if (offRules !== undefined) {
+            overrideConfig = { rules: Object.create(null) };
+            for (const ruleId of offRules) {
+                overrideConfig.rules[ruleId] = 'off';
+            }
+        }
+        return eslint_1.ESLint.withClass(async (eslintClass) => {
+            const result = [];
+            let fixes;
+            if (problems !== undefined && problems.size > 0) {
+                // We have override rules that turn rules off. Filter the fixes for these rules.
+                if (offRules !== undefined) {
+                    const filtered = new Map();
+                    for (const [key, problem] of problems) {
+                        if (onRules?.has(problem.ruleId)) {
+                            filtered.set(key, problem);
+                        }
+                    }
+                    fixes = filtered.size > 0 ? new eslint_1.Fixes(filtered).getApplicable().map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix)) : undefined;
+                }
+                else {
+                    fixes = new eslint_1.Fixes(problems).getApplicable().map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix));
+                }
+            }
+            const content = fixes !== undefined
+                ? vscode_languageserver_textdocument_1.TextDocument.applyEdits(textDocument, fixes)
+                : originalContent;
+            const reportResults = await eslintClass.lintText(content, { filePath });
+            connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
+            if (Array.isArray(reportResults) && reportResults.length === 1 && reportResults[0].output !== undefined) {
+                const fixedContent = reportResults[0].output;
+                start = Date.now();
+                const diffs = (0, diff_1.stringDiff)(originalContent, fixedContent, false);
+                connection.tracer.log(`Computing minimal edits took: ${Date.now() - start} ms.`);
+                for (const diff of diffs) {
+                    result.push({
+                        range: {
+                            start: textDocument.positionAt(diff.originalStart),
+                            end: textDocument.positionAt(diff.originalStart + diff.originalLength)
+                        },
+                        newText: fixedContent.substr(diff.modifiedStart, diff.modifiedLength)
+                    });
+                }
+            }
+            else if (fixes !== undefined) {
+                result.push(...fixes);
+            }
+            return result;
+        }, settings, overrideConfig !== undefined ? { fix: true, overrideConfig } : { fix: true });
+    }
+}
+messageQueue.registerRequest(node_1.ExecuteCommandRequest.type, async (params) => {
+    let workspaceChange;
+    const commandParams = params.arguments[0];
+    if (params.command === CommandIds.applyAllFixes) {
+        const edits = await computeAllFixes(commandParams, AllFixesMode.command);
+        if (edits !== undefined && edits.length > 0) {
+            workspaceChange = new node_1.WorkspaceChange();
+            const textChange = workspaceChange.getTextEditChange(commandParams);
+            edits.forEach(edit => textChange.add(edit));
+        }
+    }
+    else {
+        if ([CommandIds.applySingleFix, CommandIds.applyDisableLine, CommandIds.applyDisableFile].indexOf(params.command) !== -1) {
+            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}`);
+        }
+        else if ([CommandIds.applySuggestion].indexOf(params.command) !== -1) {
+            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}:${commandParams.sequence}`);
+        }
+        else if (params.command === CommandIds.openRuleDoc && CommandParams.hasRuleId(commandParams)) {
+            const url = eslint_1.RuleMetaData.getUrl(commandParams.ruleId);
+            if (url) {
+                void connection.sendRequest(customMessages_1.OpenESLintDocRequest.type, { url });
+            }
+        }
+        else {
+            workspaceChange = changes.get(params.command);
+        }
+    }
+    if (workspaceChange === undefined) {
+        return null;
+    }
+    return connection.workspace.applyEdit(workspaceChange.edit).then((response) => {
+        if (!response.applied) {
+            connection.console.error(`Failed to apply command: ${params.command}`);
+        }
+        return null;
+    }, () => {
+        connection.console.error(`Failed to apply command: ${params.command}`);
+        return null;
+    });
+}, (params) => {
+    const commandParam = params.arguments[0];
+    if (changes.isUsable(commandParam.uri, commandParam.version)) {
+        return commandParam.version;
+    }
+    else {
+        return undefined;
+    }
+});
+messageQueue.registerRequest(node_1.DocumentFormattingRequest.type, (params) => {
+    const textDocument = documents.get(params.textDocument.uri);
+    if (textDocument === undefined) {
+        return [];
+    }
+    return computeAllFixes({ uri: textDocument.uri, version: textDocument.version }, AllFixesMode.format);
+}, (params) => {
+    const document = documents.get(params.textDocument.uri);
+    return document !== undefined ? document.version : undefined;
+});
+documents.listen(connection);
+notebooks.listen(connection);
+connection.listen();
+connection.console.info(`ESLint server running in node ${process.version}`);
+
+})();
+
+var __webpack_export_target__ = exports;
+for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
+if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
+/******/ })()
+;
 //# sourceMappingURL=eslintServer.js.map

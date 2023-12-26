@@ -1,9 +1,10 @@
 .dependabot export-ignore
 .github/ export-ignore
 codecov.yml export-ignore
+language-server/compile-language-server.sh export-ignore
+language-server/webpack-disable-minimize.patch export-ignore
 tests/ export-ignore
 tox.ini export-ignore
-compile-eslint-server.sh export-ignore
 unittesting.json export-ignore
 
 # Release script
