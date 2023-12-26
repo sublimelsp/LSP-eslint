@@ -640,7 +640,7 @@ class LcsDiff {
                 change.originalStart++;
                 change.modifiedStart++;
             }
-            let mergedChangeArr = [null];
+            const mergedChangeArr = [null];
             if (i < changes.length - 1 && this.ChangesOverlap(changes[i], changes[i + 1], mergedChangeArr)) {
                 changes[i] = mergedChangeArr[0];
                 changes.splice(i + 1, 1);
@@ -738,7 +738,7 @@ class LcsDiff {
      * @returns The concatenated list
      */
     ConcatenateChanges(left, right) {
-        let mergedChangeArr = [];
+        const mergedChangeArr = [];
         if (left.length === 0 || right.length === 0) {
             return (right.length > 0) ? right : left;
         }
@@ -1085,7 +1085,7 @@ class Fixes {
         let last = sorted[0];
         result.push(last);
         for (let i = 1; i < sorted.length; i++) {
-            let current = sorted[i];
+            const current = sorted[i];
             if (!Fixes.overlaps(last, current) && !Fixes.sameRange(last, current)) {
                 result.push(current);
                 last = current;
@@ -1549,7 +1549,7 @@ var ESLint;
                 }
                 if (settings.validate === settings_1.Validate.probe && TextDocumentSettings.hasLibrary(settings)) {
                     settings.validate = settings_1.Validate.off;
-                    let filePath = ESLint.getFilePath(document, settings);
+                    const filePath = ESLint.getFilePath(document, settings);
                     if (filePath !== undefined) {
                         const parserRegExps = languageId2ParserRegExp.get(document.languageId);
                         const pluginName = languageId2PluginName.get(document.languageId);
@@ -1627,7 +1627,7 @@ var ESLint;
                 }
                 if (settings.validate === settings_1.Validate.on) {
                     settings.silent = false;
-                    if (settings.format && TextDocumentSettings.hasLibrary(settings)) {
+                    if (settings.format && TextDocumentSettings.hasLibrary(settings) && !formatterRegistrations.has(uri)) {
                         const Uri = vscode_uri_1.URI.parse(uri);
                         const isFile = Uri.scheme === 'file';
                         let pattern = isFile
@@ -14814,7 +14814,6 @@ async function computeAllFixes(identifier, mode) {
     else {
         const saveConfig = filePath !== undefined && mode === AllFixesMode.onSave ? await eslint_1.SaveRuleConfigs.get(uri, settings) : undefined;
         const offRules = saveConfig?.offRules;
-        const onRules = saveConfig?.onRules;
         let overrideConfig;
         if (offRules !== undefined) {
             overrideConfig = { rules: Object.create(null) };
@@ -14823,27 +14822,10 @@ async function computeAllFixes(identifier, mode) {
             }
         }
         return eslint_1.ESLint.withClass(async (eslintClass) => {
+            // Don't use any precomputed fixes since neighbour fixes can produce incorrect results.
+            // See https://github.com/microsoft/vscode-eslint/issues/1745
             const result = [];
-            let fixes;
-            if (problems !== undefined && problems.size > 0) {
-                // We have override rules that turn rules off. Filter the fixes for these rules.
-                if (offRules !== undefined) {
-                    const filtered = new Map();
-                    for (const [key, problem] of problems) {
-                        if (onRules?.has(problem.ruleId)) {
-                            filtered.set(key, problem);
-                        }
-                    }
-                    fixes = filtered.size > 0 ? new eslint_1.Fixes(filtered).getApplicable().map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix)) : undefined;
-                }
-                else {
-                    fixes = new eslint_1.Fixes(problems).getApplicable().map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix));
-                }
-            }
-            const content = fixes !== undefined
-                ? vscode_languageserver_textdocument_1.TextDocument.applyEdits(textDocument, fixes)
-                : originalContent;
-            const reportResults = await eslintClass.lintText(content, { filePath });
+            const reportResults = await eslintClass.lintText(originalContent, { filePath });
             connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
             if (Array.isArray(reportResults) && reportResults.length === 1 && reportResults[0].output !== undefined) {
                 const fixedContent = reportResults[0].output;
@@ -14859,9 +14841,6 @@ async function computeAllFixes(identifier, mode) {
                         newText: fixedContent.substr(diff.modifiedStart, diff.modifiedLength)
                     });
                 }
-            }
-            else if (fixes !== undefined) {
-                result.push(...fixes);
             }
             return result;
         }, settings, overrideConfig !== undefined ? { fix: true, overrideConfig } : { fix: true });

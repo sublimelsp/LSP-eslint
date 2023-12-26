@@ -1,4 +1,4 @@
-from LSP.plugin.core.typing import Any, Callable, Dict, Literal, Optional, Set, Tuple
+from LSP.plugin.core.typing import Any, Callable, Dict, Literal, Optional, Set
 from LSP.plugin import uri_to_filename
 from LSP.plugin import WorkspaceFolder
 from lsp_utils import notification_handler
@@ -29,8 +29,8 @@ class LspEslintPlugin(NpmClientHandler):
         self._probe_failed = set()  # type: Set[str]
 
     @classmethod
-    def minimum_node_version(cls) -> Tuple[int, int, int]:
-        return (14, 0, 0)
+    def required_node_version(cls) -> str:
+        return '>=16.20.2'
 
     @notification_handler('eslint/status')
     def handle_status(self, params: Any) -> None:
