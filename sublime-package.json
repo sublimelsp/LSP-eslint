@@ -33,11 +33,18 @@
                       "description": "Shortens the text spans of underlined problems to their first related line.",
                       "scope": "resource"
                     },
+                    "useFlatConfig": {
+                      "scope": "resource",
+                      "type": "boolean",
+                      "default": null,
+                      "markdownDescription": "Controls whether flat config should be used or not. This setting requires ESLint version 8.57 or later and is interpreted according to the [ESLint Flat Config rollout plan](https://eslint.org/blog/2023/10/flat-config-rollout-plans/). This means:\n\n - *8.57.0 <= ESLint version < 9.x*: setting is honored and defaults to false\n- *9.0.0 <= ESLint version < 10.x*: settings is honored and defaults to true\n- *10.0.0 <= ESLint version*: setting is ignored. Flat configs are the default and can't be turned off."
+                    },
                     "experimental.useFlatConfig": {
                       "scope": "resource",
                       "type": "boolean",
                       "default": false,
-                      "description": "Enables support for experimental Flat Config (aka `eslint.config.js`, supported by ESLint version 8.21 or later)."
+                      "deprecationMessage": "Use ESLint version 8.57 or later and `useFlatConfig` instead.",
+                      "description": "Enables support of experimental Flat Config (aka eslint.config.js). Requires ESLint version >= 8.21 < 8.57.0)."
                     },
                     "codeActionOnSave.enable": {
                       "type": "boolean",
@@ -78,7 +85,8 @@
                         "pnpm"
                       ],
                       "default": "npm",
-                      "description": "The package manager you use to install node modules."
+                      "description": "The package manager you use to install node modules.",
+                      "deprecationMessage": "The setting is deprecated. The Package Manager is automatically detected now."
                     },
                     "nodePath": {
                       "type": [
@@ -110,13 +118,17 @@
                         "type": "string"
                       },
                       "default": [
+                        "astro",
                         "javascript",
                         "javascriptreact",
                         "typescript",
                         "typescriptreact",
                         "html",
+                        "mdx",
                         "vue",
-                        "markdown"
+                        "markdown",
+                        "json",
+                        "jsonc"
                       ],
                       "description": "An array of language ids for which the plugin should probe if support is installed."
                     },
@@ -341,6 +353,52 @@
                         "type": "object"
                       },
                       "type": "array"
+                    },
+                    "timeBudget.onValidation": {
+                      "scope": "resource",
+                      "type": "object",
+                      "properties": {
+                        "warn": {
+                          "type": "number",
+                          "default": 4000,
+                          "minimum": 0,
+                          "markdownDescription": "The time budget in milliseconds to spend on validation before showing a warning."
+                        },
+                        "error": {
+                          "type": "number",
+                          "default": 8000,
+                          "minimum": 0,
+                          "markdownDescription": "The time budget in milliseconds to spend on validation before showing an error."
+                        }
+                      },
+                      "default": {
+                        "warn": 4000,
+                        "error": 8000
+                      },
+                      "markdownDescription": "The time budget in milliseconds to spend on validation before showing a warning or error."
+                    },
+                    "timeBudget.onFixes": {
+                      "scope": "resource",
+                      "type": "object",
+                      "properties": {
+                        "warn": {
+                          "type": "number",
+                          "default": 3000,
+                          "minimum": 0,
+                          "markdownDescription": "The time budget in milliseconds to spend on computing fixes before showing a warning."
+                        },
+                        "error": {
+                          "type": "number",
+                          "default": 6000,
+                          "minimum": 0,
+                          "markdownDescription": "The time budget in milliseconds to spend on computing fixes before showing an error."
+                        }
+                      },
+                      "default": {
+                        "warn": 3000,
+                        "error": 6000
+                      },
+                      "markdownDescription": "The time budget in milliseconds to spend on computing fixes before showing a warning or error."
                     }
                   }
                 }

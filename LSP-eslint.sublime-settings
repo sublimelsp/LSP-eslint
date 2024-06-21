@@ -82,18 +82,20 @@
 		// }
 		// ```
 		"options": {},
-		// The package manager you use to install node modules.
-		// Possible values: `npm`, `yarn`, `pnpm`
-		"packageManager": "npm",
+
 		// An array of language ids for which the plugin should probe if support is installed.
 		"probe": [
+			"astro",
 			"javascript",
 			"javascriptreact",
 			"typescript",
 			"typescriptreact",
 			"html",
+			"mdx",
 			"vue",
 			"markdown",
+			"json",
+			"jsonc"
 		],
 		// Shortens the text spans of underlined problems to their first related line.
 		"problems.shortenToSingleLine": false,
