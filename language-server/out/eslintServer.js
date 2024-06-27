@@ -1525,7 +1525,7 @@ var ESLint;
             // During Flat Config is considered experimental,
             // we need to import FlatESLint from 'eslint/use-at-your-own-risk'.
             // See: https://eslint.org/blog/2022/08/new-config-system-part-3/
-            const eslintPath = settings.experimental.useFlatConfig ? 'eslint/use-at-your-own-risk' : 'eslint';
+            const eslintPath = settings.experimental?.useFlatConfig ? 'eslint/use-at-your-own-risk' : 'eslint';
             if (nodePath !== undefined) {
                 promise = node_1.Files.resolve(eslintPath, nodePath, nodePath, trace).then(undefined, () => {
                     return node_1.Files.resolve(eslintPath, settings.resolvedGlobalPackageManagerPath, moduleResolveWorkingDirectory, trace);
@@ -1538,7 +1538,7 @@ var ESLint;
             return promise.then(async (libraryPath) => {
                 let library = path2Library.get(libraryPath);
                 if (library === undefined) {
-                    if (settings.experimental.useFlatConfig) {
+                    if (settings.experimental?.useFlatConfig === true) {
                         const lib = loadNodeModule(libraryPath);
                         if (lib === undefined) {
                             settings.validate = settings_1.Validate.off;
@@ -1583,10 +1583,10 @@ var ESLint;
                     if (library !== undefined && ESLintModule.hasESLintClass(library) && typeof library.ESLint.version === 'string') {
                         const esLintVersion = semverParse(library.ESLint.version);
                         if (esLintVersion !== null) {
-                            if (semverGte(esLintVersion, '8.57.0') && settings.experimental.useFlatConfig === true) {
+                            if (semverGte(esLintVersion, '8.57.0') && settings.experimental?.useFlatConfig === true) {
                                 connection.console.info(`ESLint version ${library.ESLint.version} supports flat config without experimental opt-in. The 'eslint.experimental.useFlatConfig' setting can be removed.`);
                             }
-                            else if (semverGte(esLintVersion, '10.0.0') && (settings.experimental.useFlatConfig === false || settings.useFlatConfig === false)) {
+                            else if (semverGte(esLintVersion, '10.0.0') && (settings.experimental?.useFlatConfig === false || settings.useFlatConfig === false)) {
                                 connection.console.info(`ESLint version ${library.ESLint.version} only supports flat configs. Setting is ignored.`);
                             }
                         }
@@ -1607,7 +1607,7 @@ var ESLint;
                                 const [isIgnored, configType] = await ESLint.withClass(async (eslintClass) => {
                                     return [await eslintClass.isPathIgnored(filePath), ESLintClass.getConfigType(eslintClass)];
                                 }, settings);
-                                if (isIgnored === false) {
+                                if (isIgnored === false || (isIgnored === true && settings.onIgnoredFiles !== settings_1.ESLintSeverity.off)) {
                                     settings.validate = settings_1.Validate.on;
                                     if (assumeFlatConfig && configType === 'eslintrc') {
                                         connection.console.info(`Expected to use flat configuration from directory ${settings.workingDirectory?.directory} but loaded eslintrc config.`);

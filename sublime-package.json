@@ -30,17 +30,14 @@
                     "problems.shortenToSingleLine": {
                       "type": "boolean",
                       "default": false,
-                      "description": "Shortens the text spans of underlined problems to their first related line.",
-                      "scope": "resource"
+                      "description": "Shortens the text spans of underlined problems to their first related line."
                     },
                     "useFlatConfig": {
-                      "scope": "resource",
                       "type": ["boolean", "null"],
                       "default": null,
                       "markdownDescription": "Controls whether flat config should be used or not. This setting requires ESLint version 8.57 or later and is interpreted according to the [ESLint Flat Config rollout plan](https://eslint.org/blog/2023/10/flat-config-rollout-plans/). This means:\n\n - *8.57.0 <= ESLint version < 9.x*: setting is honored and defaults to false\n- *9.0.0 <= ESLint version < 10.x*: settings is honored and defaults to true\n- *10.0.0 <= ESLint version*: setting is ignored. Flat configs are the default and can't be turned off."
                     },
                     "experimental.useFlatConfig": {
-                      "scope": "resource",
                       "type": "boolean",
                       "default": false,
                       "deprecationMessage": "Use ESLint version 8.57 or later and `useFlatConfig` instead.",
@@ -107,7 +104,6 @@
                       "markdownDescription": "Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored when using using ESLint version 7.x."
                     },
                     "ignoreUntitled": {
-                      "scope": "resource",
                       "type": "boolean",
                       "default": false,
                       "description": "If true, untitled files won't be validated by ESLint."
@@ -355,7 +351,6 @@
                       "type": "array"
                     },
                     "timeBudget.onValidation": {
-                      "scope": "resource",
                       "type": "object",
                       "properties": {
                         "warn": {
@@ -378,7 +373,6 @@
                       "markdownDescription": "The time budget in milliseconds to spend on validation before showing a warning or error."
                     },
                     "timeBudget.onFixes": {
-                      "scope": "resource",
                       "type": "object",
                       "properties": {
                         "warn": {
