@@ -17,8 +17,6 @@
 		"codeActionOnSave.enable": true,
 		// Specifies the code action mode. Possible values are 'all' and 'problems'.
 		"codeActionOnSave.mode": "all",
-		// Enables support for experimental Flat Config (aka `eslint.config.js`, supported by ESLint version 8.21 or later).
-		"experimental.useFlatConfig": false,
 		// The rules that should be executed when computing the code actions on save or formatting a file.
 		// Defaults to the rules configured via the ESLint configuration.
 		// An empty array results in no rules being considered.
@@ -82,18 +80,20 @@
 		// }
 		// ```
 		"options": {},
-		// The package manager you use to install node modules.
-		// Possible values: `npm`, `yarn`, `pnpm`
-		"packageManager": "npm",
+
 		// An array of language ids for which the plugin should probe if support is installed.
 		"probe": [
+			"astro",
 			"javascript",
 			"javascriptreact",
 			"typescript",
 			"typescriptreact",
 			"html",
+			"mdx",
 			"vue",
 			"markdown",
+			"json",
+			"jsonc"
 		],
 		// Shortens the text spans of underlined problems to their first related line.
 		"problems.shortenToSingleLine": false,
