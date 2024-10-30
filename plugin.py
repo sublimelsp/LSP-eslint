@@ -67,7 +67,7 @@ class LspEslintPlugin(NpmClientHandler):
         print('LSP-eslint: Failed resolving eslint library for {}'.format(params['source']['uri']))
         respond(None)
 
-    def on_workspace_configuration(self, params: Any, configuration: Dict) -> Dict:
+    def on_workspace_configuration(self, params: Dict[str, Any], configuration: Dict) -> Dict:
         session = self.weaksession()
         if session:
             scope_uri = params.get('scopeUri')
