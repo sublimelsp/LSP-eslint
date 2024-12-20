@@ -17,6 +17,7 @@ function stringDiff(original, modified, pretty) {
 }
 exports.stringDiff = stringDiff;
 class StringDiffSequence {
+    source;
     constructor(source) {
         this.source = source;
     }
@@ -33,6 +34,26 @@ class StringDiffSequence {
  * Represents information about a specific difference between two sequences.
  */
 class DiffChange {
+    /**
+     * The position of the first element in the original sequence which
+     * this change affects.
+     */
+    originalStart;
+    /**
+     * The number of elements from the original sequence which were
+     * affected.
+     */
+    originalLength;
+    /**
+     * The position of the first element in the modified sequence which
+     * this change affects.
+     */
+    modifiedStart;
+    /**
+     * The number of elements from the modified sequence which were
+     * affected (added).
+     */
+    modifiedLength;
     /**
      * Constructs a new DiffChange with the given sequence information
      * and content.
@@ -93,6 +114,11 @@ class MyArray {
     }
 }
 class DiffChangeHelper {
+    m_changes;
+    m_originalStart;
+    m_modifiedStart;
+    m_originalCount;
+    m_modifiedCount;
     /**
      * Constructs a new DiffChangeHelper for the given DiffSequences.
      */
@@ -171,6 +197,14 @@ class DiffChangeHelper {
  * "An O(ND) Difference Algorithm and its variations" by Eugene W. Myers
  */
 class LcsDiff {
+    ContinueProcessingPredicate;
+    _hasStrings;
+    _originalStringElements;
+    _originalElementsOrHash;
+    _modifiedStringElements;
+    _modifiedElementsOrHash;
+    m_forwardHistory;
+    m_reverseHistory;
     /**
      * Constructs the DiffFinder
      */
@@ -828,30 +862,56 @@ exports.LcsDiff = LcsDiff;
 /***/ }),
 
 /***/ 6216:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ESLint = exports.CodeActions = exports.RuleSeverities = exports.SaveRuleConfigs = exports.Fixes = exports.ESLintModule = exports.SuggestionsProblem = exports.FixableProblem = exports.Problem = exports.RuleMetaData = exports.ESLintError = exports.TextDocumentSettings = void 0;
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ESLint = exports.CodeActions = exports.RuleSeverities = exports.SaveRuleConfigs = exports.Fixes = exports.ESLintModule = exports.SuggestionsProblem = exports.FixableProblem = exports.Problem = exports.RuleMetaData = exports.ESLintError = exports.TextDocumentSettings = void 0;
-const fs = __webpack_require__(9896);
-const path = __webpack_require__(6928);
-const crypto = __webpack_require__(6982);
+const fs = __importStar(__webpack_require__(9896));
+const path = __importStar(__webpack_require__(6928));
+const crypto = __importStar(__webpack_require__(6982));
 const child_process_1 = __webpack_require__(5317);
 const semverParse = __webpack_require__(144);
 const semverGte = __webpack_require__(4089);
-const node_1 = __webpack_require__(5663);
+const node_1 = __webpack_require__(1327);
 const vscode_uri_1 = __webpack_require__(7608);
 const customMessages_1 = __webpack_require__(4476);
 const settings_1 = __webpack_require__(9394);
-const Is = __webpack_require__(1681);
+const Is = __importStar(__webpack_require__(1681));
 const linkedMap_1 = __webpack_require__(5724);
 const paths_1 = __webpack_require__(7733);
-const languageDefaults_1 = __webpack_require__(5509);
+const languageDefaults_1 = __importDefault(__webpack_require__(5509));
 var TextDocumentSettings;
 (function (TextDocumentSettings) {
     function hasLibrary(settings) {
@@ -1004,6 +1064,7 @@ var CLIEngine;
  * ESLint class emulator using CLI Engine.
  */
 class ESLintClassEmulator {
+    cli;
     constructor(cli) {
         this.cli = cli;
     }
@@ -1036,6 +1097,7 @@ class ESLintClassEmulator {
  * Class for dealing with Fixes.
  */
 class Fixes {
+    edits;
     constructor(edits) {
         this.edits = edits;
     }
@@ -2067,6 +2129,765 @@ var ESLint;
 
 /***/ }),
 
+/***/ 639:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+const path = __importStar(__webpack_require__(6928));
+const os_1 = __webpack_require__(857);
+const node_1 = __webpack_require__(1327);
+const vscode_languageserver_textdocument_1 = __webpack_require__(5172);
+const vscode_uri_1 = __webpack_require__(7608);
+const customMessages_1 = __webpack_require__(4476);
+const settings_1 = __webpack_require__(9394);
+const eslint_1 = __webpack_require__(6216);
+const paths_1 = __webpack_require__(7733);
+const diff_1 = __webpack_require__(9398);
+const languageDefaults_1 = __importDefault(__webpack_require__(5509));
+// The connection to use. Code action requests get removed from the queue if
+// canceled.
+const connection = (0, node_1.createConnection)(node_1.ProposedFeatures.all, {
+    connectionStrategy: {
+        cancelUndispatched: (message) => {
+            // Code actions can safely be cancel on request.
+            if (node_1.Message.isRequest(message) && message.method === 'textDocument/codeAction') {
+                const response = {
+                    jsonrpc: message.jsonrpc,
+                    id: message.id,
+                    result: null
+                };
+                return response;
+            }
+            return undefined;
+        }
+    },
+    maxParallelism: 1
+});
+// Set when handling the initialize request.
+let clientCapabilities;
+const documents = new node_1.TextDocuments(vscode_languageserver_textdocument_1.TextDocument);
+// The notebooks manager is using the normal document manager for the cell documents.
+// So all validating will work out of the box since normal document events will fire.
+const notebooks = new node_1.NotebookDocuments(documents);
+function loadNodeModule(moduleName) {
+    const r =  true ? require : 0;
+    try {
+        return r(moduleName);
+    }
+    catch (err) {
+        if (err.stack) {
+            connection.console.error(err.stack.toString());
+        }
+    }
+    return undefined;
+}
+// Some plugins call exit which will terminate the server.
+// To not loose the information we sent such a behavior
+// to the client.
+const nodeExit = process.exit;
+process.exit = ((code) => {
+    const stack = new Error('stack');
+    void connection.sendNotification(customMessages_1.ExitCalled.type, [code ? code : 0, stack.stack]);
+    setTimeout(() => {
+        nodeExit(code);
+    }, 1000);
+});
+// Handling of uncaught exceptions hitting the event loop.
+process.on('uncaughtException', (error) => {
+    let message;
+    if (error) {
+        if (typeof error.stack === 'string') {
+            message = error.stack;
+        }
+        else if (typeof error.message === 'string') {
+            message = error.message;
+        }
+        else if (typeof error === 'string') {
+            message = error;
+        }
+        if (message === undefined || message.length === 0) {
+            try {
+                message = JSON.stringify(error, undefined, 4);
+            }
+            catch (e) {
+                // Should not happen.
+            }
+        }
+    }
+    // eslint-disable-next-line no-console
+    console.error('Uncaught exception received.');
+    if (message) {
+        // eslint-disable-next-line no-console
+        console.error(message);
+    }
+});
+/**
+ * Infers a file path for a given URI / TextDocument. If the document is a notebook
+ * cell document it uses the file path from the notebook with a corresponding
+ * extension (e.g. TypeScript -> ts)
+ */
+function inferFilePath(documentOrUri) {
+    if (!documentOrUri) {
+        return undefined;
+    }
+    const uri = (0, paths_1.getUri)(documentOrUri);
+    if (uri.scheme === 'file') {
+        return (0, paths_1.getFileSystemPath)(uri);
+    }
+    const notebookDocument = notebooks.findNotebookDocumentForCell(uri.toString());
+    if (notebookDocument !== undefined) {
+        const notebookUri = vscode_uri_1.URI.parse(notebookDocument.uri);
+        if (notebookUri.scheme === 'file') {
+            const filePath = (0, paths_1.getFileSystemPath)(uri);
+            if (filePath !== undefined) {
+                const textDocument = documents.get(uri.toString());
+                if (textDocument !== undefined) {
+                    const extension = languageDefaults_1.default.getExtension(textDocument.languageId);
+                    if (extension !== undefined) {
+                        const extname = path.extname(filePath);
+                        if (extname.length === 0 && filePath[0] === '.') {
+                            return `${filePath}.${extension}`;
+                        }
+                        else if (extname.length > 0 && extname !== extension) {
+                            return `${filePath.substring(0, filePath.length - extname.length)}.${extension}`;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return undefined;
+}
+eslint_1.ESLint.initialize(connection, documents, inferFilePath, loadNodeModule);
+eslint_1.SaveRuleConfigs.inferFilePath = inferFilePath;
+documents.onDidClose(async (event) => {
+    const document = event.document;
+    const uri = document.uri;
+    eslint_1.ESLint.removeSettings(uri);
+    eslint_1.SaveRuleConfigs.remove(uri);
+    eslint_1.CodeActions.remove(uri);
+    eslint_1.ESLint.unregisterAsFormatter(document);
+});
+function environmentChanged() {
+    eslint_1.ESLint.clearSettings();
+    eslint_1.RuleSeverities.clear();
+    eslint_1.SaveRuleConfigs.clear();
+    eslint_1.ESLint.clearFormatters();
+    connection.languages.diagnostics.refresh().catch(() => {
+        connection.console.error('Failed to refresh diagnostics');
+    });
+}
+var CommandIds;
+(function (CommandIds) {
+    CommandIds.applySingleFix = 'eslint.applySingleFix';
+    CommandIds.applySuggestion = 'eslint.applySuggestion';
+    CommandIds.applySameFixes = 'eslint.applySameFixes';
+    CommandIds.applyAllFixes = 'eslint.applyAllFixes';
+    CommandIds.applyDisableLine = 'eslint.applyDisableLine';
+    CommandIds.applyDisableFile = 'eslint.applyDisableFile';
+    CommandIds.openRuleDoc = 'eslint.openRuleDoc';
+})(CommandIds || (CommandIds = {}));
+connection.onInitialize((params, _cancel, progress) => {
+    progress.begin('Initializing ESLint Server');
+    const syncKind = node_1.TextDocumentSyncKind.Incremental;
+    clientCapabilities = params.capabilities;
+    progress.done();
+    const capabilities = {
+        textDocumentSync: {
+            openClose: true,
+            change: syncKind,
+            willSaveWaitUntil: false,
+            save: {
+                includeText: false
+            }
+        },
+        workspace: {
+            workspaceFolders: {
+                supported: true
+            }
+        },
+        executeCommandProvider: {
+            commands: [
+                CommandIds.applySingleFix,
+                CommandIds.applySuggestion,
+                CommandIds.applySameFixes,
+                CommandIds.applyAllFixes,
+                CommandIds.applyDisableLine,
+                CommandIds.applyDisableFile,
+                CommandIds.openRuleDoc,
+            ]
+        },
+        diagnosticProvider: {
+            identifier: 'eslint',
+            interFileDependencies: false,
+            workspaceDiagnostics: false
+        }
+    };
+    if (clientCapabilities.textDocument?.codeAction?.codeActionLiteralSupport?.codeActionKind.valueSet !== undefined) {
+        capabilities.codeActionProvider = {
+            codeActionKinds: [node_1.CodeActionKind.QuickFix, `${node_1.CodeActionKind.SourceFixAll}.eslint`]
+        };
+    }
+    return { capabilities };
+});
+connection.onInitialized(() => {
+    if (clientCapabilities.workspace?.didChangeConfiguration?.dynamicRegistration === true) {
+        connection.onDidChangeConfiguration((_params) => {
+            environmentChanged();
+        });
+        void connection.client.register(node_1.DidChangeConfigurationNotification.type, undefined);
+    }
+    if (clientCapabilities.workspace?.workspaceFolders === true) {
+        connection.workspace.onDidChangeWorkspaceFolders((_params) => {
+            environmentChanged();
+        });
+    }
+});
+const emptyDiagnosticResult = {
+    kind: node_1.DocumentDiagnosticReportKind.Full,
+    items: []
+};
+connection.languages.diagnostics.on(async (params) => {
+    const document = documents.get(params.textDocument.uri);
+    if (document === undefined) {
+        return emptyDiagnosticResult;
+    }
+    const settings = await eslint_1.ESLint.resolveSettings(document);
+    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings)) {
+        return emptyDiagnosticResult;
+    }
+    try {
+        const start = Date.now();
+        const diagnostics = await eslint_1.ESLint.validate(document, settings);
+        const timeTaken = Date.now() - start;
+        void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: customMessages_1.Status.ok, validationTime: timeTaken });
+        return {
+            kind: node_1.DocumentDiagnosticReportKind.Full,
+            items: diagnostics
+        };
+    }
+    catch (err) {
+        // if an exception has occurred while validating clear all errors to ensure
+        // we are not showing any stale once
+        if (!settings.silent) {
+            let status = undefined;
+            for (const handler of eslint_1.ESLint.ErrorHandlers.single) {
+                status = handler(err, document, settings.library, settings);
+                if (status) {
+                    break;
+                }
+            }
+            status = status || customMessages_1.Status.error;
+            void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: status });
+        }
+        else {
+            connection.console.info(eslint_1.ESLint.ErrorHandlers.getMessage(err, document));
+            void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: customMessages_1.Status.ok });
+        }
+        return emptyDiagnosticResult;
+    }
+});
+connection.onDidChangeWatchedFiles(async (params) => {
+    // A .eslintrc has change. No smartness here.
+    // Simply revalidate all file.
+    eslint_1.RuleMetaData.clear();
+    eslint_1.ESLint.ErrorHandlers.clearNoConfigReported();
+    eslint_1.ESLint.ErrorHandlers.clearMissingModuleReported();
+    eslint_1.ESLint.clearSettings(); // config files can change plugins and parser.
+    eslint_1.RuleSeverities.clear();
+    eslint_1.SaveRuleConfigs.clear();
+    await Promise.all(params.changes.map(async (change) => {
+        const fsPath = inferFilePath(change.uri);
+        if (fsPath === undefined || fsPath.length === 0 || (0, paths_1.isUNC)(fsPath)) {
+            return;
+        }
+        const dirname = path.dirname(fsPath);
+        if (dirname) {
+            const data = eslint_1.ESLint.ErrorHandlers.getConfigErrorReported(fsPath);
+            if (data !== undefined) {
+                const eslintClass = await eslint_1.ESLint.newClass(data.library, {}, data.settings);
+                try {
+                    await eslintClass.lintText('', { filePath: path.join(dirname, '___test___.js') });
+                    eslint_1.ESLint.ErrorHandlers.removeConfigErrorReported(fsPath);
+                }
+                catch (error) {
+                }
+            }
+        }
+    }));
+    connection.languages.diagnostics.refresh().catch(() => {
+        connection.console.error('Failed to refresh diagnostics');
+    });
+});
+class CodeActionResult {
+    _actions;
+    _fixAll;
+    constructor() {
+        this._actions = new Map();
+    }
+    get(ruleId) {
+        let result = this._actions.get(ruleId);
+        if (result === undefined) {
+            result = { fixes: [], suggestions: [] };
+            this._actions.set(ruleId, result);
+        }
+        return result;
+    }
+    get fixAll() {
+        if (this._fixAll === undefined) {
+            this._fixAll = [];
+        }
+        return this._fixAll;
+    }
+    all() {
+        const result = [];
+        for (const actions of this._actions.values()) {
+            result.push(...actions.fixes);
+            result.push(...actions.suggestions);
+            if (actions.disable) {
+                result.push(actions.disable);
+            }
+            if (actions.fixAll) {
+                result.push(actions.fixAll);
+            }
+            if (actions.disableFile) {
+                result.push(actions.disableFile);
+            }
+            if (actions.showDocumentation) {
+                result.push(actions.showDocumentation);
+            }
+        }
+        if (this._fixAll !== undefined) {
+            result.push(...this._fixAll);
+        }
+        return result;
+    }
+    get length() {
+        let result = 0;
+        for (const actions of this._actions.values()) {
+            result += actions.fixes.length;
+        }
+        return result;
+    }
+}
+class Changes {
+    values;
+    uri;
+    version;
+    constructor() {
+        this.values = new Map();
+        this.uri = undefined;
+        this.version = undefined;
+    }
+    clear(textDocument) {
+        if (textDocument === undefined) {
+            this.uri = undefined;
+            this.version = undefined;
+        }
+        else {
+            this.uri = textDocument.uri;
+            this.version = textDocument.version;
+        }
+        this.values.clear();
+    }
+    isUsable(uri, version) {
+        return this.uri === uri && this.version === version;
+    }
+    set(key, change) {
+        this.values.set(key, change);
+    }
+    get(key) {
+        return this.values.get(key);
+    }
+}
+var CommandParams;
+(function (CommandParams) {
+    function create(textDocument, ruleId, sequence) {
+        return { uri: textDocument.uri, version: textDocument.version, ruleId, sequence };
+    }
+    CommandParams.create = create;
+    function hasRuleId(value) {
+        return value.ruleId !== undefined;
+    }
+    CommandParams.hasRuleId = hasRuleId;
+})(CommandParams || (CommandParams = {}));
+const changes = new Changes();
+const ESLintSourceFixAll = `${node_1.CodeActionKind.SourceFixAll}.eslint`;
+connection.onCodeAction(async (params) => {
+    const result = new CodeActionResult();
+    const uri = params.textDocument.uri;
+    const textDocument = documents.get(uri);
+    if (textDocument === undefined) {
+        changes.clear(textDocument);
+        return result.all();
+    }
+    function createCodeAction(title, kind, commandId, arg, diagnostic) {
+        const command = node_1.Command.create(title, commandId, arg);
+        const action = node_1.CodeAction.create(title, command, kind);
+        if (diagnostic !== undefined) {
+            action.diagnostics = [diagnostic];
+        }
+        return action;
+    }
+    function getDisableRuleEditInsertionIndex(line, commentTags) {
+        let charIndex = line.indexOf('--');
+        if (charIndex < 0) {
+            if (typeof commentTags === 'string') {
+                return line.length;
+            }
+            else { // commentTags is an array containing the block comment closing and opening tags
+                charIndex = line.indexOf(commentTags[1]);
+                while (charIndex > 0 && line[charIndex - 1] === ' ') {
+                    charIndex--;
+                }
+            }
+        }
+        else {
+            while (charIndex > 1 && line[charIndex - 1] === ' ') {
+                charIndex--;
+            }
+        }
+        return charIndex;
+    }
+    /**
+     * Prefix characters with special meaning in comment markers with a backslash
+     * See also: https://github.com/microsoft/vscode-eslint/issues/1610
+     */
+    function escapeStringRegexp(value) {
+        return value.replace(/[|{}\\()[\]^$+*?.]/g, '\\$&');
+    }
+    function createDisableLineTextEdit(textDocument, editInfo, indentationText) {
+        const lineComment = languageDefaults_1.default.getLineComment(textDocument.languageId);
+        const blockComment = languageDefaults_1.default.getBlockComment(textDocument.languageId);
+        // If the concerned line is not the first line of the file
+        if (editInfo.line - 1 > 0) {
+            // Check previous line if there is a eslint-disable-next-line comment already present.
+            const prevLine = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 2, 0), node_1.Position.create(editInfo.line - 2, node_1.uinteger.MAX_VALUE)));
+            // For consistency, we ignore the settings here and use the comment style from that
+            // specific line.
+            const matchedLineDisable = new RegExp(`${escapeStringRegexp(lineComment)} eslint-disable-next-line`).test(prevLine);
+            if (matchedLineDisable) {
+                const insertionIndex = getDisableRuleEditInsertionIndex(prevLine, lineComment);
+                return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 2, insertionIndex), `, ${editInfo.ruleId}`);
+            }
+            const matchedBlockDisable = new RegExp(`${escapeStringRegexp(blockComment[0])} eslint-disable-next-line`).test(prevLine);
+            if (matchedBlockDisable) {
+                const insertionIndex = getDisableRuleEditInsertionIndex(prevLine, blockComment);
+                return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 2, insertionIndex), `, ${editInfo.ruleId}`);
+            }
+        }
+        // We're creating a new disabling comment. Use the comment style given in settings.
+        const commentStyle = settings.codeAction.disableRuleComment.commentStyle;
+        let disableRuleContent;
+        if (commentStyle === 'block') {
+            disableRuleContent = `${indentationText}${blockComment[0]} eslint-disable-next-line ${editInfo.ruleId} ${blockComment[1]}${os_1.EOL}`;
+        }
+        else { // commentStyle === 'line'
+            disableRuleContent = `${indentationText}${lineComment} eslint-disable-next-line ${editInfo.ruleId}${os_1.EOL}`;
+        }
+        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, 0), disableRuleContent);
+    }
+    function createDisableSameLineTextEdit(textDocument, editInfo) {
+        const lineComment = languageDefaults_1.default.getLineComment(textDocument.languageId);
+        const blockComment = languageDefaults_1.default.getBlockComment(textDocument.languageId);
+        const currentLine = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, node_1.uinteger.MAX_VALUE)));
+        let disableRuleContent;
+        let insertionIndex;
+        // Check if there's already a disabling comment. If so, we ignore the settings here
+        // and use the comment style from that specific line.
+        const matchedLineDisable = new RegExp(`${lineComment} eslint-disable-line`).test(currentLine);
+        const matchedBlockDisable = new RegExp(`${blockComment[0]} eslint-disable-line`).test(currentLine);
+        if (matchedLineDisable) {
+            disableRuleContent = `, ${editInfo.ruleId}`;
+            insertionIndex = getDisableRuleEditInsertionIndex(currentLine, lineComment);
+        }
+        else if (matchedBlockDisable) {
+            disableRuleContent = `, ${editInfo.ruleId}`;
+            insertionIndex = getDisableRuleEditInsertionIndex(currentLine, blockComment);
+        }
+        else {
+            // We're creating a new disabling comment.
+            const commentStyle = settings.codeAction.disableRuleComment.commentStyle;
+            disableRuleContent = commentStyle === 'line' ? ` ${lineComment} eslint-disable-line ${editInfo.ruleId}` : ` ${blockComment[0]} eslint-disable-line ${editInfo.ruleId} ${blockComment[1]}`;
+            insertionIndex = node_1.uinteger.MAX_VALUE;
+        }
+        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, insertionIndex), disableRuleContent);
+    }
+    function createDisableFileTextEdit(textDocument, editInfo) {
+        // If first line contains a shebang, insert on the next line instead.
+        const shebang = textDocument.getText(node_1.Range.create(node_1.Position.create(0, 0), node_1.Position.create(0, 2)));
+        const line = shebang === '#!' ? 1 : 0;
+        const block = languageDefaults_1.default.getBlockComment(textDocument.languageId);
+        return node_1.TextEdit.insert(node_1.Position.create(line, 0), `${block[0]} eslint-disable ${editInfo.ruleId} ${block[1]}${os_1.EOL}`);
+    }
+    function getLastEdit(array) {
+        const length = array.length;
+        if (length === 0) {
+            return undefined;
+        }
+        return array[length - 1];
+    }
+    const settings = await eslint_1.ESLint.resolveSettings(textDocument);
+    // The file is not validated at all or we couldn't load an eslint library for it.
+    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings)) {
+        return result.all();
+    }
+    const problems = eslint_1.CodeActions.get(uri);
+    // We validate on type and have no problems ==> nothing to fix.
+    if (problems === undefined && settings.run === 'onType') {
+        return result.all();
+    }
+    const only = params.context.only !== undefined && params.context.only.length > 0 ? params.context.only[0] : undefined;
+    const isSource = only === node_1.CodeActionKind.Source;
+    const isSourceFixAll = (only === ESLintSourceFixAll || only === node_1.CodeActionKind.SourceFixAll);
+    if (isSourceFixAll || isSource) {
+        if (isSourceFixAll) {
+            const textDocumentIdentifier = { uri: textDocument.uri, version: textDocument.version };
+            const edits = await computeAllFixes(textDocumentIdentifier, AllFixesMode.onSave);
+            if (edits !== undefined) {
+                result.fixAll.push(node_1.CodeAction.create(`Fix all fixable ESLint issues`, { documentChanges: [node_1.TextDocumentEdit.create(textDocumentIdentifier, edits)] }, ESLintSourceFixAll));
+            }
+        }
+        else if (isSource) {
+            result.fixAll.push(createCodeAction(`Fix all fixable ESLint issues`, node_1.CodeActionKind.Source, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
+        }
+        return result.all();
+    }
+    if (problems === undefined) {
+        return result.all();
+    }
+    const fixes = new eslint_1.Fixes(problems);
+    if (fixes.isEmpty()) {
+        return result.all();
+    }
+    let documentVersion = -1;
+    const allFixableRuleIds = [];
+    const kind = only ?? node_1.CodeActionKind.QuickFix;
+    for (const editInfo of fixes.getScoped(params.context.diagnostics)) {
+        documentVersion = editInfo.documentVersion;
+        const ruleId = editInfo.ruleId;
+        allFixableRuleIds.push(ruleId);
+        if (eslint_1.Problem.isFixable(editInfo)) {
+            const workspaceChange = new node_1.WorkspaceChange();
+            workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(eslint_1.FixableProblem.createTextEdit(textDocument, editInfo));
+            changes.set(`${CommandIds.applySingleFix}:${ruleId}`, workspaceChange);
+            const action = createCodeAction(editInfo.label, kind, CommandIds.applySingleFix, CommandParams.create(textDocument, ruleId), editInfo.diagnostic);
+            action.isPreferred = true;
+            result.get(ruleId).fixes.push(action);
+        }
+        if (eslint_1.Problem.hasSuggestions(editInfo)) {
+            editInfo.suggestions.forEach((suggestion, suggestionSequence) => {
+                const workspaceChange = new node_1.WorkspaceChange();
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(eslint_1.SuggestionsProblem.createTextEdit(textDocument, suggestion));
+                changes.set(`${CommandIds.applySuggestion}:${ruleId}:${suggestionSequence}`, workspaceChange);
+                const action = createCodeAction(`${suggestion.desc} (${editInfo.ruleId})`, node_1.CodeActionKind.QuickFix, CommandIds.applySuggestion, CommandParams.create(textDocument, ruleId, suggestionSequence), editInfo.diagnostic);
+                result.get(ruleId).suggestions.push(action);
+            });
+        }
+        if (settings.codeAction.disableRuleComment.enable && ruleId !== eslint_1.RuleMetaData.unusedDisableDirectiveId) {
+            let workspaceChange = new node_1.WorkspaceChange();
+            if (settings.codeAction.disableRuleComment.location === 'sameLine') {
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableSameLineTextEdit(textDocument, editInfo));
+            }
+            else {
+                const lineText = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, node_1.uinteger.MAX_VALUE)));
+                const matches = /^([ \t]*)/.exec(lineText);
+                const indentationText = matches !== null && matches.length > 0 ? matches[1] : '';
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableLineTextEdit(textDocument, editInfo, indentationText));
+            }
+            changes.set(`${CommandIds.applyDisableLine}:${ruleId}`, workspaceChange);
+            result.get(ruleId).disable = createCodeAction(`Disable ${ruleId} for this line`, kind, CommandIds.applyDisableLine, CommandParams.create(textDocument, ruleId));
+            if (result.get(ruleId).disableFile === undefined) {
+                workspaceChange = new node_1.WorkspaceChange();
+                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableFileTextEdit(textDocument, editInfo));
+                changes.set(`${CommandIds.applyDisableFile}:${ruleId}`, workspaceChange);
+                result.get(ruleId).disableFile = createCodeAction(`Disable ${ruleId} for the entire file`, kind, CommandIds.applyDisableFile, CommandParams.create(textDocument, ruleId));
+            }
+        }
+        if (settings.codeAction.showDocumentation.enable && result.get(ruleId).showDocumentation === undefined) {
+            if (eslint_1.RuleMetaData.hasRuleId(ruleId)) {
+                result.get(ruleId).showDocumentation = createCodeAction(`Show documentation for ${ruleId}`, kind, CommandIds.openRuleDoc, CommandParams.create(textDocument, ruleId));
+            }
+        }
+    }
+    if (result.length > 0) {
+        const sameProblems = new Map(allFixableRuleIds.map(s => [s, []]));
+        for (const editInfo of fixes.getAllSorted()) {
+            if (documentVersion === -1) {
+                documentVersion = editInfo.documentVersion;
+            }
+            if (sameProblems.has(editInfo.ruleId)) {
+                const same = sameProblems.get(editInfo.ruleId);
+                if (!eslint_1.Fixes.overlaps(getLastEdit(same), editInfo)) {
+                    same.push(editInfo);
+                }
+            }
+        }
+        sameProblems.forEach((same, ruleId) => {
+            if (same.length > 1) {
+                const sameFixes = new node_1.WorkspaceChange();
+                const sameTextChange = sameFixes.getTextEditChange({ uri, version: documentVersion });
+                same.map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix)).forEach(edit => sameTextChange.add(edit));
+                changes.set(CommandIds.applySameFixes, sameFixes);
+                result.get(ruleId).fixAll = createCodeAction(`Fix all ${ruleId} problems`, kind, CommandIds.applySameFixes, CommandParams.create(textDocument));
+            }
+        });
+        result.fixAll.push(createCodeAction(`Fix all auto-fixable problems`, kind, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
+    }
+    return result.all();
+});
+var AllFixesMode;
+(function (AllFixesMode) {
+    AllFixesMode["onSave"] = "onsave";
+    AllFixesMode["format"] = "format";
+    AllFixesMode["command"] = "command";
+})(AllFixesMode || (AllFixesMode = {}));
+async function computeAllFixes(identifier, mode) {
+    const uri = identifier.uri;
+    const textDocument = documents.get(uri);
+    if (textDocument === undefined || identifier.version !== textDocument.version) {
+        return undefined;
+    }
+    const settings = await eslint_1.ESLint.resolveSettings(textDocument);
+    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings) || (mode === AllFixesMode.format && !settings.format)) {
+        return [];
+    }
+    const filePath = inferFilePath(textDocument);
+    const problems = eslint_1.CodeActions.get(uri);
+    const originalContent = textDocument.getText();
+    let start = Date.now();
+    // Only use known fixes when running in onSave mode. See https://github.com/microsoft/vscode-eslint/issues/871
+    // for details
+    if (mode === AllFixesMode.onSave && settings.codeActionOnSave.mode === settings_1.CodeActionsOnSaveMode.problems) {
+        const result = problems !== undefined && problems.size > 0
+            ? new eslint_1.Fixes(problems).getApplicable().map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix))
+            : [];
+        connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
+        return result;
+    }
+    else {
+        const saveConfig = filePath !== undefined && mode === AllFixesMode.onSave ? await eslint_1.SaveRuleConfigs.get(uri, settings) : undefined;
+        const offRules = saveConfig?.offRules;
+        let overrideConfig;
+        if (offRules !== undefined) {
+            overrideConfig = { rules: Object.create(null) };
+            for (const ruleId of offRules) {
+                overrideConfig.rules[ruleId] = 'off';
+            }
+        }
+        return eslint_1.ESLint.withClass(async (eslintClass) => {
+            // Don't use any precomputed fixes since neighbour fixes can produce incorrect results.
+            // See https://github.com/microsoft/vscode-eslint/issues/1745
+            const result = [];
+            const reportResults = await eslintClass.lintText(originalContent, { filePath });
+            connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
+            if (Array.isArray(reportResults) && reportResults.length === 1 && reportResults[0].output !== undefined) {
+                const fixedContent = reportResults[0].output;
+                start = Date.now();
+                const diffs = (0, diff_1.stringDiff)(originalContent, fixedContent, false);
+                connection.tracer.log(`Computing minimal edits took: ${Date.now() - start} ms.`);
+                for (const diff of diffs) {
+                    result.push({
+                        range: {
+                            start: textDocument.positionAt(diff.originalStart),
+                            end: textDocument.positionAt(diff.originalStart + diff.originalLength)
+                        },
+                        newText: fixedContent.substr(diff.modifiedStart, diff.modifiedLength)
+                    });
+                }
+            }
+            return result;
+        }, settings, overrideConfig !== undefined ? { fix: true, overrideConfig } : { fix: true });
+    }
+}
+connection.onExecuteCommand(async (params) => {
+    let workspaceChange;
+    const commandParams = params.arguments[0];
+    if (params.command === CommandIds.applyAllFixes) {
+        const edits = await computeAllFixes(commandParams, AllFixesMode.command);
+        if (edits !== undefined && edits.length > 0) {
+            workspaceChange = new node_1.WorkspaceChange();
+            const textChange = workspaceChange.getTextEditChange(commandParams);
+            edits.forEach(edit => textChange.add(edit));
+        }
+    }
+    else {
+        if ([CommandIds.applySingleFix, CommandIds.applyDisableLine, CommandIds.applyDisableFile].indexOf(params.command) !== -1) {
+            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}`);
+        }
+        else if ([CommandIds.applySuggestion].indexOf(params.command) !== -1) {
+            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}:${commandParams.sequence}`);
+        }
+        else if (params.command === CommandIds.openRuleDoc && CommandParams.hasRuleId(commandParams)) {
+            const url = eslint_1.RuleMetaData.getUrl(commandParams.ruleId);
+            if (url) {
+                void connection.sendRequest(customMessages_1.OpenESLintDocRequest.type, { url });
+            }
+        }
+        else {
+            workspaceChange = changes.get(params.command);
+        }
+    }
+    if (workspaceChange === undefined) {
+        return null;
+    }
+    return connection.workspace.applyEdit(workspaceChange.edit).then((response) => {
+        if (!response.applied) {
+            connection.console.error(`Failed to apply command: ${params.command}`);
+        }
+        return null;
+    }, () => {
+        connection.console.error(`Failed to apply command: ${params.command}`);
+        return null;
+    });
+});
+connection.onDocumentFormatting((params) => {
+    const textDocument = documents.get(params.textDocument.uri);
+    if (textDocument === undefined) {
+        return [];
+    }
+    return computeAllFixes({ uri: textDocument.uri, version: textDocument.version }, AllFixesMode.format);
+});
+documents.listen(connection);
+notebooks.listen(connection);
+connection.listen();
+connection.console.info(`ESLint server running in node ${process.version}`);
+
+
+/***/ }),
+
 /***/ 1681:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -2145,7 +2966,6 @@ exports["default"] = LanguageDefaults;
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LRUCache = exports.LinkedMap = exports.Touch = void 0;
 var Touch;
@@ -2157,8 +2977,13 @@ var Touch;
     Touch.AsNew = Touch.Last;
 })(Touch || (exports.Touch = Touch = {}));
 class LinkedMap {
+    [Symbol.toStringTag] = 'LinkedMap';
+    _map;
+    _head;
+    _tail;
+    _size;
+    _state;
     constructor() {
-        this[_a] = 'LinkedMap';
         this._map = new Map();
         this._head = undefined;
         this._tail = undefined;
@@ -2340,7 +3165,7 @@ class LinkedMap {
         };
         return iterator;
     }
-    [(_a = Symbol.toStringTag, Symbol.iterator)]() {
+    [Symbol.iterator]() {
         return this.entries();
     }
     trimOld(newSize) {
@@ -2504,6 +3329,8 @@ class LinkedMap {
 }
 exports.LinkedMap = LinkedMap;
 class LRUCache extends LinkedMap {
+    _limit;
+    _ratio;
     constructor(limit, ratio = 1) {
         super();
         this._limit = limit;
@@ -2546,7 +3373,7 @@ exports.LRUCache = LRUCache;
 /***/ }),
 
 /***/ 7733:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -2554,11 +3381,34 @@ exports.LRUCache = LRUCache;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getUri = exports.normalizePath = exports.getFileSystemPath = exports.isUNC = exports.normalizeDriveLetter = void 0;
-const fs = __webpack_require__(9896);
+const fs = __importStar(__webpack_require__(9896));
 const vscode_uri_1 = __webpack_require__(7608);
-const Is = __webpack_require__(1681);
+const Is = __importStar(__webpack_require__(1681));
 /**
  * Special functions to deal with path conversions in the context of ESLint
  */
@@ -2673,7 +3523,7 @@ exports.getUri = getUri;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ExitCalled = exports.ShowOutputChannel = exports.ProbeFailedRequest = exports.OpenESLintDocRequest = exports.NoESLintLibraryRequest = exports.NoConfigRequest = exports.StatusNotification = exports.Status = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 var Status;
 (function (Status) {
     Status[Status["ok"] = 1] = "ok";
@@ -3567,7 +4417,7 @@ createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$')
 /***/ }),
 
 /***/ 3281:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3576,6 +4426,9 @@ createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$')
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 /// <reference path="../../typings/thenable.d.ts" />
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProgressType = exports.ProgressToken = exports.createMessageConnection = exports.NullLogger = exports.ConnectionOptions = exports.ConnectionStrategy = exports.AbstractMessageBuffer = exports.WriteableStreamMessageWriter = exports.AbstractMessageWriter = exports.MessageWriter = exports.ReadableStreamMessageReader = exports.AbstractMessageReader = exports.MessageReader = exports.SharedArrayReceiverStrategy = exports.SharedArraySenderStrategy = exports.CancellationToken = exports.CancellationTokenSource = exports.Emitter = exports.Event = exports.Disposable = exports.LRUCache = exports.Touch = exports.LinkedMap = exports.ParameterStructures = exports.NotificationType9 = exports.NotificationType8 = exports.NotificationType7 = exports.NotificationType6 = exports.NotificationType5 = exports.NotificationType4 = exports.NotificationType3 = exports.NotificationType2 = exports.NotificationType1 = exports.NotificationType0 = exports.NotificationType = exports.ErrorCodes = exports.ResponseError = exports.RequestType9 = exports.RequestType8 = exports.RequestType7 = exports.RequestType6 = exports.RequestType5 = exports.RequestType4 = exports.RequestType3 = exports.RequestType2 = exports.RequestType1 = exports.RequestType0 = exports.RequestType = exports.Message = exports.RAL = void 0;
 exports.MessageStrategy = exports.CancellationStrategy = exports.CancellationSenderStrategy = exports.CancellationReceiverStrategy = exports.ConnectionError = exports.ConnectionErrors = exports.LogTraceNotification = exports.SetTraceNotification = exports.TraceFormat = exports.TraceValues = exports.TraceValue = exports.Trace = void 0;
@@ -3650,14 +4503,14 @@ Object.defineProperty(exports, "CancellationSenderStrategy", ({ enumerable: true
 Object.defineProperty(exports, "CancellationStrategy", ({ enumerable: true, get: function () { return connection_1.CancellationStrategy; } }));
 Object.defineProperty(exports, "MessageStrategy", ({ enumerable: true, get: function () { return connection_1.MessageStrategy; } }));
 Object.defineProperty(exports, "TraceValues", ({ enumerable: true, get: function () { return connection_1.TraceValues; } }));
-const ral_1 = __webpack_require__(9590);
+const ral_1 = __importDefault(__webpack_require__(9590));
 exports.RAL = ral_1.default;
 
 
 /***/ }),
 
 /***/ 9850:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3665,10 +4518,36 @@ exports.RAL = ral_1.default;
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CancellationTokenSource = exports.CancellationToken = void 0;
-const ral_1 = __webpack_require__(9590);
-const Is = __webpack_require__(8585);
+const ral_1 = __importDefault(__webpack_require__(9590));
+const Is = __importStar(__webpack_require__(8585));
 const events_1 = __webpack_require__(2676);
 var CancellationToken;
 (function (CancellationToken) {
@@ -3693,9 +4572,8 @@ const shortcutEvent = Object.freeze(function (callback, context) {
     return { dispose() { handle.dispose(); } };
 });
 class MutableToken {
-    constructor() {
-        this._isCancelled = false;
-    }
+    _isCancelled = false;
+    _emitter;
     cancel() {
         if (!this._isCancelled) {
             this._isCancelled = true;
@@ -3725,6 +4603,7 @@ class MutableToken {
     }
 }
 class CancellationTokenSource {
+    _token;
     get token() {
         if (!this._token) {
             // be lazy and create the token only when
@@ -3761,7 +4640,7 @@ exports.CancellationTokenSource = CancellationTokenSource;
 /***/ }),
 
 /***/ 577:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -3769,10 +4648,37 @@ exports.CancellationTokenSource = CancellationTokenSource;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+/// <reference path="../../typings/thenable.d.ts" />
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createMessageConnection = exports.ConnectionOptions = exports.MessageStrategy = exports.CancellationStrategy = exports.CancellationSenderStrategy = exports.CancellationReceiverStrategy = exports.RequestCancellationReceiverStrategy = exports.IdCancellationReceiverStrategy = exports.ConnectionStrategy = exports.ConnectionError = exports.ConnectionErrors = exports.LogTraceNotification = exports.SetTraceNotification = exports.TraceFormat = exports.TraceValues = exports.TraceValue = exports.Trace = exports.NullLogger = exports.ProgressType = exports.ProgressToken = void 0;
-const ral_1 = __webpack_require__(9590);
-const Is = __webpack_require__(8585);
+const ral_1 = __importDefault(__webpack_require__(9590));
+const Is = __importStar(__webpack_require__(8585));
 const messages_1 = __webpack_require__(6177);
 const linkedMap_1 = __webpack_require__(3352);
 const events_1 = __webpack_require__(2676);
@@ -3793,6 +4699,12 @@ var ProgressNotification;
     ProgressNotification.type = new messages_1.NotificationType('$/progress');
 })(ProgressNotification || (ProgressNotification = {}));
 class ProgressType {
+    /**
+     * Clients must not use these properties. They are here to ensure correct typing.
+     * in TypeScript
+     */
+    __;
+    _pr;
     constructor() {
     }
 }
@@ -3920,6 +4832,7 @@ var ConnectionErrors;
     ConnectionErrors[ConnectionErrors["AlreadyListening"] = 3] = "AlreadyListening";
 })(ConnectionErrors || (exports.ConnectionErrors = ConnectionErrors = {}));
 class ConnectionError extends Error {
+    code;
     constructor(code, message) {
         super(message);
         this.code = code;
@@ -5015,7 +5928,7 @@ var Disposable;
 /***/ }),
 
 /***/ 2676:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5023,15 +5936,20 @@ var Disposable;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Emitter = exports.Event = void 0;
-const ral_1 = __webpack_require__(9590);
+const ral_1 = __importDefault(__webpack_require__(9590));
 var Event;
 (function (Event) {
     const _disposable = { dispose() { } };
     Event.None = function () { return _disposable; };
 })(Event || (exports.Event = Event = {}));
 class CallbackList {
+    _callbacks;
+    _contexts;
     add(callback, context = null, bucket) {
         if (!this._callbacks) {
             this._callbacks = [];
@@ -5090,6 +6008,10 @@ class CallbackList {
     }
 }
 class Emitter {
+    _options;
+    static _noop = function () { };
+    _event;
+    _callbacks;
     constructor(_options) {
         this._options = _options;
     }
@@ -5145,7 +6067,6 @@ class Emitter {
     }
 }
 exports.Emitter = Emitter;
-Emitter._noop = function () { };
 
 
 /***/ }),
@@ -5202,7 +6123,6 @@ exports.stringArray = stringArray;
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LRUCache = exports.LinkedMap = exports.Touch = void 0;
 var Touch;
@@ -5214,8 +6134,13 @@ var Touch;
     Touch.AsNew = Touch.Last;
 })(Touch || (exports.Touch = Touch = {}));
 class LinkedMap {
+    [Symbol.toStringTag] = 'LinkedMap';
+    _map;
+    _head;
+    _tail;
+    _size;
+    _state;
     constructor() {
-        this[_a] = 'LinkedMap';
         this._map = new Map();
         this._head = undefined;
         this._tail = undefined;
@@ -5402,7 +6327,7 @@ class LinkedMap {
         };
         return iterator;
     }
-    [(_a = Symbol.toStringTag, Symbol.iterator)]() {
+    [Symbol.iterator]() {
         return this.entries();
     }
     trimOld(newSize) {
@@ -5566,6 +6491,8 @@ class LinkedMap {
 }
 exports.LinkedMap = LinkedMap;
 class LRUCache extends LinkedMap {
+    _limit;
+    _ratio;
     constructor(limit, ratio = 1) {
         super();
         this._limit = limit;
@@ -5622,6 +6549,9 @@ const CR = 13;
 const LF = 10;
 const CRLF = '\r\n';
 class AbstractMessageBuffer {
+    _encoding;
+    _chunks;
+    _totalLength;
     constructor(encoding = 'utf-8') {
         this._encoding = encoding;
         this._chunks = [];
@@ -5768,7 +6698,7 @@ exports.AbstractMessageBuffer = AbstractMessageBuffer;
 /***/ }),
 
 /***/ 9085:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5776,10 +6706,36 @@ exports.AbstractMessageBuffer = AbstractMessageBuffer;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ReadableStreamMessageReader = exports.AbstractMessageReader = exports.MessageReader = void 0;
-const ral_1 = __webpack_require__(9590);
-const Is = __webpack_require__(8585);
+const ral_1 = __importDefault(__webpack_require__(9590));
+const Is = __importStar(__webpack_require__(8585));
 const events_1 = __webpack_require__(2676);
 const semaphore_1 = __webpack_require__(4323);
 var MessageReader;
@@ -5792,6 +6748,9 @@ var MessageReader;
     MessageReader.is = is;
 })(MessageReader || (exports.MessageReader = MessageReader = {}));
 class AbstractMessageReader {
+    errorEmitter;
+    closeEmitter;
+    partialMessageEmitter;
     constructor() {
         this.errorEmitter = new events_1.Emitter();
         this.closeEmitter = new events_1.Emitter();
@@ -5871,6 +6830,15 @@ var ResolvedMessageReaderOptions;
     ResolvedMessageReaderOptions.fromOptions = fromOptions;
 })(ResolvedMessageReaderOptions || (ResolvedMessageReaderOptions = {}));
 class ReadableStreamMessageReader extends AbstractMessageReader {
+    readable;
+    options;
+    callback;
+    nextMessageLength;
+    messageToken;
+    buffer;
+    partialMessageTimer;
+    _partialMessageTimeout;
+    readSemaphore;
     constructor(readable, options) {
         super();
         this.readable = readable;
@@ -5973,7 +6941,7 @@ exports.ReadableStreamMessageReader = ReadableStreamMessageReader;
 /***/ }),
 
 /***/ 3193:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -5981,10 +6949,36 @@ exports.ReadableStreamMessageReader = ReadableStreamMessageReader;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WriteableStreamMessageWriter = exports.AbstractMessageWriter = exports.MessageWriter = void 0;
-const ral_1 = __webpack_require__(9590);
-const Is = __webpack_require__(8585);
+const ral_1 = __importDefault(__webpack_require__(9590));
+const Is = __importStar(__webpack_require__(8585));
 const semaphore_1 = __webpack_require__(4323);
 const events_1 = __webpack_require__(2676);
 const ContentLength = 'Content-Length: ';
@@ -5999,6 +6993,8 @@ var MessageWriter;
     MessageWriter.is = is;
 })(MessageWriter || (exports.MessageWriter = MessageWriter = {}));
 class AbstractMessageWriter {
+    errorEmitter;
+    closeEmitter;
     constructor() {
         this.errorEmitter = new events_1.Emitter();
         this.closeEmitter = new events_1.Emitter();
@@ -6042,6 +7038,10 @@ var ResolvedMessageWriterOptions;
     ResolvedMessageWriterOptions.fromOptions = fromOptions;
 })(ResolvedMessageWriterOptions || (ResolvedMessageWriterOptions = {}));
 class WriteableStreamMessageWriter extends AbstractMessageWriter {
+    writable;
+    options;
+    errorCount;
+    writeSemaphore;
     constructor(writable, options) {
         super();
         this.writable = writable;
@@ -6096,7 +7096,7 @@ exports.WriteableStreamMessageWriter = WriteableStreamMessageWriter;
 /***/ }),
 
 /***/ 6177:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6104,9 +7104,32 @@ exports.WriteableStreamMessageWriter = WriteableStreamMessageWriter;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Message = exports.NotificationType9 = exports.NotificationType8 = exports.NotificationType7 = exports.NotificationType6 = exports.NotificationType5 = exports.NotificationType4 = exports.NotificationType3 = exports.NotificationType2 = exports.NotificationType1 = exports.NotificationType0 = exports.NotificationType = exports.RequestType9 = exports.RequestType8 = exports.RequestType7 = exports.RequestType6 = exports.RequestType5 = exports.RequestType4 = exports.RequestType3 = exports.RequestType2 = exports.RequestType1 = exports.RequestType = exports.RequestType0 = exports.AbstractMessageSignature = exports.ParameterStructures = exports.ResponseError = exports.ErrorCodes = void 0;
-const is = __webpack_require__(8585);
+const is = __importStar(__webpack_require__(8585));
 /**
  * Predefined error codes.
  */
@@ -6168,6 +7191,8 @@ var ErrorCodes;
  * has failed.
  */
 class ResponseError extends Error {
+    code;
+    data;
     constructor(code, message, data) {
         super(message);
         this.code = is.number(code) ? code : ErrorCodes.UnknownErrorCode;
@@ -6187,6 +7212,23 @@ class ResponseError extends Error {
 }
 exports.ResponseError = ResponseError;
 class ParameterStructures {
+    kind;
+    /**
+     * The parameter structure is automatically inferred on the number of parameters
+     * and the parameter type in case of a single param.
+     */
+    static auto = new ParameterStructures('auto');
+    /**
+     * Forces `byPosition` parameter structure. This is useful if you have a single
+     * parameter which has a literal type.
+     */
+    static byPosition = new ParameterStructures('byPosition');
+    /**
+     * Forces `byName` parameter structure. This is only useful when having a single
+     * parameter. The library will report errors if used with a different number of
+     * parameters.
+     */
+    static byName = new ParameterStructures('byName');
     constructor(kind) {
         this.kind = kind;
     }
@@ -6199,25 +7241,11 @@ class ParameterStructures {
 }
 exports.ParameterStructures = ParameterStructures;
 /**
- * The parameter structure is automatically inferred on the number of parameters
- * and the parameter type in case of a single param.
- */
-ParameterStructures.auto = new ParameterStructures('auto');
-/**
- * Forces `byPosition` parameter structure. This is useful if you have a single
- * parameter which has a literal type.
- */
-ParameterStructures.byPosition = new ParameterStructures('byPosition');
-/**
- * Forces `byName` parameter structure. This is only useful when having a single
- * parameter. The library will report errors if used with a different number of
- * parameters.
- */
-ParameterStructures.byName = new ParameterStructures('byName');
-/**
  * An abstract implementation of a MessageType.
  */
 class AbstractMessageSignature {
+    method;
+    numberOfParams;
     constructor(method, numberOfParams) {
         this.method = method;
         this.numberOfParams = numberOfParams;
@@ -6231,12 +7259,21 @@ exports.AbstractMessageSignature = AbstractMessageSignature;
  * Classes to type request response pairs
  */
 class RequestType0 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 0);
     }
 }
 exports.RequestType0 = RequestType0;
 class RequestType extends AbstractMessageSignature {
+    _parameterStructures;
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method, _parameterStructures = ParameterStructures.auto) {
         super(method, 1);
         this._parameterStructures = _parameterStructures;
@@ -6247,6 +7284,11 @@ class RequestType extends AbstractMessageSignature {
 }
 exports.RequestType = RequestType;
 class RequestType1 extends AbstractMessageSignature {
+    _parameterStructures;
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method, _parameterStructures = ParameterStructures.auto) {
         super(method, 1);
         this._parameterStructures = _parameterStructures;
@@ -6257,54 +7299,91 @@ class RequestType1 extends AbstractMessageSignature {
 }
 exports.RequestType1 = RequestType1;
 class RequestType2 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 2);
     }
 }
 exports.RequestType2 = RequestType2;
 class RequestType3 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 3);
     }
 }
 exports.RequestType3 = RequestType3;
 class RequestType4 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 4);
     }
 }
 exports.RequestType4 = RequestType4;
 class RequestType5 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 5);
     }
 }
 exports.RequestType5 = RequestType5;
 class RequestType6 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 6);
     }
 }
 exports.RequestType6 = RequestType6;
 class RequestType7 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 7);
     }
 }
 exports.RequestType7 = RequestType7;
 class RequestType8 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 8);
     }
 }
 exports.RequestType8 = RequestType8;
 class RequestType9 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 9);
     }
 }
 exports.RequestType9 = RequestType9;
 class NotificationType extends AbstractMessageSignature {
+    _parameterStructures;
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method, _parameterStructures = ParameterStructures.auto) {
         super(method, 1);
         this._parameterStructures = _parameterStructures;
@@ -6315,12 +7394,21 @@ class NotificationType extends AbstractMessageSignature {
 }
 exports.NotificationType = NotificationType;
 class NotificationType0 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 0);
     }
 }
 exports.NotificationType0 = NotificationType0;
 class NotificationType1 extends AbstractMessageSignature {
+    _parameterStructures;
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method, _parameterStructures = ParameterStructures.auto) {
         super(method, 1);
         this._parameterStructures = _parameterStructures;
@@ -6331,48 +7419,80 @@ class NotificationType1 extends AbstractMessageSignature {
 }
 exports.NotificationType1 = NotificationType1;
 class NotificationType2 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 2);
     }
 }
 exports.NotificationType2 = NotificationType2;
 class NotificationType3 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 3);
     }
 }
 exports.NotificationType3 = NotificationType3;
 class NotificationType4 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 4);
     }
 }
 exports.NotificationType4 = NotificationType4;
 class NotificationType5 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 5);
     }
 }
 exports.NotificationType5 = NotificationType5;
 class NotificationType6 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 6);
     }
 }
 exports.NotificationType6 = NotificationType6;
 class NotificationType7 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 7);
     }
 }
 exports.NotificationType7 = NotificationType7;
 class NotificationType8 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 8);
     }
 }
 exports.NotificationType8 = NotificationType8;
 class NotificationType9 extends AbstractMessageSignature {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    _;
     constructor(method) {
         super(method, 9);
     }
@@ -6441,7 +7561,7 @@ exports["default"] = RAL;
 /***/ }),
 
 /***/ 4323:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -6449,10 +7569,16 @@ exports["default"] = RAL;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Semaphore = void 0;
-const ral_1 = __webpack_require__(9590);
+const ral_1 = __importDefault(__webpack_require__(9590));
 class Semaphore {
+    _capacity;
+    _active;
+    _waiting;
     constructor(capacity = 1) {
         if (capacity <= 0) {
             throw new Error('Capacity must be greater than 0');
@@ -6534,6 +7660,7 @@ var CancellationState;
     CancellationState.Cancelled = 1;
 })(CancellationState || (CancellationState = {}));
 class SharedArraySenderStrategy {
+    buffers;
     constructor() {
         this.buffers = new Map();
     }
@@ -6564,6 +7691,7 @@ class SharedArraySenderStrategy {
 }
 exports.SharedArraySenderStrategy = SharedArraySenderStrategy;
 class SharedArrayBufferCancellationToken {
+    data;
     constructor(buffer) {
         this.data = new Int32Array(buffer, 0, 1);
     }
@@ -6575,6 +7703,7 @@ class SharedArrayBufferCancellationToken {
     }
 }
 class SharedArrayBufferCancellationTokenSource {
+    token;
     constructor(buffer) {
         this.token = new SharedArrayBufferCancellationToken(buffer);
     }
@@ -6584,9 +7713,7 @@ class SharedArrayBufferCancellationTokenSource {
     }
 }
 class SharedArrayReceiverStrategy {
-    constructor() {
-        this.kind = 'request';
-    }
+    kind = 'request';
     createCancellationTokenSource(request) {
         const buffer = request.$cancellationData;
         if (buffer === undefined) {
@@ -6616,8 +7743,23 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createMessageConnection = exports.createServerSocketTransport = exports.createClientSocketTransport = exports.createServerPipeTransport = exports.createClientPipeTransport = exports.generateRandomPipeName = exports.StreamMessageWriter = exports.StreamMessageReader = exports.SocketMessageWriter = exports.SocketMessageReader = exports.PortMessageWriter = exports.PortMessageReader = exports.IPCMessageWriter = exports.IPCMessageReader = void 0;
@@ -6625,17 +7767,18 @@ exports.createMessageConnection = exports.createServerSocketTransport = exports.
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ----------------------------------------------------------------------------------------- */
-const ril_1 = __webpack_require__(9571);
+const ril_1 = __importDefault(__webpack_require__(9571));
 // Install the node runtime abstract.
 ril_1.default.install();
-const path = __webpack_require__(6928);
-const os = __webpack_require__(857);
-const fs = __webpack_require__(9896);
+const path = __importStar(__webpack_require__(6928));
+const os = __importStar(__webpack_require__(857));
+const fs = __importStar(__webpack_require__(9896));
 const crypto_1 = __webpack_require__(6982);
 const net_1 = __webpack_require__(9278);
 const api_1 = __webpack_require__(3281);
 __exportStar(__webpack_require__(3281), exports);
 class IPCMessageReader extends api_1.AbstractMessageReader {
+    process;
     constructor(process) {
         super();
         this.process = process;
@@ -6650,6 +7793,8 @@ class IPCMessageReader extends api_1.AbstractMessageReader {
 }
 exports.IPCMessageReader = IPCMessageReader;
 class IPCMessageWriter extends api_1.AbstractMessageWriter {
+    process;
+    errorCount;
     constructor(process) {
         super();
         this.process = process;
@@ -6687,6 +7832,7 @@ class IPCMessageWriter extends api_1.AbstractMessageWriter {
 }
 exports.IPCMessageWriter = IPCMessageWriter;
 class PortMessageReader extends api_1.AbstractMessageReader {
+    onData;
     constructor(port) {
         super();
         this.onData = new api_1.Emitter;
@@ -6702,6 +7848,8 @@ class PortMessageReader extends api_1.AbstractMessageReader {
 }
 exports.PortMessageReader = PortMessageReader;
 class PortMessageWriter extends api_1.AbstractMessageWriter {
+    port;
+    errorCount;
     constructor(port) {
         super();
         this.port = port;
@@ -6734,6 +7882,7 @@ class SocketMessageReader extends api_1.ReadableStreamMessageReader {
 }
 exports.SocketMessageReader = SocketMessageReader;
 class SocketMessageWriter extends api_1.WriteableStreamMessageWriter {
+    socket;
     constructor(socket, options) {
         super((0, ril_1.default)().stream.asWritableStream(socket), options);
         this.socket = socket;
@@ -6878,6 +8027,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const util_1 = __webpack_require__(9023);
 const api_1 = __webpack_require__(3281);
 class MessageBuffer extends api_1.AbstractMessageBuffer {
+    static emptyBuffer = Buffer.allocUnsafe(0);
     constructor(encoding = 'utf-8') {
         super(encoding);
     }
@@ -6907,8 +8057,8 @@ class MessageBuffer extends api_1.AbstractMessageBuffer {
         return Buffer.allocUnsafe(length);
     }
 }
-MessageBuffer.emptyBuffer = Buffer.allocUnsafe(0);
 class ReadableStreamWrapper {
+    stream;
     constructor(stream) {
         this.stream = stream;
     }
@@ -6930,6 +8080,7 @@ class ReadableStreamWrapper {
     }
 }
 class WritableStreamWrapper {
+    stream;
     constructor(stream) {
         this.stream = stream;
     }
@@ -7034,20 +8185,6 @@ exports["default"] = RIL;
 
 /***/ }),
 
-/***/ 2067:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ----------------------------------------------------------------------------------------- */
-
-
-module.exports = __webpack_require__(7123);
-
-/***/ }),
-
 /***/ 8766:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
@@ -7073,7 +8210,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LSPErrorCodes = exports.createProtocolConnection = void 0;
-__exportStar(__webpack_require__(7123), exports);
+__exportStar(__webpack_require__(3281), exports);
 __exportStar(__webpack_require__(6203), exports);
 __exportStar(__webpack_require__(372), exports);
 __exportStar(__webpack_require__(1560), exports);
@@ -7144,7 +8281,7 @@ var LSPErrorCodes;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createProtocolConnection = void 0;
-const vscode_jsonrpc_1 = __webpack_require__(7123);
+const vscode_jsonrpc_1 = __webpack_require__(3281);
 function createProtocolConnection(input, output, logger, options) {
     if (vscode_jsonrpc_1.ConnectionStrategy.is(options)) {
         options = { connectionStrategy: options };
@@ -7167,7 +8304,7 @@ exports.createProtocolConnection = createProtocolConnection;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProtocolNotificationType = exports.ProtocolNotificationType0 = exports.ProtocolRequestType = exports.ProtocolRequestType0 = exports.RegistrationType = exports.MessageDirection = void 0;
-const vscode_jsonrpc_1 = __webpack_require__(7123);
+const vscode_jsonrpc_1 = __webpack_require__(3281);
 var MessageDirection;
 (function (MessageDirection) {
     MessageDirection["clientToServer"] = "clientToServer";
@@ -7175,30 +8312,60 @@ var MessageDirection;
     MessageDirection["both"] = "both";
 })(MessageDirection || (exports.MessageDirection = MessageDirection = {}));
 class RegistrationType {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    ____;
+    method;
     constructor(method) {
         this.method = method;
     }
 }
 exports.RegistrationType = RegistrationType;
 class ProtocolRequestType0 extends vscode_jsonrpc_1.RequestType0 {
+    /**
+     * Clients must not use these properties. They are here to ensure correct typing.
+     * in TypeScript
+     */
+    __;
+    ___;
+    ____;
+    _pr;
     constructor(method) {
         super(method);
     }
 }
 exports.ProtocolRequestType0 = ProtocolRequestType0;
 class ProtocolRequestType extends vscode_jsonrpc_1.RequestType {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    __;
+    ___;
+    ____;
+    _pr;
     constructor(method) {
         super(method, vscode_jsonrpc_1.ParameterStructures.byName);
     }
 }
 exports.ProtocolRequestType = ProtocolRequestType;
 class ProtocolNotificationType0 extends vscode_jsonrpc_1.NotificationType0 {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    ___;
+    ____;
     constructor(method) {
         super(method);
     }
 }
 exports.ProtocolNotificationType0 = ProtocolNotificationType0;
 class ProtocolNotificationType extends vscode_jsonrpc_1.NotificationType {
+    /**
+     * Clients must not use this property. It is here to ensure correct typing.
+     */
+    ___;
+    ____;
     constructor(method) {
         super(method, vscode_jsonrpc_1.ParameterStructures.byName);
     }
@@ -7361,7 +8528,7 @@ var DeclarationRequest;
 /***/ }),
 
 /***/ 6011:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7369,10 +8536,33 @@ var DeclarationRequest;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DiagnosticRefreshRequest = exports.WorkspaceDiagnosticRequest = exports.DocumentDiagnosticRequest = exports.DocumentDiagnosticReportKind = exports.DiagnosticServerCancellationData = void 0;
-const vscode_jsonrpc_1 = __webpack_require__(7123);
-const Is = __webpack_require__(8598);
+const vscode_jsonrpc_1 = __webpack_require__(3281);
+const Is = __importStar(__webpack_require__(8598));
 const messages_1 = __webpack_require__(372);
 /**
  * @since 3.17.0
@@ -7738,7 +8928,7 @@ var InlineValueRefreshRequest;
 /***/ }),
 
 /***/ 1560:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -7746,13 +8936,36 @@ var InlineValueRefreshRequest;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CodeActionResolveRequest = exports.CodeActionRequest = exports.DocumentSymbolRequest = exports.DocumentHighlightRequest = exports.ReferencesRequest = exports.DefinitionRequest = exports.SignatureHelpRequest = exports.SignatureHelpTriggerKind = exports.HoverRequest = exports.CompletionResolveRequest = exports.CompletionRequest = exports.CompletionTriggerKind = exports.PublishDiagnosticsNotification = exports.WatchKind = exports.RelativePattern = exports.FileChangeType = exports.DidChangeWatchedFilesNotification = exports.WillSaveTextDocumentWaitUntilRequest = exports.WillSaveTextDocumentNotification = exports.TextDocumentSaveReason = exports.DidSaveTextDocumentNotification = exports.DidCloseTextDocumentNotification = exports.DidChangeTextDocumentNotification = exports.TextDocumentContentChangeEvent = exports.DidOpenTextDocumentNotification = exports.TextDocumentSyncKind = exports.TelemetryEventNotification = exports.LogMessageNotification = exports.ShowMessageRequest = exports.ShowMessageNotification = exports.MessageType = exports.DidChangeConfigurationNotification = exports.ExitNotification = exports.ShutdownRequest = exports.InitializedNotification = exports.InitializeErrorCodes = exports.InitializeRequest = exports.WorkDoneProgressOptions = exports.TextDocumentRegistrationOptions = exports.StaticRegistrationOptions = exports.PositionEncodingKind = exports.RegularExpressionEngineKind = exports.FailureHandlingKind = exports.ResourceOperationKind = exports.UnregistrationRequest = exports.RegistrationRequest = exports.DocumentSelector = exports.NotebookCellTextDocumentFilter = exports.NotebookDocumentFilter = exports.TextDocumentFilter = void 0;
-exports.MonikerKind = exports.UniquenessLevel = exports.WillDeleteFilesRequest = exports.DidDeleteFilesNotification = exports.WillRenameFilesRequest = exports.DidRenameFilesNotification = exports.WillCreateFilesRequest = exports.DidCreateFilesNotification = exports.FileOperationPatternKind = exports.LinkedEditingRangeRequest = exports.ShowDocumentRequest = exports.SemanticTokensRegistrationType = exports.SemanticTokensRefreshRequest = exports.SemanticTokensRangeRequest = exports.SemanticTokensDeltaRequest = exports.SemanticTokensRequest = exports.TokenFormat = exports.CallHierarchyPrepareRequest = exports.CallHierarchyOutgoingCallsRequest = exports.CallHierarchyIncomingCallsRequest = exports.WorkDoneProgressCancelNotification = exports.WorkDoneProgressCreateRequest = exports.WorkDoneProgress = exports.SelectionRangeRequest = exports.DeclarationRequest = exports.FoldingRangeRefreshRequest = exports.FoldingRangeRequest = exports.ColorPresentationRequest = exports.DocumentColorRequest = exports.ConfigurationRequest = exports.DidChangeWorkspaceFoldersNotification = exports.WorkspaceFoldersRequest = exports.TypeDefinitionRequest = exports.ImplementationRequest = exports.ApplyWorkspaceEditRequest = exports.ExecuteCommandRequest = exports.PrepareRenameRequest = exports.RenameRequest = exports.PrepareSupportDefaultBehavior = exports.DocumentOnTypeFormattingRequest = exports.DocumentRangesFormattingRequest = exports.DocumentRangeFormattingRequest = exports.DocumentFormattingRequest = exports.DocumentLinkResolveRequest = exports.DocumentLinkRequest = exports.CodeLensRefreshRequest = exports.CodeLensResolveRequest = exports.CodeLensRequest = exports.WorkspaceSymbolResolveRequest = exports.WorkspaceSymbolRequest = void 0;
-exports.InlineCompletionRequest = exports.DidCloseNotebookDocumentNotification = exports.DidSaveNotebookDocumentNotification = exports.DidChangeNotebookDocumentNotification = exports.NotebookCellArrayChange = exports.DidOpenNotebookDocumentNotification = exports.NotebookDocumentSyncRegistrationType = exports.NotebookDocument = exports.NotebookCell = exports.ExecutionSummary = exports.NotebookCellKind = exports.DiagnosticRefreshRequest = exports.WorkspaceDiagnosticRequest = exports.DocumentDiagnosticRequest = exports.DocumentDiagnosticReportKind = exports.DiagnosticServerCancellationData = exports.InlayHintRefreshRequest = exports.InlayHintResolveRequest = exports.InlayHintRequest = exports.InlineValueRefreshRequest = exports.InlineValueRequest = exports.TypeHierarchySupertypesRequest = exports.TypeHierarchySubtypesRequest = exports.TypeHierarchyPrepareRequest = exports.MonikerRequest = void 0;
+exports.CodeActionRequest = exports.DocumentSymbolRequest = exports.DocumentHighlightRequest = exports.ReferencesRequest = exports.DefinitionRequest = exports.SignatureHelpRequest = exports.SignatureHelpTriggerKind = exports.HoverRequest = exports.CompletionResolveRequest = exports.CompletionRequest = exports.CompletionTriggerKind = exports.PublishDiagnosticsNotification = exports.WatchKind = exports.GlobPattern = exports.RelativePattern = exports.FileChangeType = exports.DidChangeWatchedFilesNotification = exports.WillSaveTextDocumentWaitUntilRequest = exports.WillSaveTextDocumentNotification = exports.TextDocumentSaveReason = exports.DidSaveTextDocumentNotification = exports.DidCloseTextDocumentNotification = exports.DidChangeTextDocumentNotification = exports.TextDocumentContentChangeEvent = exports.DidOpenTextDocumentNotification = exports.TextDocumentSyncKind = exports.TelemetryEventNotification = exports.LogMessageNotification = exports.ShowMessageRequest = exports.ShowMessageNotification = exports.MessageType = exports.DidChangeConfigurationNotification = exports.ExitNotification = exports.ShutdownRequest = exports.InitializedNotification = exports.InitializeErrorCodes = exports.InitializeRequest = exports.WorkDoneProgressOptions = exports.TextDocumentRegistrationOptions = exports.StaticRegistrationOptions = exports.PositionEncodingKind = exports.RegularExpressionEngineKind = exports.FailureHandlingKind = exports.ResourceOperationKind = exports.UnregistrationRequest = exports.RegistrationRequest = exports.DocumentSelector = exports.NotebookCellTextDocumentFilter = exports.NotebookDocumentFilter = exports.TextDocumentFilter = void 0;
+exports.UniquenessLevel = exports.WillDeleteFilesRequest = exports.DidDeleteFilesNotification = exports.WillRenameFilesRequest = exports.DidRenameFilesNotification = exports.WillCreateFilesRequest = exports.DidCreateFilesNotification = exports.FileOperationPatternKind = exports.LinkedEditingRangeRequest = exports.ShowDocumentRequest = exports.SemanticTokensRegistrationType = exports.SemanticTokensRefreshRequest = exports.SemanticTokensRangeRequest = exports.SemanticTokensDeltaRequest = exports.SemanticTokensRequest = exports.TokenFormat = exports.CallHierarchyPrepareRequest = exports.CallHierarchyOutgoingCallsRequest = exports.CallHierarchyIncomingCallsRequest = exports.WorkDoneProgressCancelNotification = exports.WorkDoneProgressCreateRequest = exports.WorkDoneProgress = exports.SelectionRangeRequest = exports.DeclarationRequest = exports.FoldingRangeRefreshRequest = exports.FoldingRangeRequest = exports.ColorPresentationRequest = exports.DocumentColorRequest = exports.ConfigurationRequest = exports.DidChangeWorkspaceFoldersNotification = exports.WorkspaceFoldersRequest = exports.TypeDefinitionRequest = exports.ImplementationRequest = exports.ApplyWorkspaceEditRequest = exports.ExecuteCommandRequest = exports.PrepareRenameRequest = exports.RenameRequest = exports.PrepareSupportDefaultBehavior = exports.DocumentOnTypeFormattingRequest = exports.DocumentRangesFormattingRequest = exports.DocumentRangeFormattingRequest = exports.DocumentFormattingRequest = exports.DocumentLinkResolveRequest = exports.DocumentLinkRequest = exports.CodeLensRefreshRequest = exports.CodeLensResolveRequest = exports.CodeLensRequest = exports.WorkspaceSymbolResolveRequest = exports.WorkspaceSymbolRequest = exports.CodeActionResolveRequest = void 0;
+exports.TextDocumentContentRefreshRequest = exports.TextDocumentContentRequest = exports.InlineCompletionRequest = exports.DidCloseNotebookDocumentNotification = exports.DidSaveNotebookDocumentNotification = exports.DidChangeNotebookDocumentNotification = exports.NotebookCellArrayChange = exports.DidOpenNotebookDocumentNotification = exports.NotebookDocumentSyncRegistrationType = exports.NotebookDocument = exports.NotebookCell = exports.ExecutionSummary = exports.NotebookCellKind = exports.DiagnosticRefreshRequest = exports.WorkspaceDiagnosticRequest = exports.DocumentDiagnosticRequest = exports.DocumentDiagnosticReportKind = exports.DiagnosticServerCancellationData = exports.InlayHintRefreshRequest = exports.InlayHintResolveRequest = exports.InlayHintRequest = exports.InlineValueRefreshRequest = exports.InlineValueRequest = exports.TypeHierarchySupertypesRequest = exports.TypeHierarchySubtypesRequest = exports.TypeHierarchyPrepareRequest = exports.MonikerRequest = exports.MonikerKind = void 0;
 const messages_1 = __webpack_require__(372);
 const vscode_languageserver_types_1 = __webpack_require__(6203);
-const Is = __webpack_require__(8598);
+const Is = __importStar(__webpack_require__(8598));
 const protocol_implementation_1 = __webpack_require__(9574);
 Object.defineProperty(exports, "ImplementationRequest", ({ enumerable: true, get: function () { return protocol_implementation_1.ImplementationRequest; } }));
 const protocol_typeDefinition_1 = __webpack_require__(8461);
@@ -7833,6 +9046,9 @@ Object.defineProperty(exports, "DidSaveNotebookDocumentNotification", ({ enumera
 Object.defineProperty(exports, "DidCloseNotebookDocumentNotification", ({ enumerable: true, get: function () { return protocol_notebook_1.DidCloseNotebookDocumentNotification; } }));
 const protocol_inlineCompletion_1 = __webpack_require__(3307);
 Object.defineProperty(exports, "InlineCompletionRequest", ({ enumerable: true, get: function () { return protocol_inlineCompletion_1.InlineCompletionRequest; } }));
+const protocol_textDocumentContent_1 = __webpack_require__(4289);
+Object.defineProperty(exports, "TextDocumentContentRequest", ({ enumerable: true, get: function () { return protocol_textDocumentContent_1.TextDocumentContentRequest; } }));
+Object.defineProperty(exports, "TextDocumentContentRefreshRequest", ({ enumerable: true, get: function () { return protocol_textDocumentContent_1.TextDocumentContentRefreshRequest; } }));
 // @ts-ignore: to avoid inlining LocationLink as dynamic import
 let __noDynamicImport;
 /**
@@ -7845,7 +9061,7 @@ var TextDocumentFilter;
 (function (TextDocumentFilter) {
     function is(value) {
         const candidate = value;
-        return Is.string(candidate) || (Is.string(candidate.language) || Is.string(candidate.scheme) || Is.string(candidate.pattern));
+        return Is.string(candidate) || (Is.string(candidate.language) || Is.string(candidate.scheme) || GlobPattern.is(candidate.pattern));
     }
     TextDocumentFilter.is = is;
 })(TextDocumentFilter || (exports.TextDocumentFilter = TextDocumentFilter = {}));
@@ -8352,6 +9568,14 @@ var RelativePattern;
     }
     RelativePattern.is = is;
 })(RelativePattern || (exports.RelativePattern = RelativePattern = {}));
+var GlobPattern;
+(function (GlobPattern) {
+    function is(value) {
+        const candidate = value;
+        return Is.string(candidate) || RelativePattern.is(candidate);
+    }
+    GlobPattern.is = is;
+})(GlobPattern || (exports.GlobPattern = GlobPattern = {}));
 var WatchKind;
 (function (WatchKind) {
     /**
@@ -8803,7 +10027,7 @@ var MonikerRequest;
 /***/ }),
 
 /***/ 3557:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -8811,10 +10035,33 @@ var MonikerRequest;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DidCloseNotebookDocumentNotification = exports.DidSaveNotebookDocumentNotification = exports.DidChangeNotebookDocumentNotification = exports.NotebookCellArrayChange = exports.DidOpenNotebookDocumentNotification = exports.NotebookDocumentSyncRegistrationType = exports.NotebookDocument = exports.NotebookCell = exports.ExecutionSummary = exports.NotebookCellKind = void 0;
 const vscode_languageserver_types_1 = __webpack_require__(6203);
-const Is = __webpack_require__(8598);
+const Is = __importStar(__webpack_require__(8598));
 const messages_1 = __webpack_require__(372);
 /**
  * A notebook cell kind.
@@ -9035,7 +10282,7 @@ var DidCloseNotebookDocumentNotification;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WorkDoneProgressCancelNotification = exports.WorkDoneProgressCreateRequest = exports.WorkDoneProgress = void 0;
-const vscode_jsonrpc_1 = __webpack_require__(7123);
+const vscode_jsonrpc_1 = __webpack_require__(3281);
 const messages_1 = __webpack_require__(372);
 var WorkDoneProgress;
 (function (WorkDoneProgress) {
@@ -9188,6 +10435,48 @@ var ShowDocumentRequest;
     ShowDocumentRequest.messageDirection = messages_1.MessageDirection.serverToClient;
     ShowDocumentRequest.type = new messages_1.ProtocolRequestType(ShowDocumentRequest.method);
 })(ShowDocumentRequest || (exports.ShowDocumentRequest = ShowDocumentRequest = {}));
+
+
+/***/ }),
+
+/***/ 4289:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TextDocumentContentRefreshRequest = exports.TextDocumentContentRequest = void 0;
+const messages_1 = __webpack_require__(372);
+/**
+ * The `workspace/textDocumentContent` request is sent from the client to the
+ * server to request the content of a text document.
+ *
+ * @since 3.18.0
+ * @proposed
+ */
+var TextDocumentContentRequest;
+(function (TextDocumentContentRequest) {
+    TextDocumentContentRequest.method = 'workspace/textDocumentContent';
+    TextDocumentContentRequest.messageDirection = messages_1.MessageDirection.clientToServer;
+    TextDocumentContentRequest.type = new messages_1.ProtocolRequestType(TextDocumentContentRequest.method);
+})(TextDocumentContentRequest || (exports.TextDocumentContentRequest = TextDocumentContentRequest = {}));
+/**
+ * The `workspace/textDocumentContent` request is sent from the server to the client to refresh
+ * the content of a specific text document.
+ *
+ * @since 3.18.0
+ * @proposed
+ */
+var TextDocumentContentRefreshRequest;
+(function (TextDocumentContentRefreshRequest) {
+    TextDocumentContentRefreshRequest.method = `workspace/textDocumentContent/refresh`;
+    TextDocumentContentRefreshRequest.messageDirection = messages_1.MessageDirection.serverToClient;
+    TextDocumentContentRefreshRequest.type = new messages_1.ProtocolRequestType(TextDocumentContentRefreshRequest.method);
+})(TextDocumentContentRefreshRequest || (exports.TextDocumentContentRefreshRequest = TextDocumentContentRefreshRequest = {}));
 
 
 /***/ }),
@@ -9385,28 +10674,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createProtocolConnection = void 0;
-const node_1 = __webpack_require__(2067);
-__exportStar(__webpack_require__(2067), exports);
+const node_1 = __webpack_require__(7123);
+__exportStar(__webpack_require__(7123), exports);
 __exportStar(__webpack_require__(8766), exports);
 function createProtocolConnection(input, output, logger, options) {
     return (0, node_1.createMessageConnection)(input, output, logger, options);
 }
 exports.createProtocolConnection = createProtocolConnection;
 
-
-/***/ }),
-
-/***/ 948:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ----------------------------------------------------------------------------------------- */
-
-
-module.exports = __webpack_require__(7354);
 
 /***/ }),
 
@@ -9430,6 +10705,18 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
@@ -9437,8 +10724,9 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProposedFeatures = exports.NotebookDocuments = exports.TextDocuments = exports.SemanticTokensBuilder = void 0;
 const semanticTokens_1 = __webpack_require__(2655);
 Object.defineProperty(exports, "SemanticTokensBuilder", ({ enumerable: true, get: function () { return semanticTokens_1.SemanticTokensBuilder; } }));
-const ic = __webpack_require__(1276);
-__exportStar(__webpack_require__(7354), exports);
+const ic = __importStar(__webpack_require__(1276));
+const tdc = __importStar(__webpack_require__(9202));
+__exportStar(__webpack_require__(8766), exports);
 const textDocuments_1 = __webpack_require__(1662);
 Object.defineProperty(exports, "TextDocuments", ({ enumerable: true, get: function () { return textDocuments_1.TextDocuments; } }));
 const notebook_1 = __webpack_require__(20);
@@ -9448,6 +10736,7 @@ var ProposedFeatures;
 (function (ProposedFeatures) {
     ProposedFeatures.all = {
         __brand: 'features',
+        workspace: tdc.TextDocumentContentFeature,
         languages: ic.InlineCompletionFeature
     };
 })(ProposedFeatures || (exports.ProposedFeatures = ProposedFeatures = {}));
@@ -9466,7 +10755,7 @@ var ProposedFeatures;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CallHierarchyFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const CallHierarchyFeature = (Base) => {
     return class extends Base {
         get callHierarchy() {
@@ -9498,7 +10787,7 @@ exports.CallHierarchyFeature = CallHierarchyFeature;
 /***/ }),
 
 /***/ 8491:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -9506,10 +10795,33 @@ exports.CallHierarchyFeature = CallHierarchyFeature;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ConfigurationFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
-const Is = __webpack_require__(8867);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
+const Is = __importStar(__webpack_require__(8867));
 const ConfigurationFeature = (Base) => {
     return class extends Base {
         getConfiguration(arg) {
@@ -9554,7 +10866,7 @@ exports.ConfigurationFeature = ConfigurationFeature;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DiagnosticFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const DiagnosticFeature = (Base) => {
     return class extends Base {
         get diagnostics() {
@@ -9592,7 +10904,7 @@ exports.DiagnosticFeature = DiagnosticFeature;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FileOperationsFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const FileOperationsFeature = (Base) => {
     return class extends Base {
         onDidCreateFiles(handler) {
@@ -9643,7 +10955,7 @@ exports.FileOperationsFeature = FileOperationsFeature;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FoldingRangeFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const FoldingRangeFeature = (Base) => {
     return class extends Base {
         get foldingRange() {
@@ -9677,7 +10989,7 @@ exports.FoldingRangeFeature = FoldingRangeFeature;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.InlayHintFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const InlayHintFeature = (Base) => {
     return class extends Base {
         get inlayHint() {
@@ -9715,7 +11027,7 @@ exports.InlayHintFeature = InlayHintFeature;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.InlineCompletionFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const InlineCompletionFeature = (Base) => {
     return class extends Base {
         get inlineCompletion() {
@@ -9745,7 +11057,7 @@ exports.InlineCompletionFeature = InlineCompletionFeature;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.InlineValueFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const InlineValueFeature = (Base) => {
     return class extends Base {
         get inlineValue() {
@@ -9778,7 +11090,7 @@ exports.InlineValueFeature = InlineValueFeature;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LinkedEditingRangeFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const LinkedEditingRangeFeature = (Base) => {
     return class extends Base {
         onLinkedEditingRange(handler) {
@@ -9804,7 +11116,7 @@ exports.LinkedEditingRangeFeature = LinkedEditingRangeFeature;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MonikerFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const MonikerFeature = (Base) => {
     return class extends Base {
         get moniker() {
@@ -9835,7 +11147,7 @@ exports.MonikerFeature = MonikerFeature;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NotebookDocuments = exports.NotebookSyncFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const textDocuments_1 = __webpack_require__(1662);
 const NotebookSyncFeature = (Base) => {
     return class extends Base {
@@ -9867,6 +11179,10 @@ const NotebookSyncFeature = (Base) => {
 };
 exports.NotebookSyncFeature = NotebookSyncFeature;
 class CellTextDocumentConnection {
+    static NULL_DISPOSE = Object.freeze({ dispose: () => { } });
+    openHandler;
+    changeHandler;
+    closeHandler;
     onDidOpenTextDocument(handler) {
         this.openHandler = handler;
         return vscode_languageserver_protocol_1.Disposable.create(() => { this.openHandler = undefined; });
@@ -9898,8 +11214,14 @@ class CellTextDocumentConnection {
         return CellTextDocumentConnection.NULL_DISPOSE;
     }
 }
-CellTextDocumentConnection.NULL_DISPOSE = Object.freeze({ dispose: () => { } });
 class NotebookDocuments {
+    notebookDocuments;
+    notebookCellMap;
+    _onDidOpen;
+    _onDidSave;
+    _onDidChange;
+    _onDidClose;
+    _cellTextDocuments;
     constructor(configurationOrTextDocuments) {
         if (configurationOrTextDocuments instanceof textDocuments_1.TextDocuments) {
             this._cellTextDocuments = configurationOrTextDocuments;
@@ -10095,9 +11417,12 @@ exports.NotebookDocuments = NotebookDocuments;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.attachPartialResult = exports.ProgressFeature = exports.attachWorkDone = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const uuid_1 = __webpack_require__(6116);
 class WorkDoneProgressReporterImpl {
+    _connection;
+    _token;
+    static Instances = new Map();
     constructor(_connection, _token) {
         this._connection = _connection;
         this._token = _token;
@@ -10139,8 +11464,8 @@ class WorkDoneProgressReporterImpl {
         this._connection.sendProgress(vscode_languageserver_protocol_1.WorkDoneProgress.type, this._token, { kind: 'end' });
     }
 }
-WorkDoneProgressReporterImpl.Instances = new Map();
 class WorkDoneProgressServerReporterImpl extends WorkDoneProgressReporterImpl {
+    _source;
     constructor(connection, token) {
         super(connection, token);
         this._source = new vscode_languageserver_protocol_1.CancellationTokenSource();
@@ -10167,6 +11492,7 @@ class NullProgressReporter {
     }
 }
 class NullProgressServerReporter extends NullProgressReporter {
+    _source;
     constructor() {
         super();
         this._source = new vscode_languageserver_protocol_1.CancellationTokenSource();
@@ -10192,6 +11518,7 @@ function attachWorkDone(connection, params) {
 exports.attachWorkDone = attachWorkDone;
 const ProgressFeature = (Base) => {
     return class extends Base {
+        _progressSupported;
         constructor() {
             super();
             this._progressSupported = false;
@@ -10236,6 +11563,8 @@ var ResultProgress;
     ResultProgress.type = new vscode_languageserver_protocol_1.ProgressType();
 })(ResultProgress || (ResultProgress = {}));
 class ResultProgressReporterImpl {
+    _connection;
+    _token;
     constructor(_connection, _token) {
         this._connection = _connection;
         this._token = _token;
@@ -10268,7 +11597,7 @@ exports.attachPartialResult = attachPartialResult;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SemanticTokensBuilder = exports.SemanticTokensDiff = exports.SemanticTokensFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const SemanticTokensFeature = (Base) => {
     return class extends Base {
         get semanticTokens() {
@@ -10300,6 +11629,8 @@ const SemanticTokensFeature = (Base) => {
 };
 exports.SemanticTokensFeature = SemanticTokensFeature;
 class SemanticTokensDiff {
+    originalSequence;
+    modifiedSequence;
     constructor(originalSequence, modifiedSequence) {
         this.originalSequence = originalSequence;
         this.modifiedSequence = modifiedSequence;
@@ -10355,6 +11686,14 @@ class SemanticTokensDiff {
 }
 exports.SemanticTokensDiff = SemanticTokensDiff;
 class SemanticTokensBuilder {
+    _id;
+    _prevLine;
+    _prevChar;
+    _dataIsSortedAndDeltaEncoded;
+    _data;
+    _dataNonDelta;
+    _dataLen;
+    _prevData;
     constructor() {
         this._prevData = undefined;
         this.initialize();
@@ -10507,7 +11846,7 @@ exports.SemanticTokensBuilder = SemanticTokensBuilder;
 /***/ }),
 
 /***/ 7874:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -10515,11 +11854,35 @@ exports.SemanticTokensBuilder = SemanticTokensBuilder;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+/// <reference path="../../typings/thenable.d.ts" />
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createConnection = exports.combineFeatures = exports.combineNotebooksFeatures = exports.combineLanguagesFeatures = exports.combineWorkspaceFeatures = exports.combineWindowFeatures = exports.combineClientFeatures = exports.combineTracerFeatures = exports.combineTelemetryFeatures = exports.combineConsoleFeatures = exports._NotebooksImpl = exports._LanguagesImpl = exports.BulkUnregistration = exports.BulkRegistration = exports.ErrorMessageTracker = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
-const Is = __webpack_require__(8867);
-const UUID = __webpack_require__(6116);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
+const Is = __importStar(__webpack_require__(8867));
+const UUID = __importStar(__webpack_require__(6116));
 const progress_1 = __webpack_require__(2938);
 const configuration_1 = __webpack_require__(8491);
 const workspaceFolder_1 = __webpack_require__(2112);
@@ -10549,6 +11912,7 @@ function null2Undefined(value) {
  * error message should be folded into one.
  */
 class ErrorMessageTracker {
+    _messages;
     constructor() {
         this._messages = Object.create(null);
     }
@@ -10578,6 +11942,8 @@ class ErrorMessageTracker {
 }
 exports.ErrorMessageTracker = ErrorMessageTracker;
 class RemoteConsoleImpl {
+    _rawConnection;
+    _connection;
     constructor() {
     }
     rawAttach(connection) {
@@ -10620,6 +11986,7 @@ class RemoteConsoleImpl {
     }
 }
 class _RemoteWindowImpl {
+    _connection;
     constructor() {
     }
     attach(connection) {
@@ -10661,10 +12028,8 @@ var BulkRegistration;
     BulkRegistration.create = create;
 })(BulkRegistration || (exports.BulkRegistration = BulkRegistration = {}));
 class BulkRegistrationImpl {
-    constructor() {
-        this._registrations = [];
-        this._registered = new Set();
-    }
+    _registrations = [];
+    _registered = new Set();
     add(type, registerOptions) {
         const method = Is.string(type) ? type : type.method;
         if (this._registered.has(method)) {
@@ -10692,9 +12057,10 @@ var BulkUnregistration;
     BulkUnregistration.create = create;
 })(BulkUnregistration || (exports.BulkUnregistration = BulkUnregistration = {}));
 class BulkUnregistrationImpl {
+    _connection;
+    _unregistrations = new Map();
     constructor(_connection, unregistrations) {
         this._connection = _connection;
-        this._unregistrations = new Map();
         unregistrations.forEach(unregistration => {
             this._unregistrations.set(unregistration.method, unregistration);
         });
@@ -10738,6 +12104,7 @@ class BulkUnregistrationImpl {
     }
 }
 class RemoteClientImpl {
+    _connection;
     attach(connection) {
         this._connection = connection;
     }
@@ -10813,6 +12180,7 @@ class RemoteClientImpl {
     }
 }
 class _RemoteWorkspaceImpl {
+    _connection;
     constructor() {
     }
     attach(connection) {
@@ -10838,6 +12206,8 @@ class _RemoteWorkspaceImpl {
 }
 const RemoteWorkspaceImpl = (0, fileOperations_1.FileOperationsFeature)((0, workspaceFolder_1.WorkspaceFoldersFeature)((0, configuration_1.ConfigurationFeature)(_RemoteWorkspaceImpl)));
 class TracerImpl {
+    _trace;
+    _connection;
     constructor() {
         this._trace = vscode_languageserver_protocol_1.Trace.Off;
     }
@@ -10871,6 +12241,7 @@ class TracerImpl {
     }
 }
 class TelemetryImpl {
+    _connection;
     constructor() {
     }
     attach(connection) {
@@ -10893,6 +12264,7 @@ class TelemetryImpl {
     }
 }
 class _LanguagesImpl {
+    _connection;
     constructor() {
     }
     attach(connection) {
@@ -10918,6 +12290,7 @@ class _LanguagesImpl {
 exports._LanguagesImpl = _LanguagesImpl;
 const LanguagesImpl = (0, foldingRange_1.FoldingRangeFeature)((0, moniker_1.MonikerFeature)((0, diagnostic_1.DiagnosticFeature)((0, inlayHint_1.InlayHintFeature)((0, inlineValue_1.InlineValueFeature)((0, typeHierarchy_1.TypeHierarchyFeature)((0, linkedEditingRange_1.LinkedEditingRangeFeature)((0, semanticTokens_1.SemanticTokensFeature)((0, callHierarchy_1.CallHierarchyFeature)(_LanguagesImpl)))))))));
 class _NotebooksImpl {
+    _connection;
     constructor() {
     }
     attach(connection) {
@@ -11274,7 +12647,7 @@ exports.createConnection = createConnection;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ShowDocumentFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const ShowDocumentFeature = (Base) => {
     return class extends Base {
         showDocument(params) {
@@ -11283,6 +12656,39 @@ const ShowDocumentFeature = (Base) => {
     };
 };
 exports.ShowDocumentFeature = ShowDocumentFeature;
+
+
+/***/ }),
+
+/***/ 9202:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/* --------------------------------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * ------------------------------------------------------------------------------------------ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TextDocumentContentFeature = void 0;
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
+const TextDocumentContentFeature = (Base) => {
+    return class extends Base {
+        get textDocumentContent() {
+            return {
+                refresh: (uri) => {
+                    return this.connection.sendRequest(vscode_languageserver_protocol_1.TextDocumentContentRefreshRequest.type, { uri });
+                },
+                on: (handler) => {
+                    return this.connection.onRequest(vscode_languageserver_protocol_1.TextDocumentContentRequest.type, (params, cancel) => {
+                        return handler(params, cancel);
+                    });
+                }
+            };
+        }
+    };
+};
+exports.TextDocumentContentFeature = TextDocumentContentFeature;
 
 
 /***/ }),
@@ -11298,7 +12704,7 @@ exports.ShowDocumentFeature = ShowDocumentFeature;
  * ------------------------------------------------------------------------------------------ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TextDocuments = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 /**
  * A manager for simple text documents. The manager requires at a minimum that
  * the server registered for the following text document sync events in the
@@ -11310,6 +12716,14 @@ const vscode_languageserver_protocol_1 = __webpack_require__(7354);
  * Registering for save and will save events is optional.
  */
 class TextDocuments {
+    _configuration;
+    _syncedDocuments;
+    _onDidChangeContent;
+    _onDidOpen;
+    _onDidClose;
+    _onDidSave;
+    _onWillSave;
+    _willSaveWaitUntil;
     /**
      * Create a new text document manager.
      */
@@ -11478,7 +12892,7 @@ exports.TextDocuments = TextDocuments;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.TypeHierarchyFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const TypeHierarchyFeature = (Base) => {
     return class extends Base {
         get typeHierarchy() {
@@ -11572,6 +12986,7 @@ exports.thenable = thenable;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.generateUuid = exports.parse = exports.isUUID = exports.v4 = exports.empty = void 0;
 class ValueUUID {
+    _value;
     constructor(_value) {
         this._value = _value;
         // empty
@@ -11584,6 +12999,8 @@ class ValueUUID {
     }
 }
 class V4UUID extends ValueUUID {
+    static _chars = ['0', '1', '2', '3', '4', '5', '6', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+    static _timeHighBits = ['8', '9', 'a', 'b'];
     static _oneOf(array) {
         return array[Math.floor(array.length * Math.random())];
     }
@@ -11631,8 +13048,6 @@ class V4UUID extends ValueUUID {
         ].join(''));
     }
 }
-V4UUID._chars = ['0', '1', '2', '3', '4', '5', '6', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
-V4UUID._timeHighBits = ['8', '9', 'a', 'b'];
 /**
  * An empty UUID that contains only zeros.
  */
@@ -11676,9 +13091,12 @@ exports.generateUuid = generateUuid;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WorkspaceFoldersFeature = void 0;
-const vscode_languageserver_protocol_1 = __webpack_require__(7354);
+const vscode_languageserver_protocol_1 = __webpack_require__(8766);
 const WorkspaceFoldersFeature = (Base) => {
     return class extends Base {
+        _onDidChangeWorkspaceFolders;
+        _unregistration;
+        _notificationIsAutoRegistered;
         constructor() {
             super();
             this._notificationIsAutoRegistered = false;
@@ -11718,7 +13136,7 @@ exports.WorkspaceFoldersFeature = WorkspaceFoldersFeature;
 /***/ }),
 
 /***/ 3911:
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -11726,11 +13144,34 @@ exports.WorkspaceFoldersFeature = WorkspaceFoldersFeature;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.resolveModulePath = exports.FileSystem = exports.resolveGlobalYarnPath = exports.resolveGlobalNodePath = exports.resolve = exports.uriToFilePath = void 0;
-const url = __webpack_require__(7016);
-const path = __webpack_require__(6928);
-const fs = __webpack_require__(9896);
+const url = __importStar(__webpack_require__(7016));
+const path = __importStar(__webpack_require__(6928));
+const fs = __importStar(__webpack_require__(9896));
 const child_process_1 = __webpack_require__(5317);
 /**
  * @deprecated Use the `vscode-uri` npm module which provides a more
@@ -11996,7 +13437,7 @@ exports.resolveModulePath = resolveModulePath;
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
-/// <reference path="../../typings/thenable.d.ts" />
+/// <reference path="../../typings/thenable.d.ts" preserve="true"/>
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -12008,17 +13449,29 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createConnection = exports.Files = void 0;
 const node_util_1 = __webpack_require__(7975);
-const Is = __webpack_require__(8867);
+const Is = __importStar(__webpack_require__(8867));
 const server_1 = __webpack_require__(7874);
-const fm = __webpack_require__(3911);
-const node_1 = __webpack_require__(948);
-__exportStar(__webpack_require__(948), exports);
+const fm = __importStar(__webpack_require__(3911));
+const node_1 = __webpack_require__(7354);
+__exportStar(__webpack_require__(7354), exports);
 __exportStar(__webpack_require__(2861), exports);
 var Files;
 (function (Files) {
@@ -12244,7 +13697,6 @@ function patchConsole(logger) {
         logger.log(serialize(args));
     };
     console.dir = function dir(arg, options) {
-        // @ts-expect-error https://github.com/DefinitelyTyped/DefinitelyTyped/pull/66626
         logger.log((0, node_util_1.inspect)(arg, options));
     };
     console.log = function log(...args) {
@@ -12266,20 +13718,6 @@ function patchConsole(logger) {
     };
 }
 
-
-/***/ }),
-
-/***/ 5663:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ----------------------------------------------------------------------------------------- */
-
-
-module.exports = __webpack_require__(1327);
 
 /***/ }),
 
@@ -15128,737 +16566,15 @@ var LIB;(()=>{"use strict";var t={470:t=>{function e(t){if("string"!=typeof t)th
 /******/ 	})();
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-(() => {
-"use strict";
-var exports = __webpack_exports__;
-
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const path = __webpack_require__(6928);
-const os_1 = __webpack_require__(857);
-const node_1 = __webpack_require__(5663);
-const vscode_languageserver_textdocument_1 = __webpack_require__(5172);
-const vscode_uri_1 = __webpack_require__(7608);
-const customMessages_1 = __webpack_require__(4476);
-const settings_1 = __webpack_require__(9394);
-const eslint_1 = __webpack_require__(6216);
-const paths_1 = __webpack_require__(7733);
-const diff_1 = __webpack_require__(9398);
-const languageDefaults_1 = __webpack_require__(5509);
-// The connection to use. Code action requests get removed from the queue if
-// canceled.
-const connection = (0, node_1.createConnection)(node_1.ProposedFeatures.all, {
-    connectionStrategy: {
-        cancelUndispatched: (message) => {
-            // Code actions can safely be cancel on request.
-            if (node_1.Message.isRequest(message) && message.method === 'textDocument/codeAction') {
-                const response = {
-                    jsonrpc: message.jsonrpc,
-                    id: message.id,
-                    result: null
-                };
-                return response;
-            }
-            return undefined;
-        }
-    },
-    maxParallelism: 1
-});
-// Set when handling the initialize request.
-let clientCapabilities;
-const documents = new node_1.TextDocuments(vscode_languageserver_textdocument_1.TextDocument);
-// The notebooks manager is using the normal document manager for the cell documents.
-// So all validating will work out of the box since normal document events will fire.
-const notebooks = new node_1.NotebookDocuments(documents);
-function loadNodeModule(moduleName) {
-    const r =  true ? require : 0;
-    try {
-        return r(moduleName);
-    }
-    catch (err) {
-        if (err.stack) {
-            connection.console.error(err.stack.toString());
-        }
-    }
-    return undefined;
-}
-// Some plugins call exit which will terminate the server.
-// To not loose the information we sent such a behavior
-// to the client.
-const nodeExit = process.exit;
-process.exit = ((code) => {
-    const stack = new Error('stack');
-    void connection.sendNotification(customMessages_1.ExitCalled.type, [code ? code : 0, stack.stack]);
-    setTimeout(() => {
-        nodeExit(code);
-    }, 1000);
-});
-// Handling of uncaught exceptions hitting the event loop.
-process.on('uncaughtException', (error) => {
-    let message;
-    if (error) {
-        if (typeof error.stack === 'string') {
-            message = error.stack;
-        }
-        else if (typeof error.message === 'string') {
-            message = error.message;
-        }
-        else if (typeof error === 'string') {
-            message = error;
-        }
-        if (message === undefined || message.length === 0) {
-            try {
-                message = JSON.stringify(error, undefined, 4);
-            }
-            catch (e) {
-                // Should not happen.
-            }
-        }
-    }
-    // eslint-disable-next-line no-console
-    console.error('Uncaught exception received.');
-    if (message) {
-        // eslint-disable-next-line no-console
-        console.error(message);
-    }
-});
-/**
- * Infers a file path for a given URI / TextDocument. If the document is a notebook
- * cell document it uses the file path from the notebook with a corresponding
- * extension (e.g. TypeScript -> ts)
- */
-function inferFilePath(documentOrUri) {
-    if (!documentOrUri) {
-        return undefined;
-    }
-    const uri = (0, paths_1.getUri)(documentOrUri);
-    if (uri.scheme === 'file') {
-        return (0, paths_1.getFileSystemPath)(uri);
-    }
-    const notebookDocument = notebooks.findNotebookDocumentForCell(uri.toString());
-    if (notebookDocument !== undefined) {
-        const notebookUri = vscode_uri_1.URI.parse(notebookDocument.uri);
-        if (notebookUri.scheme === 'file') {
-            const filePath = (0, paths_1.getFileSystemPath)(uri);
-            if (filePath !== undefined) {
-                const textDocument = documents.get(uri.toString());
-                if (textDocument !== undefined) {
-                    const extension = languageDefaults_1.default.getExtension(textDocument.languageId);
-                    if (extension !== undefined) {
-                        const extname = path.extname(filePath);
-                        if (extname.length === 0 && filePath[0] === '.') {
-                            return `${filePath}.${extension}`;
-                        }
-                        else if (extname.length > 0 && extname !== extension) {
-                            return `${filePath.substring(0, filePath.length - extname.length)}.${extension}`;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return undefined;
-}
-eslint_1.ESLint.initialize(connection, documents, inferFilePath, loadNodeModule);
-eslint_1.SaveRuleConfigs.inferFilePath = inferFilePath;
-documents.onDidClose(async (event) => {
-    const document = event.document;
-    const uri = document.uri;
-    eslint_1.ESLint.removeSettings(uri);
-    eslint_1.SaveRuleConfigs.remove(uri);
-    eslint_1.CodeActions.remove(uri);
-    eslint_1.ESLint.unregisterAsFormatter(document);
-});
-function environmentChanged() {
-    eslint_1.ESLint.clearSettings();
-    eslint_1.RuleSeverities.clear();
-    eslint_1.SaveRuleConfigs.clear();
-    eslint_1.ESLint.clearFormatters();
-    connection.languages.diagnostics.refresh().catch(() => {
-        connection.console.error('Failed to refresh diagnostics');
-    });
-}
-var CommandIds;
-(function (CommandIds) {
-    CommandIds.applySingleFix = 'eslint.applySingleFix';
-    CommandIds.applySuggestion = 'eslint.applySuggestion';
-    CommandIds.applySameFixes = 'eslint.applySameFixes';
-    CommandIds.applyAllFixes = 'eslint.applyAllFixes';
-    CommandIds.applyDisableLine = 'eslint.applyDisableLine';
-    CommandIds.applyDisableFile = 'eslint.applyDisableFile';
-    CommandIds.openRuleDoc = 'eslint.openRuleDoc';
-})(CommandIds || (CommandIds = {}));
-connection.onInitialize((params, _cancel, progress) => {
-    progress.begin('Initializing ESLint Server');
-    const syncKind = node_1.TextDocumentSyncKind.Incremental;
-    clientCapabilities = params.capabilities;
-    progress.done();
-    const capabilities = {
-        textDocumentSync: {
-            openClose: true,
-            change: syncKind,
-            willSaveWaitUntil: false,
-            save: {
-                includeText: false
-            }
-        },
-        workspace: {
-            workspaceFolders: {
-                supported: true
-            }
-        },
-        executeCommandProvider: {
-            commands: [
-                CommandIds.applySingleFix,
-                CommandIds.applySuggestion,
-                CommandIds.applySameFixes,
-                CommandIds.applyAllFixes,
-                CommandIds.applyDisableLine,
-                CommandIds.applyDisableFile,
-                CommandIds.openRuleDoc,
-            ]
-        },
-        diagnosticProvider: {
-            identifier: 'eslint',
-            interFileDependencies: false,
-            workspaceDiagnostics: false
-        }
-    };
-    if (clientCapabilities.textDocument?.codeAction?.codeActionLiteralSupport?.codeActionKind.valueSet !== undefined) {
-        capabilities.codeActionProvider = {
-            codeActionKinds: [node_1.CodeActionKind.QuickFix, `${node_1.CodeActionKind.SourceFixAll}.eslint`]
-        };
-    }
-    return { capabilities };
-});
-connection.onInitialized(() => {
-    if (clientCapabilities.workspace?.didChangeConfiguration?.dynamicRegistration === true) {
-        connection.onDidChangeConfiguration((_params) => {
-            environmentChanged();
-        });
-        void connection.client.register(node_1.DidChangeConfigurationNotification.type, undefined);
-    }
-    if (clientCapabilities.workspace?.workspaceFolders === true) {
-        connection.workspace.onDidChangeWorkspaceFolders((_params) => {
-            environmentChanged();
-        });
-    }
-});
-const emptyDiagnosticResult = {
-    kind: node_1.DocumentDiagnosticReportKind.Full,
-    items: []
-};
-connection.languages.diagnostics.on(async (params) => {
-    const document = documents.get(params.textDocument.uri);
-    if (document === undefined) {
-        return emptyDiagnosticResult;
-    }
-    const settings = await eslint_1.ESLint.resolveSettings(document);
-    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings)) {
-        return emptyDiagnosticResult;
-    }
-    try {
-        const start = Date.now();
-        const diagnostics = await eslint_1.ESLint.validate(document, settings);
-        const timeTaken = Date.now() - start;
-        void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: customMessages_1.Status.ok, validationTime: timeTaken });
-        return {
-            kind: node_1.DocumentDiagnosticReportKind.Full,
-            items: diagnostics
-        };
-    }
-    catch (err) {
-        // if an exception has occurred while validating clear all errors to ensure
-        // we are not showing any stale once
-        if (!settings.silent) {
-            let status = undefined;
-            for (const handler of eslint_1.ESLint.ErrorHandlers.single) {
-                status = handler(err, document, settings.library, settings);
-                if (status) {
-                    break;
-                }
-            }
-            status = status || customMessages_1.Status.error;
-            void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: status });
-        }
-        else {
-            connection.console.info(eslint_1.ESLint.ErrorHandlers.getMessage(err, document));
-            void connection.sendNotification(customMessages_1.StatusNotification.type, { uri: document.uri, state: customMessages_1.Status.ok });
-        }
-        return emptyDiagnosticResult;
-    }
-});
-connection.onDidChangeWatchedFiles(async (params) => {
-    // A .eslintrc has change. No smartness here.
-    // Simply revalidate all file.
-    eslint_1.RuleMetaData.clear();
-    eslint_1.ESLint.ErrorHandlers.clearNoConfigReported();
-    eslint_1.ESLint.ErrorHandlers.clearMissingModuleReported();
-    eslint_1.ESLint.clearSettings(); // config files can change plugins and parser.
-    eslint_1.RuleSeverities.clear();
-    eslint_1.SaveRuleConfigs.clear();
-    await Promise.all(params.changes.map(async (change) => {
-        const fsPath = inferFilePath(change.uri);
-        if (fsPath === undefined || fsPath.length === 0 || (0, paths_1.isUNC)(fsPath)) {
-            return;
-        }
-        const dirname = path.dirname(fsPath);
-        if (dirname) {
-            const data = eslint_1.ESLint.ErrorHandlers.getConfigErrorReported(fsPath);
-            if (data !== undefined) {
-                const eslintClass = await eslint_1.ESLint.newClass(data.library, {}, data.settings);
-                try {
-                    await eslintClass.lintText('', { filePath: path.join(dirname, '___test___.js') });
-                    eslint_1.ESLint.ErrorHandlers.removeConfigErrorReported(fsPath);
-                }
-                catch (error) {
-                }
-            }
-        }
-    }));
-    connection.languages.diagnostics.refresh().catch(() => {
-        connection.console.error('Failed to refresh diagnostics');
-    });
-});
-class CodeActionResult {
-    constructor() {
-        this._actions = new Map();
-    }
-    get(ruleId) {
-        let result = this._actions.get(ruleId);
-        if (result === undefined) {
-            result = { fixes: [], suggestions: [] };
-            this._actions.set(ruleId, result);
-        }
-        return result;
-    }
-    get fixAll() {
-        if (this._fixAll === undefined) {
-            this._fixAll = [];
-        }
-        return this._fixAll;
-    }
-    all() {
-        const result = [];
-        for (const actions of this._actions.values()) {
-            result.push(...actions.fixes);
-            result.push(...actions.suggestions);
-            if (actions.disable) {
-                result.push(actions.disable);
-            }
-            if (actions.fixAll) {
-                result.push(actions.fixAll);
-            }
-            if (actions.disableFile) {
-                result.push(actions.disableFile);
-            }
-            if (actions.showDocumentation) {
-                result.push(actions.showDocumentation);
-            }
-        }
-        if (this._fixAll !== undefined) {
-            result.push(...this._fixAll);
-        }
-        return result;
-    }
-    get length() {
-        let result = 0;
-        for (const actions of this._actions.values()) {
-            result += actions.fixes.length;
-        }
-        return result;
-    }
-}
-class Changes {
-    constructor() {
-        this.values = new Map();
-        this.uri = undefined;
-        this.version = undefined;
-    }
-    clear(textDocument) {
-        if (textDocument === undefined) {
-            this.uri = undefined;
-            this.version = undefined;
-        }
-        else {
-            this.uri = textDocument.uri;
-            this.version = textDocument.version;
-        }
-        this.values.clear();
-    }
-    isUsable(uri, version) {
-        return this.uri === uri && this.version === version;
-    }
-    set(key, change) {
-        this.values.set(key, change);
-    }
-    get(key) {
-        return this.values.get(key);
-    }
-}
-var CommandParams;
-(function (CommandParams) {
-    function create(textDocument, ruleId, sequence) {
-        return { uri: textDocument.uri, version: textDocument.version, ruleId, sequence };
-    }
-    CommandParams.create = create;
-    function hasRuleId(value) {
-        return value.ruleId !== undefined;
-    }
-    CommandParams.hasRuleId = hasRuleId;
-})(CommandParams || (CommandParams = {}));
-const changes = new Changes();
-const ESLintSourceFixAll = `${node_1.CodeActionKind.SourceFixAll}.eslint`;
-connection.onCodeAction(async (params) => {
-    const result = new CodeActionResult();
-    const uri = params.textDocument.uri;
-    const textDocument = documents.get(uri);
-    if (textDocument === undefined) {
-        changes.clear(textDocument);
-        return result.all();
-    }
-    function createCodeAction(title, kind, commandId, arg, diagnostic) {
-        const command = node_1.Command.create(title, commandId, arg);
-        const action = node_1.CodeAction.create(title, command, kind);
-        if (diagnostic !== undefined) {
-            action.diagnostics = [diagnostic];
-        }
-        return action;
-    }
-    function getDisableRuleEditInsertionIndex(line, commentTags) {
-        let charIndex = line.indexOf('--');
-        if (charIndex < 0) {
-            if (typeof commentTags === 'string') {
-                return line.length;
-            }
-            else { // commentTags is an array containing the block comment closing and opening tags
-                charIndex = line.indexOf(commentTags[1]);
-                while (charIndex > 0 && line[charIndex - 1] === ' ') {
-                    charIndex--;
-                }
-            }
-        }
-        else {
-            while (charIndex > 1 && line[charIndex - 1] === ' ') {
-                charIndex--;
-            }
-        }
-        return charIndex;
-    }
-    /**
-     * Prefix characters with special meaning in comment markers with a backslash
-     * See also: https://github.com/microsoft/vscode-eslint/issues/1610
-     */
-    function escapeStringRegexp(value) {
-        return value.replace(/[|{}\\()[\]^$+*?.]/g, '\\$&');
-    }
-    function createDisableLineTextEdit(textDocument, editInfo, indentationText) {
-        const lineComment = languageDefaults_1.default.getLineComment(textDocument.languageId);
-        const blockComment = languageDefaults_1.default.getBlockComment(textDocument.languageId);
-        // If the concerned line is not the first line of the file
-        if (editInfo.line - 1 > 0) {
-            // Check previous line if there is a eslint-disable-next-line comment already present.
-            const prevLine = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 2, 0), node_1.Position.create(editInfo.line - 2, node_1.uinteger.MAX_VALUE)));
-            // For consistency, we ignore the settings here and use the comment style from that
-            // specific line.
-            const matchedLineDisable = new RegExp(`${escapeStringRegexp(lineComment)} eslint-disable-next-line`).test(prevLine);
-            if (matchedLineDisable) {
-                const insertionIndex = getDisableRuleEditInsertionIndex(prevLine, lineComment);
-                return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 2, insertionIndex), `, ${editInfo.ruleId}`);
-            }
-            const matchedBlockDisable = new RegExp(`${escapeStringRegexp(blockComment[0])} eslint-disable-next-line`).test(prevLine);
-            if (matchedBlockDisable) {
-                const insertionIndex = getDisableRuleEditInsertionIndex(prevLine, blockComment);
-                return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 2, insertionIndex), `, ${editInfo.ruleId}`);
-            }
-        }
-        // We're creating a new disabling comment. Use the comment style given in settings.
-        const commentStyle = settings.codeAction.disableRuleComment.commentStyle;
-        let disableRuleContent;
-        if (commentStyle === 'block') {
-            disableRuleContent = `${indentationText}${blockComment[0]} eslint-disable-next-line ${editInfo.ruleId} ${blockComment[1]}${os_1.EOL}`;
-        }
-        else { // commentStyle === 'line'
-            disableRuleContent = `${indentationText}${lineComment} eslint-disable-next-line ${editInfo.ruleId}${os_1.EOL}`;
-        }
-        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, 0), disableRuleContent);
-    }
-    function createDisableSameLineTextEdit(textDocument, editInfo) {
-        const lineComment = languageDefaults_1.default.getLineComment(textDocument.languageId);
-        const blockComment = languageDefaults_1.default.getBlockComment(textDocument.languageId);
-        const currentLine = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, node_1.uinteger.MAX_VALUE)));
-        let disableRuleContent;
-        let insertionIndex;
-        // Check if there's already a disabling comment. If so, we ignore the settings here
-        // and use the comment style from that specific line.
-        const matchedLineDisable = new RegExp(`${lineComment} eslint-disable-line`).test(currentLine);
-        const matchedBlockDisable = new RegExp(`${blockComment[0]} eslint-disable-line`).test(currentLine);
-        if (matchedLineDisable) {
-            disableRuleContent = `, ${editInfo.ruleId}`;
-            insertionIndex = getDisableRuleEditInsertionIndex(currentLine, lineComment);
-        }
-        else if (matchedBlockDisable) {
-            disableRuleContent = `, ${editInfo.ruleId}`;
-            insertionIndex = getDisableRuleEditInsertionIndex(currentLine, blockComment);
-        }
-        else {
-            // We're creating a new disabling comment.
-            const commentStyle = settings.codeAction.disableRuleComment.commentStyle;
-            disableRuleContent = commentStyle === 'line' ? ` ${lineComment} eslint-disable-line ${editInfo.ruleId}` : ` ${blockComment[0]} eslint-disable-line ${editInfo.ruleId} ${blockComment[1]}`;
-            insertionIndex = node_1.uinteger.MAX_VALUE;
-        }
-        return node_1.TextEdit.insert(node_1.Position.create(editInfo.line - 1, insertionIndex), disableRuleContent);
-    }
-    function createDisableFileTextEdit(textDocument, editInfo) {
-        // If first line contains a shebang, insert on the next line instead.
-        const shebang = textDocument.getText(node_1.Range.create(node_1.Position.create(0, 0), node_1.Position.create(0, 2)));
-        const line = shebang === '#!' ? 1 : 0;
-        const block = languageDefaults_1.default.getBlockComment(textDocument.languageId);
-        return node_1.TextEdit.insert(node_1.Position.create(line, 0), `${block[0]} eslint-disable ${editInfo.ruleId} ${block[1]}${os_1.EOL}`);
-    }
-    function getLastEdit(array) {
-        const length = array.length;
-        if (length === 0) {
-            return undefined;
-        }
-        return array[length - 1];
-    }
-    const settings = await eslint_1.ESLint.resolveSettings(textDocument);
-    // The file is not validated at all or we couldn't load an eslint library for it.
-    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings)) {
-        return result.all();
-    }
-    const problems = eslint_1.CodeActions.get(uri);
-    // We validate on type and have no problems ==> nothing to fix.
-    if (problems === undefined && settings.run === 'onType') {
-        return result.all();
-    }
-    const only = params.context.only !== undefined && params.context.only.length > 0 ? params.context.only[0] : undefined;
-    const isSource = only === node_1.CodeActionKind.Source;
-    const isSourceFixAll = (only === ESLintSourceFixAll || only === node_1.CodeActionKind.SourceFixAll);
-    if (isSourceFixAll || isSource) {
-        if (isSourceFixAll) {
-            const textDocumentIdentifier = { uri: textDocument.uri, version: textDocument.version };
-            const edits = await computeAllFixes(textDocumentIdentifier, AllFixesMode.onSave);
-            if (edits !== undefined) {
-                result.fixAll.push(node_1.CodeAction.create(`Fix all fixable ESLint issues`, { documentChanges: [node_1.TextDocumentEdit.create(textDocumentIdentifier, edits)] }, ESLintSourceFixAll));
-            }
-        }
-        else if (isSource) {
-            result.fixAll.push(createCodeAction(`Fix all fixable ESLint issues`, node_1.CodeActionKind.Source, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
-        }
-        return result.all();
-    }
-    if (problems === undefined) {
-        return result.all();
-    }
-    const fixes = new eslint_1.Fixes(problems);
-    if (fixes.isEmpty()) {
-        return result.all();
-    }
-    let documentVersion = -1;
-    const allFixableRuleIds = [];
-    const kind = only ?? node_1.CodeActionKind.QuickFix;
-    for (const editInfo of fixes.getScoped(params.context.diagnostics)) {
-        documentVersion = editInfo.documentVersion;
-        const ruleId = editInfo.ruleId;
-        allFixableRuleIds.push(ruleId);
-        if (eslint_1.Problem.isFixable(editInfo)) {
-            const workspaceChange = new node_1.WorkspaceChange();
-            workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(eslint_1.FixableProblem.createTextEdit(textDocument, editInfo));
-            changes.set(`${CommandIds.applySingleFix}:${ruleId}`, workspaceChange);
-            const action = createCodeAction(editInfo.label, kind, CommandIds.applySingleFix, CommandParams.create(textDocument, ruleId), editInfo.diagnostic);
-            action.isPreferred = true;
-            result.get(ruleId).fixes.push(action);
-        }
-        if (eslint_1.Problem.hasSuggestions(editInfo)) {
-            editInfo.suggestions.forEach((suggestion, suggestionSequence) => {
-                const workspaceChange = new node_1.WorkspaceChange();
-                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(eslint_1.SuggestionsProblem.createTextEdit(textDocument, suggestion));
-                changes.set(`${CommandIds.applySuggestion}:${ruleId}:${suggestionSequence}`, workspaceChange);
-                const action = createCodeAction(`${suggestion.desc} (${editInfo.ruleId})`, node_1.CodeActionKind.QuickFix, CommandIds.applySuggestion, CommandParams.create(textDocument, ruleId, suggestionSequence), editInfo.diagnostic);
-                result.get(ruleId).suggestions.push(action);
-            });
-        }
-        if (settings.codeAction.disableRuleComment.enable && ruleId !== eslint_1.RuleMetaData.unusedDisableDirectiveId) {
-            let workspaceChange = new node_1.WorkspaceChange();
-            if (settings.codeAction.disableRuleComment.location === 'sameLine') {
-                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableSameLineTextEdit(textDocument, editInfo));
-            }
-            else {
-                const lineText = textDocument.getText(node_1.Range.create(node_1.Position.create(editInfo.line - 1, 0), node_1.Position.create(editInfo.line - 1, node_1.uinteger.MAX_VALUE)));
-                const matches = /^([ \t]*)/.exec(lineText);
-                const indentationText = matches !== null && matches.length > 0 ? matches[1] : '';
-                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableLineTextEdit(textDocument, editInfo, indentationText));
-            }
-            changes.set(`${CommandIds.applyDisableLine}:${ruleId}`, workspaceChange);
-            result.get(ruleId).disable = createCodeAction(`Disable ${ruleId} for this line`, kind, CommandIds.applyDisableLine, CommandParams.create(textDocument, ruleId));
-            if (result.get(ruleId).disableFile === undefined) {
-                workspaceChange = new node_1.WorkspaceChange();
-                workspaceChange.getTextEditChange({ uri, version: documentVersion }).add(createDisableFileTextEdit(textDocument, editInfo));
-                changes.set(`${CommandIds.applyDisableFile}:${ruleId}`, workspaceChange);
-                result.get(ruleId).disableFile = createCodeAction(`Disable ${ruleId} for the entire file`, kind, CommandIds.applyDisableFile, CommandParams.create(textDocument, ruleId));
-            }
-        }
-        if (settings.codeAction.showDocumentation.enable && result.get(ruleId).showDocumentation === undefined) {
-            if (eslint_1.RuleMetaData.hasRuleId(ruleId)) {
-                result.get(ruleId).showDocumentation = createCodeAction(`Show documentation for ${ruleId}`, kind, CommandIds.openRuleDoc, CommandParams.create(textDocument, ruleId));
-            }
-        }
-    }
-    if (result.length > 0) {
-        const sameProblems = new Map(allFixableRuleIds.map(s => [s, []]));
-        for (const editInfo of fixes.getAllSorted()) {
-            if (documentVersion === -1) {
-                documentVersion = editInfo.documentVersion;
-            }
-            if (sameProblems.has(editInfo.ruleId)) {
-                const same = sameProblems.get(editInfo.ruleId);
-                if (!eslint_1.Fixes.overlaps(getLastEdit(same), editInfo)) {
-                    same.push(editInfo);
-                }
-            }
-        }
-        sameProblems.forEach((same, ruleId) => {
-            if (same.length > 1) {
-                const sameFixes = new node_1.WorkspaceChange();
-                const sameTextChange = sameFixes.getTextEditChange({ uri, version: documentVersion });
-                same.map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix)).forEach(edit => sameTextChange.add(edit));
-                changes.set(CommandIds.applySameFixes, sameFixes);
-                result.get(ruleId).fixAll = createCodeAction(`Fix all ${ruleId} problems`, kind, CommandIds.applySameFixes, CommandParams.create(textDocument));
-            }
-        });
-        result.fixAll.push(createCodeAction(`Fix all auto-fixable problems`, kind, CommandIds.applyAllFixes, CommandParams.create(textDocument)));
-    }
-    return result.all();
-});
-var AllFixesMode;
-(function (AllFixesMode) {
-    AllFixesMode["onSave"] = "onsave";
-    AllFixesMode["format"] = "format";
-    AllFixesMode["command"] = "command";
-})(AllFixesMode || (AllFixesMode = {}));
-async function computeAllFixes(identifier, mode) {
-    const uri = identifier.uri;
-    const textDocument = documents.get(uri);
-    if (textDocument === undefined || identifier.version !== textDocument.version) {
-        return undefined;
-    }
-    const settings = await eslint_1.ESLint.resolveSettings(textDocument);
-    if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings) || (mode === AllFixesMode.format && !settings.format)) {
-        return [];
-    }
-    const filePath = inferFilePath(textDocument);
-    const problems = eslint_1.CodeActions.get(uri);
-    const originalContent = textDocument.getText();
-    let start = Date.now();
-    // Only use known fixes when running in onSave mode. See https://github.com/microsoft/vscode-eslint/issues/871
-    // for details
-    if (mode === AllFixesMode.onSave && settings.codeActionOnSave.mode === settings_1.CodeActionsOnSaveMode.problems) {
-        const result = problems !== undefined && problems.size > 0
-            ? new eslint_1.Fixes(problems).getApplicable().map(fix => eslint_1.FixableProblem.createTextEdit(textDocument, fix))
-            : [];
-        connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
-        return result;
-    }
-    else {
-        const saveConfig = filePath !== undefined && mode === AllFixesMode.onSave ? await eslint_1.SaveRuleConfigs.get(uri, settings) : undefined;
-        const offRules = saveConfig?.offRules;
-        let overrideConfig;
-        if (offRules !== undefined) {
-            overrideConfig = { rules: Object.create(null) };
-            for (const ruleId of offRules) {
-                overrideConfig.rules[ruleId] = 'off';
-            }
-        }
-        return eslint_1.ESLint.withClass(async (eslintClass) => {
-            // Don't use any precomputed fixes since neighbour fixes can produce incorrect results.
-            // See https://github.com/microsoft/vscode-eslint/issues/1745
-            const result = [];
-            const reportResults = await eslintClass.lintText(originalContent, { filePath });
-            connection.tracer.log(`Computing all fixes took: ${Date.now() - start} ms.`);
-            if (Array.isArray(reportResults) && reportResults.length === 1 && reportResults[0].output !== undefined) {
-                const fixedContent = reportResults[0].output;
-                start = Date.now();
-                const diffs = (0, diff_1.stringDiff)(originalContent, fixedContent, false);
-                connection.tracer.log(`Computing minimal edits took: ${Date.now() - start} ms.`);
-                for (const diff of diffs) {
-                    result.push({
-                        range: {
-                            start: textDocument.positionAt(diff.originalStart),
-                            end: textDocument.positionAt(diff.originalStart + diff.originalLength)
-                        },
-                        newText: fixedContent.substr(diff.modifiedStart, diff.modifiedLength)
-                    });
-                }
-            }
-            return result;
-        }, settings, overrideConfig !== undefined ? { fix: true, overrideConfig } : { fix: true });
-    }
-}
-connection.onExecuteCommand(async (params) => {
-    let workspaceChange;
-    const commandParams = params.arguments[0];
-    if (params.command === CommandIds.applyAllFixes) {
-        const edits = await computeAllFixes(commandParams, AllFixesMode.command);
-        if (edits !== undefined && edits.length > 0) {
-            workspaceChange = new node_1.WorkspaceChange();
-            const textChange = workspaceChange.getTextEditChange(commandParams);
-            edits.forEach(edit => textChange.add(edit));
-        }
-    }
-    else {
-        if ([CommandIds.applySingleFix, CommandIds.applyDisableLine, CommandIds.applyDisableFile].indexOf(params.command) !== -1) {
-            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}`);
-        }
-        else if ([CommandIds.applySuggestion].indexOf(params.command) !== -1) {
-            workspaceChange = changes.get(`${params.command}:${commandParams.ruleId}:${commandParams.sequence}`);
-        }
-        else if (params.command === CommandIds.openRuleDoc && CommandParams.hasRuleId(commandParams)) {
-            const url = eslint_1.RuleMetaData.getUrl(commandParams.ruleId);
-            if (url) {
-                void connection.sendRequest(customMessages_1.OpenESLintDocRequest.type, { url });
-            }
-        }
-        else {
-            workspaceChange = changes.get(params.command);
-        }
-    }
-    if (workspaceChange === undefined) {
-        return null;
-    }
-    return connection.workspace.applyEdit(workspaceChange.edit).then((response) => {
-        if (!response.applied) {
-            connection.console.error(`Failed to apply command: ${params.command}`);
-        }
-        return null;
-    }, () => {
-        connection.console.error(`Failed to apply command: ${params.command}`);
-        return null;
-    });
-});
-connection.onDocumentFormatting((params) => {
-    const textDocument = documents.get(params.textDocument.uri);
-    if (textDocument === undefined) {
-        return [];
-    }
-    return computeAllFixes({ uri: textDocument.uri, version: textDocument.version }, AllFixesMode.format);
-});
-documents.listen(connection);
-notebooks.listen(connection);
-connection.listen();
-connection.console.info(`ESLint server running in node ${process.version}`);
-
-})();
-
-var __webpack_export_target__ = exports;
-for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
-if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__(639);
+/******/ 	var __webpack_export_target__ = exports;
+/******/ 	for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
+/******/ 	if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
+/******/ 	
 /******/ })()
 ;
 //# sourceMappingURL=eslintServer.js.map
