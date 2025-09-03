@@ -3,6 +3,8 @@
 codecov.yml export-ignore
 language-server/compile-language-server.sh export-ignore
 language-server/webpack-disable-minimize.patch export-ignore
+pyrightconfig.json export-ignore
+renovate.json export-ignore
 tests/ export-ignore
 tox.ini export-ignore
 unittesting.json export-ignore
