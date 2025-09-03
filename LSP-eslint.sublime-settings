@@ -128,6 +128,7 @@
 	"file_watcher": {
 		"patterns": [
 			"**/.eslintr{c.js,c.cjs,c.yaml,c.yml,c,c.json}",
+			"**/eslint.config.{js,mjs,cjs,ts,mts,cts}",
 			"**/.eslintignore",
 			"**/package.json",
 		]
