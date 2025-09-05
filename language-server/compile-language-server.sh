@@ -79,6 +79,7 @@ pushd "${SRC_SERVER_DIR}" || exit
 
 echo 'Copying and cleaning up files...'
 find ./out -name "*.map" -delete
+find ./out -name "*.ts" -delete
 cp -f ../update-info.log "${REPO_DIR}"
 cp -r out package.json "${REPO_DIR}"
 rm -rf "${TEMP_DIR}"
