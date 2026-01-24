@@ -26,6 +26,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Update server
         run: ./language-server/compile-language-server.sh "${{ needs.check-new-settings.outputs.new_version }}"
