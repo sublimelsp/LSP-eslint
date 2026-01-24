@@ -12,5 +12,5 @@ jobs:
       repository_url: 'https://github.com/microsoft/vscode-eslint'
       configuration_file_path: '/package.json'
       version_file: 'plugin.py'
-      version_regexp: 'TAG = ''release/([\d.])+'''
+      version_regexp: 'TAG = ''(release/[\d.])+'''
     secrets: inherit
