@@ -1,4 +1,4 @@
-# LSP-eslint
+ # LSP-eslint
 
 Eslint support for Sublime's LSP plugin provided through [vscode-eslint](https://github.com/microsoft/vscode-eslint).
 
