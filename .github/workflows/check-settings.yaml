@@ -1,0 +1,15 @@
+name: Check settings
+
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  check-new-settings:
+    uses: sublimelsp/workflows/.github/workflows/new-json-settings.yaml@feat/init
+    with:
+      repository_url: 'https://github.com/microsoft/vscode-eslint'
+      configuration_file_path: '/package.json'
+      version_file: 'plugin.py'
+      version_regexp: 'TAG = "([^"]+)"'
