@@ -1852,19 +1852,19 @@ process.on('uncaughtException', (error) => {
  * cell document it uses the file path from the notebook with a corresponding
  * extension (e.g. TypeScript -> ts)
  */
-function inferFilePath(documentOrUri) {
+function inferFilePath(documentOrUri, useRealpaths) {
     if (!documentOrUri) {
         return undefined;
     }
     const uri = (0, paths_1.getUri)(documentOrUri);
     if (uri.scheme === 'file') {
-        return (0, paths_1.getFileSystemPath)(uri);
+        return (0, paths_1.getFileSystemPath)(uri, useRealpaths);
     }
     const notebookDocument = notebooks.findNotebookDocumentForCell(uri.toString());
     if (notebookDocument !== undefined) {
         const notebookUri = vscode_uri_1.URI.parse(notebookDocument.uri);
         if (notebookUri.scheme === 'file') {
-            const filePath = (0, paths_1.getFileSystemPath)(uri);
+            const filePath = (0, paths_1.getFileSystemPath)(uri, useRealpaths);
             if (filePath !== undefined) {
                 const textDocument = documents.get(uri.toString());
                 if (textDocument !== undefined) {
@@ -2023,7 +2023,7 @@ connection.onDidChangeWatchedFiles(async (params) => {
     eslint_1.RuleSeverities.clear();
     eslint_1.SaveRuleConfigs.clear();
     await Promise.all(params.changes.map(async (change) => {
-        const fsPath = inferFilePath(change.uri);
+        const fsPath = inferFilePath(change.uri, false);
         if (fsPath === undefined || fsPath.length === 0 || (0, paths_1.isUNC)(fsPath)) {
             return;
         }
@@ -2378,7 +2378,7 @@ async function computeAllFixes(identifier, mode) {
     if (settings.validate !== settings_1.Validate.on || !eslint_1.TextDocumentSettings.hasLibrary(settings) || (mode === AllFixesMode.format && !settings.format)) {
         return [];
     }
-    const filePath = inferFilePath(textDocument);
+    const filePath = inferFilePath(textDocument, settings.useRealpaths);
     const problems = eslint_1.CodeActions.get(uri);
     const originalContent = textDocument.getText();
     let start = Date.now();
@@ -7655,7 +7655,7 @@ var LanguageDefaults;
     }
     LanguageDefaults.getLineComment = getLineComment;
     function getBlockComment(languageId) {
-        return languageId2Config.get(languageId)?.blockComment ?? ['/**', '*/'];
+        return languageId2Config.get(languageId)?.blockComment ?? ['/*', '*/'];
     }
     LanguageDefaults.getBlockComment = getBlockComment;
     function getExtension(languageId) {
@@ -11592,7 +11592,7 @@ var SaveRuleConfigs;
 (function (SaveRuleConfigs) {
     const saveRuleConfigCache = new linkedMap_1.LRUCache(128);
     async function get(uri, settings) {
-        const filePath = SaveRuleConfigs.inferFilePath(uri);
+        const filePath = SaveRuleConfigs.inferFilePath(uri, settings.useRealpaths);
         let result = saveRuleConfigCache.get(uri);
         if (filePath === undefined || result === null) {
             return undefined;
@@ -11884,7 +11884,10 @@ var ESLint;
         ['jsonc', 'jsonc'],
         ['mdx', 'mdx'],
         ['vue', 'vue'],
-        ['markdown', 'markdown']
+        ['markdown', 'markdown'],
+        ['css', 'css'],
+        ['glimmer-js', 'ember'],
+        ['glimmer-ts', 'ember']
     ]);
     const defaultLanguageIds = new Set([
         'javascript', 'javascriptreact'
@@ -11949,8 +11952,8 @@ var ESLint;
                 return settings;
             }
             settings.resolvedGlobalPackageManagerPath = GlobalPaths.get(settings.packageManager);
-            const filePath = inferFilePath(document);
-            const workspaceFolderPath = settings.workspaceFolder !== undefined ? inferFilePath(settings.workspaceFolder.uri) : undefined;
+            const filePath = inferFilePath(document, settings.useRealpaths);
+            const workspaceFolderPath = settings.workspaceFolder !== undefined ? inferFilePath(settings.workspaceFolder.uri, settings.useRealpaths) : undefined;
             let assumeFlatConfig = false;
             const hasUserDefinedWorkingDirectories = configuration.workingDirectory !== undefined;
             const workingDirectoryConfig = configuration.workingDirectory ?? { mode: settings_1.ModeEnum.location };
@@ -12190,7 +12193,7 @@ var ESLint;
                             formatterRegistrations.set(uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
                         }
                         else {
-                            const filePath = inferFilePath(uri);
+                            const filePath = inferFilePath(uri, settings.useRealpaths);
                             await ESLint.withClass(async (eslintClass) => {
                                 if (!await eslintClass.isPathIgnored(filePath)) {
                                     formatterRegistrations.set(uri, connection.client.register(node_1.DocumentFormattingRequest.type, options));
@@ -12274,7 +12277,7 @@ var ESLint;
         if (uri.scheme !== 'file') {
             if (settings.workspaceFolder !== undefined) {
                 const ext = languageDefaults_1.default.getExtension(document.languageId);
-                const workspacePath = inferFilePath(settings.workspaceFolder.uri);
+                const workspacePath = inferFilePath(settings.workspaceFolder.uri, settings.useRealpaths);
                 if (workspacePath !== undefined && ext !== undefined) {
                     return path.join(workspacePath, `test.${ext}`);
                 }
@@ -12282,7 +12285,7 @@ var ESLint;
             return undefined;
         }
         else {
-            return inferFilePath(uri);
+            return inferFilePath(uri, settings.useRealpaths);
         }
     }
     ESLint.getFilePath = getFilePath;
@@ -12494,13 +12497,13 @@ var ESLint;
             missingModuleReported.clear();
         }
         ErrorHandlers.clearMissingModuleReported = clearMissingModuleReported;
-        function tryHandleMissingModule(error, document, library) {
+        function tryHandleMissingModule(error, document, library, settings) {
             if (!error.message) {
                 return undefined;
             }
             function handleMissingModule(plugin, module, error) {
                 if (!missingModuleReported.has(plugin)) {
-                    const fsPath = inferFilePath(document);
+                    const fsPath = inferFilePath(document, settings.useRealpaths);
                     missingModuleReported.set(plugin, library);
                     if (error.messageTemplate === 'plugin-missing') {
                         connection.console.error([
@@ -13146,7 +13149,7 @@ function isUNC(path) {
     }
     return true;
 }
-function getFileSystemPath(uri) {
+function getFileSystemPath(uri, useRealpaths) {
     let result = uri.fsPath;
     if (process.platform === 'win32' && result.length >= 2 && result[1] === ':') {
         // Node by default uses an upper case drive letter and ESLint uses
@@ -13154,21 +13157,28 @@ function getFileSystemPath(uri) {
         // if the drive letter is lower case in th URI. Ensure upper case.
         result = result[0].toUpperCase() + result.substr(1);
     }
-    if (process.platform === 'win32' || process.platform === 'darwin') {
-        try {
-            const realpath = fs.realpathSync.native(result);
-            // Only use the real path if only the casing has changed.
-            if (realpath.toLowerCase() === result.toLowerCase()) {
-                result = realpath;
-            }
-        }
-        catch {
-            // Silently ignore errors from `fs.realpathSync` to handle scenarios where
-            // the file being linted is not yet written to disk. This occurs in editors
-            // such as Neovim for non-written buffers.
+    if (useRealpaths) {
+        result = tryRealpath(result);
+    }
+    else if (process.platform === 'win32' || process.platform === 'darwin') {
+        const realpath = tryRealpath(result);
+        // Only use the real path if only the casing has changed.
+        if (realpath.toLowerCase() === result.toLowerCase()) {
+            result = realpath;
         }
     }
     return result;
+}
+function tryRealpath(path) {
+    try {
+        return fs.realpathSync.native(path);
+    }
+    catch (error) {
+        // Silently ignore errors from `fs.realpathSync` to handle scenarios where
+        // the file being linted is not yet written to disk. This occurs in editors
+        // such as Neovim for non-written buffers.
+        return path;
+    }
 }
 function normalizePath(path) {
     if (path === undefined) {
