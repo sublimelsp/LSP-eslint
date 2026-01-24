@@ -13,3 +13,4 @@ jobs:
       configuration_file_path: '/package.json'
       version_file: 'plugin.py'
       version_regexp: 'TAG = ''release/([\d.])+'''
+    secrets: inherit
