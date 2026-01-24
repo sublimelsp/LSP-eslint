@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from LSP.protocol import ConfigurationItem
 
 
-TAG = 'release/3.0.16'
+TAG = 'release/3.0.20'
 
 
 def plugin_loaded() -> None:
