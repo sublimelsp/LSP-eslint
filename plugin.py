@@ -1,13 +1,22 @@
-from LSP.plugin.core.typing import Any, Callable, Dict, Literal, Optional, Set
+from __future__ import annotations
 from LSP.plugin import uri_to_filename
 from LSP.plugin import WorkspaceFolder
 from lsp_utils import notification_handler
 from lsp_utils import NpmClientHandler
 from lsp_utils import request_handler
+from typing import Any, Literal, TYPE_CHECKING, final
+from typing_extensions import override
 import os
 import re
 import sublime
 import webbrowser
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from LSP.protocol import ConfigurationItem
+
+
+TAG = 'release/3.0.16'
 
 
 def plugin_loaded() -> None:
@@ -18,6 +27,7 @@ def plugin_unloaded() -> None:
     LspEslintPlugin.cleanup()
 
 
+@final
 class LspEslintPlugin(NpmClientHandler):
     package_name = __package__
     server_directory = 'language-server'
@@ -26,9 +36,10 @@ class LspEslintPlugin(NpmClientHandler):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self._probe_failed = set()  # type: Set[str]
+        self._probe_failed: set[str] = set()
 
     @classmethod
+    @override
     def required_node_version(cls) -> str:
         return '>=16.20.2'
 
@@ -67,12 +78,13 @@ class LspEslintPlugin(NpmClientHandler):
         print('LSP-eslint: Failed resolving eslint library for {}'.format(params['source']['uri']))
         respond(None)
 
-    def on_workspace_configuration(self, params: Dict[str, Any], configuration: Dict) -> Dict:
+    @override
+    def on_workspace_configuration(self, params: ConfigurationItem, configuration: Any) -> Any:
         session = self.weaksession()
         if session:
             scope_uri = params.get('scopeUri')
             if scope_uri:
-                workspace_folder = None  # type: Optional[WorkspaceFolder]
+                workspace_folder: WorkspaceFolder | None = None
                 for folder in session.get_workspace_folders():
                     if folder.includes_uri(scope_uri):
                         workspace_folder = folder
@@ -89,8 +101,9 @@ class LspEslintPlugin(NpmClientHandler):
                 del configuration['probe']
         return configuration
 
-    def resolve_working_directory(self, configuration: Dict, scope_uri: str,
-                                  workspace_folder: Optional[WorkspaceFolder]) -> None:
+    def resolve_working_directory(
+        self, configuration: dict, scope_uri: str, workspace_folder: WorkspaceFolder | None
+    ) -> None:
         working_directories = configuration.get('workingDirectories', None)
         if isinstance(working_directories, list):
             working_directory = None
@@ -151,7 +164,7 @@ class LspEslintPlugin(NpmClientHandler):
         return os.path.normpath(path)
 
     def compute_validate(
-        self, language_id: str, scope_uri: str, config: Dict[str, Any]
+        self, language_id: str, scope_uri: str, config: dict[str, Any]
     ) -> Literal['off', 'on', 'probe']:
         validate = config.get('validate')
         if isinstance(validate, list):
