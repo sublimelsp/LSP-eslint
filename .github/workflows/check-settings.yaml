@@ -1,0 +1,46 @@
+name: Check settings
+
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  check-new-settings:
+    uses: sublimelsp/workflows/.github/workflows/changed-settings.yaml@main
+    with:
+      repository_url: 'https://github.com/microsoft/vscode-eslint'
+      configuration_file_path: 'package.json'
+      version_file: 'plugin.py'
+      version_regexp: 'TAG = ''([^'']+)'''
+
+  update-server:
+    needs: check-new-settings
+    if: needs.check-new-settings.outputs.version_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup NodeJS
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Update server
+        run: ./language-server/compile-language-server.sh "${{ needs.check-new-settings.outputs.new_version }}"
+
+      - name: Check for modified files
+        id: git-check
+        run: echo "GIT_MODIFIED=$(if [ -n "$(git status --porcelain)" ]; then echo "true"; else echo "false"; fi)" >> "$GITHUB_OUTPUT"
+
+      - name: Update changes in the PR
+        if: steps.git-check.outputs.GIT_MODIFIED == 'true'
+        run:  |
+          git config --global user.name github-actions[bot]
+          git config --global user.email github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m '[automated commit] update server'
+          git push

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from LSP.protocol import ConfigurationItem
 
 
-TAG = 'release/3.0.16'
+TAG = 'release/3.0.20'
 
 
 def plugin_loaded() -> None:
@@ -138,10 +138,9 @@ class LspEslintPlugin(NpmClientHandler):
                 if directory_value:
                     if not working_directory or self.is_mode_item(working_directory):
                         working_directory = {'directory': directory_value, '!cwd': no_cwd}
-                    else:
-                        if len(working_directory['directory']) < len(directory_value):
-                            working_directory['directory'] = directory_value
-                            working_directory['!cwd'] = no_cwd
+                    elif len(working_directory['directory']) < len(directory_value):
+                        working_directory['directory'] = directory_value
+                        working_directory['!cwd'] = no_cwd
             configuration['workingDirectory'] = working_directory
             configuration.pop('workingDirectories', None)
 

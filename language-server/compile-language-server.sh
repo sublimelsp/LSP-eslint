@@ -27,11 +27,17 @@ popd || exit
 
 pushd "${TEMP_DIR}" || exit
 
-echo 'Enter commit SHA, branch or tag (for example 2.1.0) to build'
-read -rp 'SHA, branch or tag (default: main): ' ref
-
-if [ "${ref}" = "" ]; then
-    ref="main"
+# Check if ref provided as command line argument
+if [ -n "$1" ]; then
+    ref="$1"
+    echo "Using git ref from command line: ${ref}"
+else
+    echo 'Enter commit SHA, branch or tag (for example 2.1.0) to build'
+    read -rp 'SHA, branch or tag (default: main): ' ref
+    
+    if [ "${ref}" = "" ]; then
+        ref="main"
+    fi
 fi
 
 temp_zip="src-${ref//\//-}.zip"
