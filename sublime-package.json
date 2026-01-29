@@ -103,6 +103,12 @@
                       "default": false,
                       "markdownDescription": "Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored when using using ESLint version 7.x."
                     },
+                    "useRealpaths": {
+                      "scope": "resource",
+                      "type": "boolean",
+                      "default": false,
+                      "description": "Whether ESLint should use real paths when resolving files. This is useful when working with symlinks or when the casing of file paths is inconsistent."
+                    },
                     "ignoreUntitled": {
                       "type": "boolean",
                       "default": false,

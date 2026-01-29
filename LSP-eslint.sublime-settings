@@ -47,10 +47,10 @@
 		//
 		// ```json
 		// "codeActionOnSave.rules": [
-		 //  "@typescript-eslint/semi",
-		 //  "@typescript-eslint/indent",
-		 //  "!@typescript-eslint/*",
-		 //  "*"
+		//  "@typescript-eslint/semi",
+		//  "@typescript-eslint/indent",
+		//  "!@typescript-eslint/*",
+		//  "*"
 		// ]
 		// ```
 		// "codeActionOnSave.rules": [],
@@ -80,10 +80,10 @@
 		// }
 		// ```
 		"options": {},
-
 		// An array of language ids for which the plugin should probe if support is installed.
 		"probe": [
 			"astro",
+			"civet",
 			"javascript",
 			"javascriptreact",
 			"typescript",
@@ -93,7 +93,10 @@
 			"vue",
 			"markdown",
 			"json",
-			"jsonc"
+			"jsonc",
+			"css",
+			"glimmer-js",
+			"glimmer-ts"
 		],
 		// Shortens the text spans of underlined problems to their first related line.
 		"problems.shortenToSingleLine": false,
@@ -108,6 +111,8 @@
 		// Whether to use the ESLint class API even if the CLIEngine API is present. The setting is only honored
 		// when using using ESLint version 7.x.
 		"useESLintClass": false,
+		// Whether ESLint should use real paths when resolving files. This is useful when working with symlinks or when the casing of file paths is inconsistent.
+		"useRealpaths": false,
 		// An array of language ids which should be validated by ESLint.
 		"validate": [
 			"javascript",
@@ -133,7 +138,11 @@
 			"**/package.json",
 		]
 	},
-	"command": ["${node_bin}", "${server_path}", "--stdio"],
+	"command": [
+		"${node_bin}",
+		"${server_path}",
+		"--stdio"
+	],
 	"selector": "source.js | source.ts | source.jsx | source.tsx | source.js.jsx | source.js.react | source.ts.react | text.html.vue | text.html.basic",
 	"env": {
 		// Enables ESLint debug mode
