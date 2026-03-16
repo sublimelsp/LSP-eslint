@@ -130,7 +130,11 @@
                         "vue",
                         "markdown",
                         "json",
-                        "jsonc"
+                        "jsonc",
+                        "css",
+                        "glimmer-js",
+                        "glimmer-ts",
+                        "svelte"
                       ],
                       "description": "An array of language ids for which the plugin should probe if support is installed."
                     },
@@ -146,7 +150,7 @@
                     "quiet": {
                       "type": "boolean",
                       "default": false,
-                      "description": "Turns on quiet mode, which ignores warnings."
+                      "description": "Turns on quiet mode, which ignores warnings and info diagnostics."
                     },
                     "onIgnoredFiles": {
                       "type": "string",

@@ -96,14 +96,15 @@
 			"jsonc",
 			"css",
 			"glimmer-js",
-			"glimmer-ts"
+			"glimmer-ts",
+			"svelte"
 		],
 		// Shortens the text spans of underlined problems to their first related line.
 		"problems.shortenToSingleLine": false,
 		// Override the severity of one or more rules, regardless of the project's ESLint config. Use globs to
 		// apply default severities for multiple rules.
 		"rulesCustomizations": [],
-		// Turns on quiet mode, which ignores warnings.
+		// Turns on quiet mode, which ignores warnings and info diagnostics.
 		"quiet": false,
 		// Run the linter on save or on type.
 		// Possible values: `onSave`, `onType`
