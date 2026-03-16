@@ -1,10 +1,15 @@
 from __future__ import annotations
-from LSP.plugin import uri_to_filename
+
+from LSP.plugin import parse_uri
 from LSP.plugin import WorkspaceFolder
 from lsp_utils import notification_handler
 from lsp_utils import NpmClientHandler
 from lsp_utils import request_handler
-from typing import Any, Literal, TYPE_CHECKING, final
+from pathlib import Path
+from typing import Any
+from typing import final
+from typing import Literal
+from typing import TYPE_CHECKING
 from typing_extensions import override
 import os
 import re
@@ -29,7 +34,7 @@ def plugin_unloaded() -> None:
 
 @final
 class LspEslintPlugin(NpmClientHandler):
-    package_name = __package__
+    package_name = str(__package__)
     server_directory = 'language-server'
     server_binary_path = os.path.join(server_directory, 'out', 'eslintServer.js')
     skip_npm_install = True
@@ -106,6 +111,7 @@ class LspEslintPlugin(NpmClientHandler):
     ) -> None:
         working_directories = configuration.get('workingDirectories', None)
         if isinstance(working_directories, list):
+            _, file_path = parse_uri(scope_uri)
             working_directory = None
             workspace_folder_path = workspace_folder.path if workspace_folder else None
             for entry in working_directories:
@@ -123,18 +129,14 @@ class LspEslintPlugin(NpmClientHandler):
                 elif self.is_mode_item(entry):
                     working_directory = entry
                     continue
-
                 directory_value = None
                 if directory:
-                    file_path = uri_to_filename(scope_uri)
-                    if directory:
-                        directory = self.to_os_path(directory)
-                        if not os.path.isabs(directory) and workspace_folder_path:
-                            # Trailing '' will add trailing slash if missing.
-                            directory = os.path.join(workspace_folder_path, directory, '')
-                        if file_path.startswith(directory):
-                            directory_value = directory
-
+                    directory = self.to_os_path(directory)
+                    if not Path(directory).is_absolute() and workspace_folder_path:
+                        # Trailing '' will add trailing slash if missing.
+                        directory = os.path.join(workspace_folder_path, directory, '')
+                    if file_path.startswith(directory):
+                        directory_value = directory
                 if directory_value:
                     if not working_directory or self.is_mode_item(working_directory):
                         working_directory = {'directory': directory_value, '!cwd': no_cwd}
