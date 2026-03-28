@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from LSP.plugin import notification_handler
 from LSP.plugin import parse_uri
+from LSP.plugin import Promise
+from LSP.plugin import request_handler
 from LSP.plugin import WorkspaceFolder
-from lsp_utils import notification_handler
 from lsp_utils import NpmClientHandler
-from lsp_utils import request_handler
 from pathlib import Path
 from typing import Any
 from typing import final
@@ -17,7 +18,6 @@ import sublime
 import webbrowser
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from LSP.protocol import ConfigurationItem
 
 
@@ -61,27 +61,27 @@ class LspEslintPlugin(NpmClientHandler):
         sublime.active_window().run_command('lsp_toggle_server_panel')
 
     @request_handler('eslint/openDoc')
-    def handle_open_doc(self, params: Any, respond: Callable[[Any], None]) -> None:
+    def handle_open_doc(self, params: Any) -> Promise[Any]:
         webbrowser.open(params['url'])
-        respond({})
+        return Promise.resolve(None)
 
     @request_handler('eslint/probeFailed')
-    def handle_probe_failed(self, params: Any, respond: Callable[[Any], None]) -> None:
+    def handle_probe_failed(self, params: Any) -> Promise[Any]:
         self._probe_failed.add(params['textDocument']['uri'])
-        respond(None)
+        return Promise.resolve(None)
 
     @request_handler('eslint/noConfig')
-    def handle_no_config(self, params: Any, respond: Callable[[Any], None]) -> None:
+    def handle_no_config(self, params: Any) -> Promise[Any]:
         # TODO: Show better notification that no eslint configuration was found.
         print('LSP-eslint: Could not find eslint configuration ({}) for {}'.format(
             params['message'], params['document']['uri']))
-        respond(None)
+        return Promise.resolve(None)
 
     @request_handler('eslint/noLibrary')
-    def handle_no_library(self, params: Any, respond: Callable[[Any], None]) -> None:
+    def handle_no_library(self, params: Any) -> Promise[Any]:
         # TODO: Show better notification that no eslint library was found.
         print('LSP-eslint: Failed resolving eslint library for {}'.format(params['source']['uri']))
-        respond(None)
+        return Promise.resolve(None)
 
     @override
     def on_workspace_configuration(self, params: ConfigurationItem, configuration: Any) -> Any:
