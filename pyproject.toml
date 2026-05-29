@@ -28,6 +28,9 @@ skip-magic-trailing-comma = false
 # Automatically detect the appropriate line ending.
 line-ending = "auto"
 
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "FURB", "SIM"]
+
 [tool.ruff.lint.isort]
 case-sensitive = false
 force-single-line = true
