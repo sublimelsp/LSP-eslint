@@ -902,7 +902,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ESLint = exports.CodeActions = exports.RuleSeverities = exports.SaveRuleConfigs = exports.Fixes = exports.ESLintModule = exports.SuggestionsProblem = exports.FixableProblem = exports.Problem = exports.RuleMetaData = exports.ESLintError = exports.TextDocumentSettings = void 0;
+exports.ESLint = exports.CodeActions = exports.Diagnostics = exports.RuleSeverities = exports.SaveRuleConfigs = exports.Fixes = exports.ESLintModule = exports.SuggestionsProblem = exports.FixableProblem = exports.Problem = exports.RuleMetaData = exports.ESLintError = exports.TextDocumentSettings = void 0;
 /* --------------------------------------------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -1304,17 +1304,45 @@ var RuleSeverities;
  */
 var Diagnostics;
 (function (Diagnostics) {
+    const unnecessaryRuleNames = new Set([
+        'no-unused-imports',
+        'no-unused-private-class-members',
+        'no-unused-vars'
+    ]);
+    function getRuleName(ruleId) {
+        return ruleId.substring(ruleId.lastIndexOf('/') + 1);
+    }
+    function isUnnecessary(problem) {
+        if (typeof problem.ruleId === 'string' && unnecessaryRuleNames.has(getRuleName(problem.ruleId))) {
+            return true;
+        }
+        // Some unused-code reports come from plugin rules or diagnostics without a stable rule ID.
+        return /\b(?:defined|assigned)\b.+\bnever used\b/i.test(problem.message);
+    }
+    Diagnostics.isUnnecessary = isUnnecessary;
     function computeKey(diagnostic) {
         const range = diagnostic.range;
         let message;
         if (diagnostic.message) {
             const hash = crypto.createHash('sha256');
-            hash.update(diagnostic.message);
+            hash.update(getMessageString(diagnostic));
             message = hash.digest('base64');
         }
         return `[${range.start.line},${range.start.character},${range.end.line},${range.end.character}]-${diagnostic.code}-${message ?? ''}`;
     }
     Diagnostics.computeKey = computeKey;
+    function getMessageString(diagnostic) {
+        if (Is.string(diagnostic.message)) {
+            return diagnostic.message;
+        }
+        else if (node_1.MarkupContent.is(diagnostic.message)) {
+            return diagnostic.message.value;
+        }
+        else {
+            throw new Error(`Unknown message type ${diagnostic.message}`);
+        }
+    }
+    Diagnostics.getMessageString = getMessageString;
     function create(settings, problem, document) {
         const message = problem.message;
         const startLine = typeof problem.line !== 'number' || Number.isNaN(problem.line) ? 0 : Math.max(0, problem.line - 1);
@@ -1353,9 +1381,9 @@ var Diagnostics;
                     href: url
                 };
             }
-            if (problem.ruleId === 'no-unused-vars') {
-                result.tags = [node_1.DiagnosticTag.Unnecessary];
-            }
+        }
+        if (isUnnecessary(problem)) {
+            result.tags = [node_1.DiagnosticTag.Unnecessary];
         }
         return [result, override];
     }
@@ -1406,7 +1434,7 @@ var Diagnostics;
     function convertSeverityToDiagnosticWithOverride(severity, severityOverride) {
         return convertSeverityToDiagnostic(adjustSeverityForOverride(severity, severityOverride));
     }
-})(Diagnostics || (Diagnostics = {}));
+})(Diagnostics || (exports.Diagnostics = Diagnostics = {}));
 /**
  * Capture information necessary to compute code actions.
  */
@@ -1488,6 +1516,7 @@ var ESLint;
         ['glimmer-js', 'ember'],
         ['glimmer-ts', 'ember'],
         ['svelte', 'svelte'],
+        ['graphql', '@graphql-eslint'],
     ]);
     const defaultLanguageIds = new Set([
         'javascript', 'javascriptreact'
@@ -1510,6 +1539,43 @@ var ESLint;
     const path2Library = new Map();
     const document2Settings = new Map();
     const formatterRegistrations = new Map();
+    function createDefaultConfigurationSettings() {
+        return {
+            validate: settings_1.Validate.off,
+            packageManager: 'npm',
+            useESLintClass: false,
+            useRealpaths: false,
+            codeAction: {
+                disableRuleComment: {
+                    enable: true,
+                    location: 'separateLine',
+                    commentStyle: 'line'
+                },
+                showDocumentation: {
+                    enable: true
+                }
+            },
+            codeActionOnSave: {
+                mode: settings_1.CodeActionsOnSaveMode.all
+            },
+            format: false,
+            quiet: false,
+            bulkSuppression: {
+                enable: false,
+                severity: 'info'
+            },
+            onIgnoredFiles: settings_1.ESLintSeverity.off,
+            options: {},
+            rulesCustomizations: [],
+            run: 'onType',
+            problems: {
+                shortenToSingleLine: false
+            },
+            nodePath: null,
+            workspaceFolder: undefined,
+            workingDirectory: undefined
+        };
+    }
     function initialize($connection, $documents, $inferFilePath, $loadNodeModule) {
         connection = $connection;
         documents = $documents;
@@ -1547,7 +1613,8 @@ var ESLint;
             return resultPromise;
         }
         resultPromise = connection.workspace.getConfiguration({ scopeUri: uri, section: '' }).then((configuration) => {
-            const settings = Object.assign({}, configuration, { silent: false, library: undefined, resolvedGlobalPackageManagerPath: undefined }, { workingDirectory: undefined });
+            const resolvedConfiguration = Object.assign(createDefaultConfigurationSettings(), configuration ?? {});
+            const settings = Object.assign({}, resolvedConfiguration, { silent: false, library: undefined, resolvedGlobalPackageManagerPath: undefined }, { workingDirectory: undefined });
             if (settings.validate === settings_1.Validate.off) {
                 return settings;
             }
@@ -1555,8 +1622,8 @@ var ESLint;
             const filePath = inferFilePath(document, settings.useRealpaths);
             const workspaceFolderPath = settings.workspaceFolder !== undefined ? inferFilePath(settings.workspaceFolder.uri, settings.useRealpaths) : undefined;
             let assumeFlatConfig = false;
-            const hasUserDefinedWorkingDirectories = configuration.workingDirectory !== undefined;
-            const workingDirectoryConfig = configuration.workingDirectory ?? { mode: settings_1.ModeEnum.location };
+            const hasUserDefinedWorkingDirectories = resolvedConfiguration.workingDirectory !== undefined;
+            const workingDirectoryConfig = resolvedConfiguration.workingDirectory ?? { mode: settings_1.ModeEnum.location };
             if (settings_1.ModeItem.is(workingDirectoryConfig)) {
                 let candidate;
                 if (workingDirectoryConfig.mode === settings_1.ModeEnum.location) {
@@ -1665,11 +1732,14 @@ var ESLint;
                     if (library !== undefined && ESLintModule.hasESLintClass(library) && typeof library.ESLint.version === 'string') {
                         const esLintVersion = semverParse(library.ESLint.version);
                         if (esLintVersion !== null) {
-                            if (semverGte(esLintVersion, '8.57.0') && settings.experimental?.useFlatConfig === true) {
+                            if (semverGte(esLintVersion, '10.0.0') && (typeof settings.experimental?.useFlatConfig !== 'undefined' || typeof settings.useFlatConfig !== 'undefined')) {
+                                connection.console.info(`ESLint version ${library.ESLint.version} only supports flat configs. The useFlatConfig setting is ignored.`);
+                            }
+                            else if (semverGte(esLintVersion, '8.57.0') && settings.experimental?.useFlatConfig === true) {
                                 connection.console.info(`ESLint version ${library.ESLint.version} supports flat config without experimental opt-in. The 'eslint.experimental.useFlatConfig' setting can be removed.`);
                             }
-                            else if (semverGte(esLintVersion, '10.0.0') && (settings.experimental?.useFlatConfig === false || settings.useFlatConfig === false)) {
-                                connection.console.info(`ESLint version ${library.ESLint.version} only supports flat configs. Setting is ignored.`);
+                            if (settings.bulkSuppression?.enable && !semverGte(esLintVersion, '10.1.0')) {
+                                connection.console.warn(`ESLint version ${library.ESLint.version} does not support bulk suppressions via the Node.js API. Upgrade to ESLint >= 10.1 or disable 'eslint.bulkSuppression.enable'.`);
                             }
                         }
                     }
@@ -1889,6 +1959,14 @@ var ESLint;
         }
     }
     ESLint.getFilePath = getFilePath;
+    function bulkSeverity(severity) {
+        switch (severity) {
+            case 'error': return node_1.DiagnosticSeverity.Error;
+            case 'warn': return node_1.DiagnosticSeverity.Warning;
+            case 'hint': return node_1.DiagnosticSeverity.Hint;
+            default: return node_1.DiagnosticSeverity.Information;
+        }
+    }
     const validFixTypes = new Set(['problem', 'suggestion', 'layout', 'directive']);
     async function validate(document, settings) {
         const newOptions = Object.assign(Object.create(null), settings.options);
@@ -1907,6 +1985,14 @@ var ESLint;
         const content = document.getText();
         const uri = document.uri;
         const file = getFilePath(document, settings);
+        const suppressionOptions = settings.bulkSuppression?.enable
+            ? {
+                applySuppressions: true,
+                ...(settings.bulkSuppression.location
+                    ? { suppressionsLocation: settings.bulkSuppression.location }
+                    : {}),
+            }
+            : {};
         return withClass(async (eslintClass) => {
             CodeActions.remove(uri);
             const reportResults = await eslintClass.lintText(content, { filePath: file, warnIgnored: settings.onIgnoredFiles !== settings_1.ESLintSeverity.off });
@@ -1936,9 +2022,22 @@ var ESLint;
                         }
                     });
                 }
+                // Bulk-suppressed diagnostics intentionally bypass `quiet` mode: they are opt-in
+                // and already represent a deliberate visibility decision by the user.
+                if (settings.bulkSuppression?.enable && docReport.suppressedMessages && Array.isArray(docReport.suppressedMessages)) {
+                    for (const problem of docReport.suppressedMessages) {
+                        if (problem && problem.suppressions?.some(s => s.kind === 'file')) {
+                            const [diagnostic, override] = Diagnostics.create(settings, problem, document);
+                            if (override !== settings_1.RuleSeverity.off) {
+                                diagnostic.severity = bulkSeverity(settings.bulkSuppression.severity);
+                                diagnostics.push(diagnostic);
+                            }
+                        }
+                    }
+                }
             }
             return diagnostics;
-        }, settings);
+        }, settings, suppressionOptions);
     }
     ESLint.validate = validate;
     function trace(message, verbose) {
@@ -2248,7 +2347,8 @@ function loadNodeModule(moduleName) {
 const nodeExit = process.exit;
 process.exit = ((code) => {
     const stack = new Error('stack');
-    void connection.sendNotification(customMessages_1.ExitCalled.type, [code ? code : 0, stack.stack]);
+    const param = [code ? code : 0, stack.stack ? stack.stack : ''];
+    void connection.sendNotification(customMessages_1.ExitCalled.type, param);
     setTimeout(() => {
         nodeExit(code);
     }, 1000);
@@ -3899,11 +3999,25 @@ class SemVer {
       other = new SemVer(other, this.options)
     }
 
-    return (
-      compareIdentifiers(this.major, other.major) ||
-      compareIdentifiers(this.minor, other.minor) ||
-      compareIdentifiers(this.patch, other.patch)
-    )
+    if (this.major < other.major) {
+      return -1
+    }
+    if (this.major > other.major) {
+      return 1
+    }
+    if (this.minor < other.minor) {
+      return -1
+    }
+    if (this.minor > other.minor) {
+      return 1
+    }
+    if (this.patch < other.patch) {
+      return -1
+    }
+    if (this.patch > other.patch) {
+      return 1
+    }
+    return 0
   }
 
   comparePre (other) {
@@ -4229,6 +4343,10 @@ module.exports = debug
 
 const numeric = /^[0-9]+$/
 const compareIdentifiers = (a, b) => {
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a === b ? 0 : a < b ? -1 : 1
+  }
+
   const anum = numeric.test(a)
   const bnum = numeric.test(b)
 
@@ -4361,8 +4479,8 @@ createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
 
 // ## Pre-release Version Identifier
 // A numeric identifier, or a non-numeric identifier.
-// Non-numberic identifiers include numberic identifiers but can be longer.
-// Therefore non-numberic identifiers must go first.
+// Non-numeric identifiers include numeric identifiers but can be longer.
+// Therefore non-numeric identifiers must go first.
 
 createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NONNUMERICIDENTIFIER]
 }|${src[t.NUMERICIDENTIFIER]})`)
@@ -4419,7 +4537,7 @@ createToken('LOOSE', `^${src[t.LOOSEPLAIN]}$`)
 createToken('GTLT', '((?:<|>)?=?)')
 
 // Something like "2.*" or "1.2.x".
-// Note that "x.x" is a valid xRange identifer, meaning "any version"
+// Note that "x.x" is a valid xRange identifier, meaning "any version"
 // Only the first item is strictly required.
 createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`)
 createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`)
@@ -5994,7 +6112,6 @@ function createMessageConnection(messageReader, messageWriter, _logger, options)
             messageReader.listen(callback);
         },
         inspect: () => {
-            // eslint-disable-next-line no-console
             (0, ral_1.default)().console.log('inspect');
         }
     };
@@ -6108,7 +6225,6 @@ class CallbackList {
                 ret.push(callbacks[i].apply(contexts[i], args));
             }
             catch (e) {
-                // eslint-disable-next-line no-console
                 (0, ral_1.default)().console.error(e);
             }
         }
@@ -8059,14 +8175,14 @@ exports.StreamMessageWriter = StreamMessageWriter;
 const XDG_RUNTIME_DIR = process.env['XDG_RUNTIME_DIR'];
 const safeIpcPathLengths = new Map([
     ['linux', 107],
-    ['darwin', 103]
+    ['darwin', 102]
 ]);
 function generateRandomPipeName() {
     if (process.platform === 'win32') {
         return `\\\\.\\pipe\\lsp-${(0, crypto_1.randomBytes)(16).toString('hex')}-sock`;
     }
     let randomLength = 32;
-    const fixedLength = 'lsp-.sock'.length;
+    const fixedLength = '/lsp-.sock'.length;
     const tmpDir = fs.realpathSync(XDG_RUNTIME_DIR ?? os.tmpdir());
     const limit = safeIpcPathLengths.get(process.platform);
     if (limit !== undefined) {
@@ -8556,6 +8672,7 @@ var CallHierarchyIncomingCallsRequest;
     CallHierarchyIncomingCallsRequest.method = 'callHierarchy/incomingCalls';
     CallHierarchyIncomingCallsRequest.messageDirection = messages_1.MessageDirection.clientToServer;
     CallHierarchyIncomingCallsRequest.type = new messages_1.ProtocolRequestType(CallHierarchyIncomingCallsRequest.method);
+    CallHierarchyIncomingCallsRequest.capabilities = messages_1.CM.create('textDocument.callHierarchy', 'callHierarchyProvider');
 })(CallHierarchyIncomingCallsRequest || (exports.CallHierarchyIncomingCallsRequest = CallHierarchyIncomingCallsRequest = {}));
 /**
  * A request to resolve the outgoing calls for a given `CallHierarchyItem`.
@@ -8567,6 +8684,7 @@ var CallHierarchyOutgoingCallsRequest;
     CallHierarchyOutgoingCallsRequest.method = 'callHierarchy/outgoingCalls';
     CallHierarchyOutgoingCallsRequest.messageDirection = messages_1.MessageDirection.clientToServer;
     CallHierarchyOutgoingCallsRequest.type = new messages_1.ProtocolRequestType(CallHierarchyOutgoingCallsRequest.method);
+    CallHierarchyOutgoingCallsRequest.capabilities = messages_1.CM.create('textDocument.callHierarchy', 'callHierarchyProvider');
 })(CallHierarchyOutgoingCallsRequest || (exports.CallHierarchyOutgoingCallsRequest = CallHierarchyOutgoingCallsRequest = {}));
 
 
@@ -8599,7 +8717,7 @@ var DocumentColorRequest;
 /**
  * A request to list all presentation for a color. The request's
  * parameter is of type {@link ColorPresentationParams} the
- * response is of type {@link ColorInformation ColorInformation[]} or a Thenable
+ * response is of type {@link ColorPresentation ColorPresentation[]} or a Thenable
  * that resolves to such.
  */
 var ColorPresentationRequest;
@@ -8752,6 +8870,7 @@ var DocumentDiagnosticReportKind;
 })(DocumentDiagnosticReportKind || (exports.DocumentDiagnosticReportKind = DocumentDiagnosticReportKind = {}));
 /**
  * The document diagnostic request definition.
+ *
  *
  * @since 3.17.0
  */
@@ -8931,8 +9050,9 @@ var FoldingRangeRequest;
     FoldingRangeRequest.capabilities = messages_1.CM.create('textDocument.foldingRange', 'foldingRangeProvider');
 })(FoldingRangeRequest || (exports.FoldingRangeRequest = FoldingRangeRequest = {}));
 /**
+ * A request to refresh the folding ranges in a document.
+ *
  * @since 3.18.0
- * @proposed
  */
 var FoldingRangeRefreshRequest;
 (function (FoldingRangeRefreshRequest) {
@@ -9044,7 +9164,6 @@ const messages_1 = __webpack_require__(372);
  * {@link InlineCompletion InlineCompletion[]} or a Thenable that resolves to such.
  *
  * @since 3.18.0
- * @proposed
  */
 var InlineCompletionRequest;
 (function (InlineCompletionRequest) {
@@ -9355,7 +9474,6 @@ var FailureHandlingKind;
  * Regular Expression Engines
  *
  * @since 3.18.0
- * @proposed
  */
 var RegularExpressionEngineKind;
 (function (RegularExpressionEngineKind) {
@@ -9528,7 +9646,6 @@ var MessageType;
      * A debug message.
      *
      * @since 3.18.0
-     * @proposed
      */
     MessageType.Debug = 5;
 })(MessageType || (exports.MessageType = MessageType = {}));
@@ -10062,7 +10179,6 @@ var DocumentRangeFormattingRequest;
  * A request to format ranges in a document.
  *
  * @since 3.18.0
- * @proposed
  */
 var DocumentRangesFormattingRequest;
 (function (DocumentRangesFormattingRequest) {
@@ -10681,7 +10797,6 @@ const messages_1 = __webpack_require__(372);
  * server to request the content of a text document.
  *
  * @since 3.18.0
- * @proposed
  */
 var TextDocumentContentRequest;
 (function (TextDocumentContentRequest) {
@@ -10695,7 +10810,6 @@ var TextDocumentContentRequest;
  * the content of a specific text document.
  *
  * @since 3.18.0
- * @proposed
  */
 var TextDocumentContentRefreshRequest;
 (function (TextDocumentContentRefreshRequest) {
@@ -10927,28 +11041,6 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
@@ -10956,8 +11048,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProposedFeatures = exports.NotebookDocuments = exports.TextDocuments = exports.SemanticTokensBuilder = void 0;
 const semanticTokens_1 = __webpack_require__(2655);
 Object.defineProperty(exports, "SemanticTokensBuilder", ({ enumerable: true, get: function () { return semanticTokens_1.SemanticTokensBuilder; } }));
-const ic = __importStar(__webpack_require__(1276));
-const tdc = __importStar(__webpack_require__(9202));
 __exportStar(__webpack_require__(8766), exports);
 const textDocuments_1 = __webpack_require__(1662);
 Object.defineProperty(exports, "TextDocuments", ({ enumerable: true, get: function () { return textDocuments_1.TextDocuments; } }));
@@ -10968,8 +11058,6 @@ var ProposedFeatures;
 (function (ProposedFeatures) {
     ProposedFeatures.all = {
         __brand: 'features',
-        workspace: tdc.TextDocumentContentFeature,
-        languages: ic.InlineCompletionFeature
     };
 })(ProposedFeatures || (exports.ProposedFeatures = ProposedFeatures = {}));
 
@@ -11252,7 +11340,7 @@ exports.InlayHintFeature = InlayHintFeature;
 
 /***/ },
 
-/***/ 1276
+/***/ 2534
 (__unused_webpack_module, exports, __webpack_require__) {
 
 /* --------------------------------------------------------------------------------------------
@@ -12147,6 +12235,8 @@ const inlayHint_1 = __webpack_require__(4635);
 const diagnostic_1 = __webpack_require__(493);
 const notebook_1 = __webpack_require__(20);
 const moniker_1 = __webpack_require__(2936);
+const inlineCompletion_1 = __webpack_require__(2534);
+const textDocumentContent_1 = __webpack_require__(9202);
 function null2Undefined(value) {
     if (value === null) {
         return undefined;
@@ -12452,7 +12542,7 @@ class _RemoteWorkspaceImpl {
         return this.connection.sendRequest(vscode_languageserver_protocol_1.ApplyWorkspaceEditRequest.type, params);
     }
 }
-const RemoteWorkspaceImpl = (0, fileOperations_1.FileOperationsFeature)((0, workspaceFolder_1.WorkspaceFoldersFeature)((0, configuration_1.ConfigurationFeature)(_RemoteWorkspaceImpl)));
+const RemoteWorkspaceImpl = (0, textDocumentContent_1.TextDocumentContentFeature)((0, fileOperations_1.FileOperationsFeature)((0, workspaceFolder_1.WorkspaceFoldersFeature)((0, configuration_1.ConfigurationFeature)(_RemoteWorkspaceImpl))));
 class TracerImpl {
     _trace;
     _connection;
@@ -12536,7 +12626,7 @@ class _LanguagesImpl {
     }
 }
 exports._LanguagesImpl = _LanguagesImpl;
-const LanguagesImpl = (0, foldingRange_1.FoldingRangeFeature)((0, moniker_1.MonikerFeature)((0, diagnostic_1.DiagnosticFeature)((0, inlayHint_1.InlayHintFeature)((0, inlineValue_1.InlineValueFeature)((0, typeHierarchy_1.TypeHierarchyFeature)((0, linkedEditingRange_1.LinkedEditingRangeFeature)((0, semanticTokens_1.SemanticTokensFeature)((0, callHierarchy_1.CallHierarchyFeature)(_LanguagesImpl)))))))));
+const LanguagesImpl = (0, inlineCompletion_1.InlineCompletionFeature)((0, foldingRange_1.FoldingRangeFeature)((0, moniker_1.MonikerFeature)((0, diagnostic_1.DiagnosticFeature)((0, inlayHint_1.InlayHintFeature)((0, inlineValue_1.InlineValueFeature)((0, typeHierarchy_1.TypeHierarchyFeature)((0, linkedEditingRange_1.LinkedEditingRangeFeature)((0, semanticTokens_1.SemanticTokensFeature)((0, callHierarchy_1.CallHierarchyFeature)(_LanguagesImpl))))))))));
 class _NotebooksImpl {
     _connection;
     constructor() {
@@ -14157,6 +14247,32 @@ class FullTextDocument {
         const offset = Math.min(lineOffset + position.character, nextLineOffset);
         return this.ensureBeforeEOL(offset, lineOffset);
     }
+    getLineRange(line) {
+        const lineOffsets = this.getLineOffsets();
+        if (line >= lineOffsets.length) {
+            const lastLine = lineOffsets.length - 1;
+            return { start: { line: lastLine, character: 0 }, end: { line: lastLine, character: this._content.length - lineOffsets[lastLine] } };
+        }
+        else if (line < 0) {
+            return { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } };
+        }
+        const startOffset = lineOffsets[line];
+        const nextLineOffset = (line + 1 < lineOffsets.length) ? lineOffsets[line + 1] : this._content.length;
+        const endOffset = this.ensureBeforeEOL(nextLineOffset, startOffset);
+        return { start: { line, character: 0 }, end: { line, character: endOffset - startOffset } };
+    }
+    getEOLCharacters(line) {
+        const lineOffsets = this.getLineOffsets();
+        if (line >= lineOffsets.length) {
+            return '';
+        }
+        else if (line < 0) {
+            return '';
+        }
+        const nextLineOffset = (line + 1 < lineOffsets.length) ? lineOffsets[line + 1] : this._content.length;
+        const eolOffset = this.ensureBeforeEOL(nextLineOffset, lineOffsets[line]);
+        return this._content.substring(eolOffset, nextLineOffset);
+    }
     ensureBeforeEOL(offset, lineOffset) {
         while (offset > lineOffset && isEOL(this._content.charCodeAt(offset - 1))) {
             offset--;
@@ -14801,7 +14917,7 @@ var Diagnostic;
         const candidate = value;
         return Is.defined(candidate)
             && Range.is(candidate.range)
-            && Is.string(candidate.message)
+            && (Is.string(candidate.message) || MarkupContent.is(candidate.message))
             && (Is.number(candidate.severity) || Is.undefined(candidate.severity))
             && (Is.integer(candidate.code) || Is.string(candidate.code) || Is.undefined(candidate.code))
             && (Is.undefined(candidate.codeDescription) || (Is.string((_a = candidate.codeDescription) === null || _a === void 0 ? void 0 : _a.href)))
@@ -14809,6 +14925,37 @@ var Diagnostic;
             && (Is.undefined(candidate.relatedInformation) || Is.typedArray(candidate.relatedInformation, DiagnosticRelatedInformation.is));
     }
     Diagnostic.is = is;
+    /**
+     * Checks whether the given diagnostic's message conforms to the 3.17.0
+     * version of the protocol where the message is a string.
+     *
+     * @param value the diagnostic
+     * @returns true if the diagnostic's message is a string, false otherwise.
+     */
+    function is3_17(value) {
+        return Is.string(value.message);
+    }
+    Diagnostic.is3_17 = is3_17;
+    /**
+     * Gets the message string of a diagnostic. If the message is already a
+     * string, it is returned as is. If the message is a MarkupContent,
+     * the value of the MarkupContent is returned. Otherwise an error is thrown.
+     *
+     * @param diagnostic the diagnostic to get the message string from.
+     * @returns the message string of the given diagnostic.
+     */
+    function getMessageString(diagnostic) {
+        if (Is.string(diagnostic.message)) {
+            return diagnostic.message;
+        }
+        else if (MarkupContent.is(diagnostic.message)) {
+            return diagnostic.message.value;
+        }
+        else {
+            throw new Error(`Unknown message type ${typeof diagnostic.message}`);
+        }
+    }
+    Diagnostic.getMessageString = getMessageString;
 })(Diagnostic || (Diagnostic = {}));
 /**
  * The Command namespace provides helper functions to work with
@@ -15443,12 +15590,10 @@ var LanguageKind;
     LanguageKind.CSS = 'css';
     /**
      * @since 3.18.0
-     * @proposed
      */
     LanguageKind.D = 'd';
     /**
      * @since 3.18.0
-     * @proposed
      */
     LanguageKind.Delphi = 'pascal';
     LanguageKind.Diff = 'diff';
@@ -15458,7 +15603,7 @@ var LanguageKind;
     LanguageKind.Erlang = 'erlang';
     LanguageKind.FSharp = 'fsharp';
     LanguageKind.GitCommit = 'git-commit';
-    LanguageKind.GitRebase = 'rebase';
+    LanguageKind.GitRebase = 'git-rebase';
     LanguageKind.Go = 'go';
     LanguageKind.Groovy = 'groovy';
     LanguageKind.Handlebars = 'handlebars';
@@ -15478,12 +15623,12 @@ var LanguageKind;
     LanguageKind.ObjectiveCPP = 'objective-cpp';
     /**
      * @since 3.18.0
-     * @proposed
      */
     LanguageKind.Pascal = 'pascal';
     LanguageKind.Perl = 'perl';
     LanguageKind.Perl6 = 'perl6';
     LanguageKind.PHP = 'php';
+    LanguageKind.Plaintext = 'plaintext';
     LanguageKind.Powershell = 'powershell';
     LanguageKind.Pug = 'jade';
     LanguageKind.Python = 'python';
@@ -16034,7 +16179,6 @@ var CodeActionKind;
      * - ...
      *
      * @since 3.18.0
-     * @proposed
      */
     CodeActionKind.RefactorMove = 'refactor.move';
     /**
@@ -16368,7 +16512,8 @@ var InlineValueText;
     InlineValueText.is = is;
 })(InlineValueText || (InlineValueText = {}));
 /**
- * The InlineValueVariableLookup namespace provides functions to deal with InlineValueVariableLookups.
+ * The InlineValueVariableLookup namespace provides functions to
+ * deal with InlineValueVariableLookups.
  *
  * @since 3.17.0
  */
@@ -16522,7 +16667,6 @@ var InlineCompletionList;
  * Describes how an {@link InlineCompletionItemProvider inline completion provider} was triggered.
  *
  * @since 3.18.0
- * @proposed
  */
 var InlineCompletionTriggerKind;
 (function (InlineCompletionTriggerKind) {

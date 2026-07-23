@@ -29,7 +29,7 @@ import re
 import sublime
 import webbrowser
 
-TAG = 'release/3.0.24'
+TAG = 'release/3.0.34'
 
 
 class Status(IntEnum):

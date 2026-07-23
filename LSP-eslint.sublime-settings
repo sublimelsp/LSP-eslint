@@ -1,5 +1,9 @@
 {
 	"settings": {
+		// Show bulk-suppressed violations (from eslint-suppressions.json) as diagnostics. Requires ESLint >= 10.1.
+		"bulkSuppression.enable": false,
+		// Diagnostic severity for bulk-suppressed violations.
+		"bulkSuppression.severity": "info",
 		// Show disable lint rule in the quick fix menu.
 		"codeAction.disableRuleComment": {
 			// Show the disable code actions.
@@ -97,7 +101,8 @@
 			"css",
 			"glimmer-js",
 			"glimmer-ts",
-			"svelte"
+			"svelte",
+			"graphql",
 		],
 		// Shortens the text spans of underlined problems to their first related line.
 		"problems.shortenToSingleLine": false,
