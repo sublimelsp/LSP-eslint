@@ -16,9 +16,22 @@ jobs:
 
   update-server:
     needs: check-new-settings
-    if: needs.check-new-settings.outputs.version_changed == 'true'
+    # Also when the settings need review, which fails check-new-settings.
+    if: ${{ !cancelled() && needs.check-new-settings.outputs.version_changed == 'true' }}
     runs-on: ubuntu-latest
+    env:
+      # PRs from forks get no secrets, so the server can't be pushed for them.
+      IS_FORK: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
+      # Pushes made with GITHUB_TOKEN don't trigger workflows, so the smoke test wouldn't run on the compiled server.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        if: env.IS_FORK == 'false'
+        with:
+          client-id: ${{ vars.SUBLIMELSP_APP_CLIENT_ID }}
+          private-key: ${{ secrets.SUBLIMELSP_APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Setup NodeJS
         uses: actions/setup-node@v7
         with:
@@ -27,20 +40,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          token: ${{ steps.app-token.outputs.token || github.token }}
 
       - name: Update server
-        run: ./language-server/compile-language-server.sh "${{ needs.check-new-settings.outputs.new_version }}"
+        env:
+          VERSION: ${{ needs.check-new-settings.outputs.new_version }}
+        run: ./language-server/compile-language-server.sh "$VERSION"
 
-      - name: Check for modified files
-        id: git-check
-        run: echo "GIT_MODIFIED=$(if [ -n "$(git status --porcelain)" ]; then echo "true"; else echo "false"; fi)" >> "$GITHUB_OUTPUT"
-
-      - name: Update changes in the PR
-        if: steps.git-check.outputs.GIT_MODIFIED == 'true'
-        run:  |
-          git config --global user.name github-actions[bot]
-          git config --global user.email github-actions[bot]@users.noreply.github.com
+      # Fails while the server isn't compiled for the new version, so that the PR isn't merged before it is. The push
+      # runs the checks again on the new commit.
+      - name: Push the compiled server
+        env:
+          BRANCH: ${{ github.head_ref }}
+          COMMIT_MESSAGE: '[automated commit] update server'
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            exit 0
+          fi
+          git status --short | head -20
+          if [ "$IS_FORK" = 'true' ]; then
+            echo "::error::The server needs to be compiled for the new version: run ./language-server/compile-language-server.sh"
+            exit 1
+          fi
+          # A rebuild of the commit that this job pushed would push again, and so on.
+          if [ "$(git log -1 --format=%s)" = "$COMMIT_MESSAGE" ]; then
+            echo "::error::Compiling the server again changed the output, so the build isn't reproducible."
+            exit 1
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m '[automated commit] update server'
-          git push
+          git commit -m "$COMMIT_MESSAGE"
+          git push origin "HEAD:refs/heads/$BRANCH"
+          echo "::error::Pushed the compiled server to the PR. The checks run again on the new commit."
+          exit 1
