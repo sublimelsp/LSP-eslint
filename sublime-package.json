@@ -428,9 +428,12 @@
         }
       },
       {
+        "file_patterns": [
+          "/LSP.sublime-settings",
+          "/Preferences.sublime-settings"
+        ],
         "schema": {
-          "$id": "sublime://settings/LSP",
-          "definitions": {
+          "properties": {
             "lsp_code_actions_on_save": {
               "properties": {
                 "source.fixAll.eslint": {
