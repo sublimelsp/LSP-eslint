@@ -10,6 +10,11 @@
           "definitions": {
             "PluginConfig": {
               "properties": {
+                "server_path": {
+                  "type": "string",
+                  "default": "auto",
+                  "markdownDescription": "The path to the server binary to use for starting the language server. Use `auto` for the package to manage (install/update) server automatically.\n\n> [!NOTE]\n> Change this instead of directly updating `command` - the `${server_path}` variable is dynamically resolved based on this setting.\n\n> [!WARNING]\n> Using custom binary could result in package settings not matching what server supports."
+                },
                 "env": {
                   "properties": {
                     "DEBUG": {
@@ -27,13 +32,39 @@
                 "settings": {
                   "additionalProperties": false,
                   "properties": {
+                    "eslint.bulkSuppression.enable": {
+                      "type": "boolean",
+                      "scope": "resource",
+                      "default": false,
+                      "description": "Show bulk-suppressed violations (from eslint-suppressions.json) as diagnostics. Requires ESLint >= 10.1."
+                    },
+                    "eslint.bulkSuppression.location": {
+                      "type": "string",
+                      "scope": "resource",
+                      "description": "Path to the suppressions file relative to the workspace. Defaults to eslint-suppressions.json."
+                    },
+                    "eslint.bulkSuppression.severity": {
+                      "type": "string",
+                      "scope": "resource",
+                      "enum": [
+                        "error",
+                        "warn",
+                        "info",
+                        "hint"
+                      ],
+                      "default": "info",
+                      "description": "Diagnostic severity for bulk-suppressed violations."
+                    },
                     "problems.shortenToSingleLine": {
                       "type": "boolean",
                       "default": false,
                       "description": "Shortens the text spans of underlined problems to their first related line."
                     },
                     "useFlatConfig": {
-                      "type": ["boolean", "null"],
+                      "type": [
+                        "boolean",
+                        "null"
+                      ],
                       "default": null,
                       "markdownDescription": "Controls whether flat config should be used or not. This setting requires ESLint version 8.57 or later and is interpreted according to the [ESLint Flat Config rollout plan](https://eslint.org/blog/2023/10/flat-config-rollout-plans/). This means:\n\n - *8.57.0 <= ESLint version < 9.x*: setting is honored and defaults to false\n- *9.0.0 <= ESLint version < 10.x*: settings is honored and defaults to true\n- *10.0.0 <= ESLint version*: setting is ignored. Flat configs are the default and can't be turned off."
                     },
@@ -130,7 +161,12 @@
                         "vue",
                         "markdown",
                         "json",
-                        "jsonc"
+                        "jsonc",
+                        "css",
+                        "glimmer-js",
+                        "glimmer-ts",
+                        "svelte",
+                        "graphql"
                       ],
                       "description": "An array of language ids for which the plugin should probe if support is installed."
                     },
@@ -146,7 +182,7 @@
                     "quiet": {
                       "type": "boolean",
                       "default": false,
-                      "description": "Turns on quiet mode, which ignores warnings."
+                      "description": "Turns on quiet mode, which ignores warnings and info diagnostics."
                     },
                     "onIgnoredFiles": {
                       "type": "string",

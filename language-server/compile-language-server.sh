@@ -41,12 +41,12 @@ else
 fi
 
 temp_zip="src-${ref//\//-}.zip"
-download_url="${GITHUB_REPO_URL}/archive/${ref}.zip"
+download_url="${GITHUB_REPO_URL}/archive/refs/tags/${ref}.zip"
 echo "Downloading ${download_url}"
-curl -L "${download_url}" -o "${temp_zip}"
-unzip -z "${temp_zip}" > update-info.log
-unzip "${temp_zip}" && rm -f "${temp_zip}"
-mv "${GITHUB_REPO_NAME}-"*/* "${TEMP_DIR}"
+curl -L "${download_url}" -o "${temp_zip}" || exit
+unzip -z "${temp_zip}" > update-info.log || exit
+unzip "${temp_zip}" && rm -f "${temp_zip}" || exit
+mv "${GITHUB_REPO_NAME}-"*/* "${TEMP_DIR}" || exit
 
 popd || exit
 

@@ -1,0 +1,45 @@
+name: Smoke test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Smoke test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+
+      # The server uses the ESLint installed in the workspace.
+      - name: Install ESLint
+        working-directory: tests/smoke
+        run: npm install --no-audit --no-fund
+
+      - uses: sublimelsp/lsp_smoke_test@v1
+
+  # A single check whose name doesn't depend on the os matrix, for rulesets to require. It runs even when the workflow
+  # is cancelled: a skipped job counts as passing for a required check.
+  result:
+    name: Smoke test result
+    needs: smoke
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check smoke test result
+        env:
+          RESULT: ${{ needs.smoke.result }}
+        run: |
+          echo "Smoke test result: $RESULT"
+          test "$RESULT" = success

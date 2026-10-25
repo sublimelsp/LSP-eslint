@@ -1,15 +1,17 @@
 .dependabot export-ignore
+/.gitattributes export-ignore
 .github/ export-ignore
+/.gitignore export-ignore
+.release.json export-ignore
+VERSION export-ignore
 codecov.yml export-ignore
 language-server/compile-language-server.sh export-ignore
 language-server/webpack-disable-minimize.patch export-ignore
+/pyproject.toml export-ignore
 pyrightconfig.json export-ignore
 renovate.json export-ignore
+scripts export-ignore
+settings-processor.json export-ignore
 tests/ export-ignore
 tox.ini export-ignore
 unittesting.json export-ignore
-
-# Release script
-.release.json export-ignore
-scripts export-ignore
-VERSION export-ignore
