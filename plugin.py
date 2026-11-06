@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from enum import IntEnum
 from LSP.plugin import ClientResponse
 from LSP.plugin import LspPlugin
@@ -10,7 +11,6 @@ from LSP.plugin import Promise
 from LSP.plugin import request_handler
 from LSP.plugin import ServerNotification
 from LSP.plugin import WorkspaceFolder
-from LSP.plugin.core.typing import StrEnum
 from LSP.protocol import DocumentUri
 from LSP.protocol import TextDocumentIdentifier
 from lsp_utils import NodeManager
@@ -64,7 +64,7 @@ PatternItem = TypedDict('PatternItem', {
     '!cwd': NotRequired[bool],
 })
 
-class ModeEnum(StrEnum):
+class ModeEnum(str, Enum):
     auto = 'auto'
     location = 'location'
 
